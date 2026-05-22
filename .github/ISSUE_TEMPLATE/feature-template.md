@@ -1,5 +1,5 @@
 ---
-name: 기능 개발 이슈 템플릿
+name: Feature Template
 about: 기능을 개발할 때, 사용하는 템플릿입니다.
 title: ''
 labels: ''
