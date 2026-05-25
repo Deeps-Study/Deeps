@@ -21,10 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={pretendard.variable}>
-      <body className="font-sans">
-        {children}
-        <p>안녕하세요</p>
-      </body>
+      <body className="font-sans">{children}</body>
     </html>
   );
 }
