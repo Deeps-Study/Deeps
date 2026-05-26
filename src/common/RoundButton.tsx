@@ -4,7 +4,6 @@ import type { ButtonHTMLAttributes } from 'react';
 interface RoundButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'join' | 'complete';
     isFull?: boolean;
-    className?: string;
 }
 
 const variantStyles = {
@@ -19,10 +18,12 @@ const RoundButton = ({
     variant = 'join',
     isFull = false,
     className,
+    children,
     ...props
 }: RoundButtonProps) => {
     return (
         <button
+            type={props.type ?? 'button'}
             className={cn(
                 'py-1.5 px-16 text-sm font-semibold transition-colors rounded-full cursor-pointer',
                 variantStyles[variant],
@@ -30,7 +31,9 @@ const RoundButton = ({
                 className,
             )}
             {...props}
-        />
+        >
+            {children}
+        </button>
     );
 };
 
