@@ -3,7 +3,7 @@ import type { InputHTMLAttributes } from 'react';
 import cn from 'classnames';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
-    value?: string | number;
+    value?: string;
     onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     isFull?: boolean;
@@ -15,7 +15,6 @@ const Input = ({
     onKeyDown,
     isFull = false,
     className,
-    children,
     ...props
 }: InputProps) => {
     const isControlled = controlledValue !== undefined;
@@ -28,10 +27,6 @@ const Input = ({
         onChange?.(e);
     };
 
-    const handleOnKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        onKeyDown?.(e);
-    };
-
     return (
         <input
             className={cn(
@@ -41,11 +36,9 @@ const Input = ({
             )}
             value={isControlled ? controlledValue : inputValue}
             onChange={handleChange}
-            onKeyDown={handleOnKeyDown}
+            onKeyDown={onKeyDown}
             {...props}
-        >
-            {children}
-        </input>
+        />
     );
 };
 
