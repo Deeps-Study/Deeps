@@ -4,7 +4,6 @@ import cn from 'classnames';
 interface TagButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary';
     selected?: boolean;
-    className?: string;
 }
 
 const variantStyles = {
