@@ -20,10 +20,10 @@ export default function LoginPage() {
                 <div className="flex flex-col items-center">
                     <button className="flex items-center gap-3 h-10 bg-white border border-[#747775] rounded-xl px-3 mt-14">
                         <Icon
-                            name="googleLogo"
+                            name="doubleCheck"
                             width={20}
                             height={20}
-                            strokeWidth={0}
+                            className="fill-main-50 stroke-main-50 stroke-2"
                         />
                         <span>Sign in with Google</span>
                     </button>
