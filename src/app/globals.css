@@ -26,4 +26,7 @@
     --color-red-50: #ff7974;
     --color-red-100: #ed4742;
     --color-red-200: #a70100;
+
+    /* 커스텀 이펙트 */
+    --shadow-mint: 0 0 10px 0 #cceedd;
 }
