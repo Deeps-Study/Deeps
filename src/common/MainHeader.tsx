@@ -1,21 +1,13 @@
-import Icon from '@/ui/Icon/Icon';
+import { UserProfileModel } from '@/types/user';
 import Link from 'next/link';
 
 interface MainHeaderProps {
     type: 'login' | 'home' | 'detail';
     onActionClick?: () => void;
-    userProfile?: {
-        image?: string;
-        nickname: string;
-    };
+    userProfile?: UserProfileModel;
 }
 
-interface UserProfileProps {
-    image?: string;
-    nickname: string;
-}
-
-function UserProfile({ image, nickname }: UserProfileProps) {
+function UserProfile({ image, nickname }: UserProfileModel) {
     return (
         <Link
             href="/myPage"
