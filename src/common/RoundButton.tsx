@@ -10,7 +10,7 @@ const variantStyles = {
     join: ['bg-main-30 text-white', 'hover:bg-main-50'].join(' '),
     complete: [
         'bg-main-30 text-white',
-        'hover:bg-main-50 disabled:bg-main-20 disabled:cursor-default',
+        'disabled:bg-main-20 disabled:cursor-default',
     ].join(' '),
 };
 
