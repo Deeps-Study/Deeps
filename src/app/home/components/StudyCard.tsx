@@ -1,0 +1,71 @@
+import RoundButton from '@/common/RoundButton';
+import Tag from '@/common/Tag';
+import Icon from '@/ui/Icon/Icon';
+
+function StudyCard({
+    title,
+    status,
+    currentParticipants,
+    tags,
+    onCardClick,
+    onEnterClick,
+}: StudyViewModel) {
+    const statusConfig = {
+        before: { text: '시작전', icon: '🌱', tagElement: <Tag>시작전</Tag> },
+        ing: {
+            text: '진행중',
+            icon: '🍀',
+            tagElement: <Tag className="bg-main-20 border-main-60">진행중</Tag>,
+        },
+        end: {
+            text: '종료됨',
+            icon: '🥀',
+            tagElement: <Tag className="bg-main-60 text-white">종료됨</Tag>,
+        },
+    };
+
+    return (
+        <div
+            onClick={onCardClick}
+            className="w-60 h-96 flex flex-col justify-between rounded-[30px] shadow-mint bg-white border border-main-20 hover:cursor-pointer hover:shadow-green"
+        >
+            <header className="w-full h-11 flex justify-between items-center px-6 pt-3">
+                {statusConfig[status].tagElement}
+                <div className="flex gap-2 text-xs font-medium text-main-200">
+                    <Icon
+                        name="users"
+                        className="w-[14px] h-[14px] stroke-main-200 stroke-2"
+                    />
+                    {currentParticipants}명 참여
+                </div>
+            </header>
+            <main className="w-full h-full flex flex-col items-center justify-center px-6 py-6 ">
+                <span className="text-[50px]">{statusConfig[status].icon}</span>
+                <div className="flex flex-col gap-2 h-[146px] ">
+                    <div className="flex items-center h-[82px] w-full text-xl text-main-200 text-center font-bold">
+                        {title}
+                    </div>
+                    <div className="flex flex-wrap px-2 py-1 gap-1 justify-center bg-gray-50 rounded-[10px]">
+                        {tags.slice(0, 3).map((tag, i) => (
+                            <span key={i} className="text-xs text-main-200 ">
+                                # {tag}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+                <div className="py-2.5"></div>
+                <RoundButton
+                    isFull
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onEnterClick();
+                    }}
+                >
+                    입장하기
+                </RoundButton>
+            </main>
+        </div>
+    );
+}
+
+export default StudyCard;
