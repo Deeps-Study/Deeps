@@ -4,17 +4,13 @@ type IconName = keyof typeof icons;
 
 type IconProps = {
     name: IconName;
-    width?: number;
-    height?: number;
     className?: string;
 };
 
-const Icon = ({ name, width = 16, height = 16, className }: IconProps) => {
+const Icon = ({ name, className }: IconProps) => {
     const IconComponent = icons[name];
 
-    return (
-        <IconComponent width={width} height={height} className={className} />
-    );
+    return <IconComponent className={className} />;
 };
 
 export default Icon;

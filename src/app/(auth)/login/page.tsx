@@ -31,7 +31,7 @@ export default function LoginPage() {
                         onClick={handleLoginButtonClick}
                     >
                         <div className="flex items-center justify-center w-5 h-5">
-                            <Icon name="googleLogo" width={20} height={20} />
+                            <Icon name="googleLogo" className="w-5 h-5" />
                         </div>
                         <span className="text-[#1F1F1F] text-sm text-left leading-5 font-medium">
                             Sign in with Google
