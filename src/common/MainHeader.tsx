@@ -12,7 +12,7 @@ function UserProfile({ image, nickname }: UserProfileModel) {
     return (
         <Link
             href="/myPage"
-            className="flex flex-row whitespace-nowrap items-center px-2 py-2 h-10 rounded-xl gap-2.5 bg-white border border-main-20 hover:border-main-60"
+            className="flex flex-row whitespace-nowrap items-center px-2 py-2 h-10 rounded-xl gap-2.5 bg-white border border-main-20 hover:border-main-60 hover:shadow-green"
         >
             <div>
                 {image ? (
@@ -51,7 +51,7 @@ function MainHeader({ type, onActionClick, userProfile }: MainHeaderProps) {
                 <div className="flex gap-4">
                     <button
                         onClick={onActionClick}
-                        className="flex whitespace-nowrap items-center gap-2 px-3 py-2 rounded-xl bg-main-10 border border-main-20 text-sm font-bold text-main-100 hover:bg-main-50 hover:border-main-30 hover:text-white hover:cursor-pointer"
+                        className="flex whitespace-nowrap items-center gap-2 px-3 py-2 rounded-xl bg-main-10 border border-main-20 text-sm font-bold text-main-100 hover:bg-main-50 hover:border-main-30 hover:text-white hover:cursor-pointer hover:shadow-green"
                     >
                         <Icon name="plus" className="stroke-3" />
                         딥스터디 만들기
