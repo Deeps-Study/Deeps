@@ -34,15 +34,15 @@ function StudyCard({
                 <div className="flex gap-2 text-xs font-medium text-main-200">
                     <Icon
                         name="users"
-                        className="w-[14px] h-[14px] stroke-main-200 stroke-2"
+                        className="w-3.5 h-3.5 stroke-main-200 stroke-2"
                     />
                     {currentParticipants}명 참여
                 </div>
             </header>
             <main className="w-full h-full flex flex-col items-center justify-center px-6 py-6 ">
                 <span className="text-[50px]">{statusConfig[status].icon}</span>
-                <div className="flex flex-col gap-2 h-[146px] ">
-                    <div className="flex items-center h-[82px] w-full text-xl text-main-200 text-center font-bold">
+                <div className="flex flex-col gap-2 h-36.5 ">
+                    <div className="flex items-center h-20.5 w-full text-xl text-main-200 text-center font-bold">
                         {title}
                     </div>
                     <div className="flex flex-wrap px-2 py-1 gap-1 justify-center bg-gray-50 rounded-[10px]">
