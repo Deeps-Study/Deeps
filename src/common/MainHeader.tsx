@@ -1,4 +1,5 @@
 import { UserProfileModel } from '@/types/user';
+import Icon from '@/ui/Icon/Icon';
 import Link from 'next/link';
 
 interface MainHeaderProps {
@@ -52,7 +53,8 @@ function MainHeader({ type, onActionClick, userProfile }: MainHeaderProps) {
                         onClick={onActionClick}
                         className="flex whitespace-nowrap items-center gap-2 px-3 py-2 rounded-xl bg-main-10 border border-main-20 text-sm font-bold text-main-100 hover:bg-main-50 hover:border-main-30 hover:text-white hover:cursor-pointer"
                     >
-                        + 딥스터디 만들기
+                        <Icon name="plus" className="stroke-3" />
+                        딥스터디 만들기
                     </button>
 
                     {userProfile && (
