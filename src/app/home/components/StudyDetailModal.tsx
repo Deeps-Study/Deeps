@@ -29,7 +29,7 @@ function StudyDetailModal({
                     <Icon name="close" />
                 </button>
                 <div className="flex flex-col gap-2.5 ">
-                    <h1 className="mx-5 mb-4.5 mt-3 text-center text-2xl font-bold tracking-tight">
+                    <h1 className="mx-5 my-4.5 text-center text-2xl font-bold tracking-tight">
                         {study.title}
                     </h1>
                     <p className="text-start text-sm font-medium px-9">
