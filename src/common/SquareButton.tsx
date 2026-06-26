@@ -3,7 +3,6 @@ import cn from 'classnames';
 
 interface SquareButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     variant?: 'primary' | 'cancel' | 'leave';
-    isFull?: boolean;
 }
 
 const variantStyles = {
@@ -20,7 +19,6 @@ const variantStyles = {
 
 const SquareButton = ({
     variant = 'primary',
-    isFull = false,
     className,
     children,
     ...props
@@ -29,9 +27,8 @@ const SquareButton = ({
         <button
             type={props.type ?? 'button'}
             className={cn(
-                'flex items-center justify-center gap-2.5 px-6 py-2.5 text-base font-medium transition-colors rounded-lg cursor-pointer',
+                'flex items-center justify-center w-full gap-2.5 px-2 py-2.5 text-base font-bold transition-colors rounded-lg cursor-pointer',
                 variantStyles[variant],
-                isFull && 'w-full',
                 className,
             )}
             {...props}

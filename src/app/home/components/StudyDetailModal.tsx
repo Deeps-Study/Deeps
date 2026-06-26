@@ -88,17 +88,11 @@ function StudyDetailModal({
                             </div>
                         </div>
                     </main>
-                    <div className="flex justify-between items-center px-5 py-2">
-                        <SquareButton
-                            variant="cancel"
-                            className="w-20 h-11 px-0"
-                            onClick={onExit}
-                        >
-                            퇴장
+                    <div className="flex w-full gap-2.5 items-center px-5 py-2">
+                        <SquareButton variant="cancel" onClick={onExit}>
+                            나가기
                         </SquareButton>
-                        <SquareButton className="w-20 h-11" onClick={onEnter}>
-                            입장
-                        </SquareButton>
+                        <SquareButton onClick={onEnter}>입장</SquareButton>
                     </div>
                 </div>
             </div>
