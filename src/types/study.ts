@@ -1,10 +1,10 @@
 interface Study {
     id: string;
     title: string;
-    status: 'before' | 'ing' | 'end';
+    startDate: string;
+    endDate: string;
     currentParticipants: number;
     maxParticipants: number;
-    period: string;
     tags: string[];
     description: string;
     password?: string;
