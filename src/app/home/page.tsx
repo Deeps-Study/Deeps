@@ -3,6 +3,7 @@ import { useState } from 'react';
 import StudyCard from './components/StudyCard';
 import CreateCard from './components/CreateCard';
 import { getStudyStatus } from '@/utils/date';
+import StudyDetailModal from './components/StudyDetailModal';
 
 function HomePage() {
     const [studies, setStudies] = useState<Study[]>([
@@ -32,6 +33,7 @@ function HomePage() {
     const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
     const [isExitPopupOpen, setIsExitPopupOpen] = useState<boolean>(false);
     const [studyToExit, setStudyToExit] = useState<string | null>(null);
+
     const maxStudyCount = 3;
 
     return (
@@ -47,9 +49,7 @@ function HomePage() {
                         status={getStudyStatus(study.startDate, study.endDate)}
                         currentParticipants={study.currentParticipants}
                         tags={study.tags}
-                        onCardClick={() =>
-                            console.log('딥스터디 상세 팝업 오픈')
-                        }
+                        onCardClick={() => setSelectedStudy(study)}
                         onEnterClick={() => console.log('딥스터디 입장')}
                     />
                 ))}
@@ -62,6 +62,20 @@ function HomePage() {
                     />
                 )}
             </main>
+            {selectedStudy && (
+                <StudyDetailModal
+                    study={selectedStudy}
+                    onClose={() => setSelectedStudy(null)}
+                    onExit={() => {
+                        console.log('딥스터디 나가기');
+                        setSelectedStudy(null);
+                    }}
+                    onEnter={() => {
+                        console.log('딥스터디 입장하기');
+                        setSelectedStudy(null);
+                    }}
+                />
+            )}
         </div>
     );
 }
