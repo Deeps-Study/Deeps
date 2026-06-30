@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@plugin '@tailwindcss/typography';
+
 @theme {
     --font-sans: var(--font-pretendard), sans-serif;
 
@@ -31,4 +33,66 @@
     /* 커스텀 이펙트 */
     --shadow-mint: 0 0 10px 0 #cceedd;
     --shadow-green: 0 0 10px 0 #55ae8399;
+}
+
+/* content: attr()는 런타임 CSS 함수라 Tailwind 유틸리티로 표현 불가 */
+.tiptap p.is-editor-empty:first-child::before {
+    color: var(--color-gray-300);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
+
+/* code block: prose 기본 스타일을 다크 테마로 강제 오버라이드 */
+.prose pre,
+.tiptap pre {
+    background-color: var(--color-gray-600) !important;
+    color: var(--color-gray-50) !important;
+}
+
+.prose pre code,
+.tiptap pre code {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    color: inherit !important;
+    font-size: inherit !important;
+}
+
+/* hljs 다크 테마 syntax 색상 */
+.hljs-keyword,
+.hljs-operator,
+.hljs-selector-tag {
+    color: #c792ea;
+}
+.hljs-string,
+.hljs-addition,
+.hljs-meta-string {
+    color: #c3e88d;
+}
+.hljs-comment,
+.hljs-quote {
+    color: #637777;
+    font-style: italic;
+}
+.hljs-number,
+.hljs-literal {
+    color: #f78c6c;
+}
+.hljs-title,
+.hljs-name,
+.hljs-built_in,
+.hljs-class .hljs-title {
+    color: #82aaff;
+}
+.hljs-type,
+.hljs-attr {
+    color: #ffcb6b;
+}
+.hljs-tag {
+    color: #f07178;
+}
+.hljs-meta {
+    color: var(--color-main-100);
 }
