@@ -80,7 +80,6 @@ function ModalRoot({ isOpen, onClose, children, className }: ModalProps) {
     );
 }
 
-// NOTE: 공통 모달의 구조를 compound component 패턴으로 구성해 각 화면이 같은 레이어를 재사용하도록 정리했습니다.
 const Modal = ModalRoot as ModalComponent;
 Modal.Header = ModalHeader;
 Modal.Body = ModalBody;
