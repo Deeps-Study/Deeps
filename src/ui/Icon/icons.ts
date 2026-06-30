@@ -24,6 +24,8 @@ import users from '@/assets/users.svg';
 import tag from '@/assets/tag.svg';
 import googleLogo from '@/assets/googleLogo.svg';
 import close from '@/assets/close.svg';
+import attach from '@/assets/attach.svg';
+import imageFile from '@/assets/imageFile.svg';
 
 const icons = {
     calendar,
@@ -52,6 +54,8 @@ const icons = {
     tag,
     googleLogo,
     close,
+    attach,
+    imageFile,
 };
 
 export default icons;
