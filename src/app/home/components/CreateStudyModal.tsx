@@ -1,0 +1,241 @@
+'use client';
+
+import { useState } from 'react';
+import Input from '@/components/Input';
+import Modal from '@/components/Modal';
+import SquareButton from '@/components/SquareButton';
+import Icon from '@/ui/Icon/Icon';
+import TagButton from '@/components/TagButton';
+import Calendar from './Calendar';
+
+interface CreateStudyModalProps {
+    isOpen: boolean;
+    onClose?: () => void;
+}
+
+const participantOptions = [1, 2, 3, 4, 5, 6];
+
+function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+    const [participants, setParticipants] = useState(4);
+    const [tagInput, setTagInput] = useState('');
+    const [tags, setTags] = useState<string[]>([]);
+    const [passwordEnabled, setPasswordEnabled] = useState(false);
+    const [password, setPassword] = useState('');
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+
+    const isFormValid = Boolean(
+        title.trim() && startDate && endDate && tags.length > 0,
+    );
+
+    const formatDisplay = (dateStr: string) => {
+        if (!dateStr) return '';
+        return dateStr.replace(/-/g, '.');
+    };
+
+    const handleDateSelect = (start: string, end: string) => {
+        setStartDate(start);
+        setEndDate(end);
+    };
+
+    const handleTagKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key !== 'Enter' || event.nativeEvent.isComposing) return;
+        event.preventDefault();
+        const trimmedTag = tagInput.trim();
+        if (!trimmedTag) return;
+
+        if (!tags.includes(trimmedTag)) {
+            setTags((prevTags) => [...prevTags, trimmedTag]);
+        }
+        setTagInput('');
+    };
+
+    const handleSubmit = () => {
+        if (!isFormValid) return;
+        onClose?.();
+    };
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} className="max-w-110 w-full">
+            <Modal.Header title="딥스터디 만들기" />
+            <Modal.Body>
+                <div className="flex flex-col gap-5 px-1 py-1 overflow-y-auto max-h-[calc(100vh-14rem)] pr-2">
+                    {/* 1. 스터디 제목 */}
+                    <div className="flex flex-col gap-2 text-sm font-semibold text-gray-00">
+                        <span>
+                            스터디 제목 <span className="text-red-100">*</span>
+                        </span>
+                        <Input
+                            value={title}
+                            onChange={(event) => setTitle(event.target.value)}
+                            placeholder="스터디 제목을 입력해주세요"
+                            isFull
+                        />
+                    </div>
+
+                    {/* 2. 스터디 설명 */}
+                    <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
+                        <div className="flex justify-between items-center">
+                            <span>스터디 설명</span>
+                            <span className="text-xs font-normal text-gray-400">
+                                {description.length}/50자
+                            </span>
+                        </div>
+                        <Input
+                            value={description}
+                            onChange={(event) =>
+                                setDescription(event.target.value)
+                            }
+                            maxLength={50}
+                            placeholder="스터디에 대해 간단히 설명해주세요 (50자 이내)"
+                            isFull
+                        />
+                    </div>
+
+                    {/* 3. 스터디 기간 선택 (독립된 캘린더 컴포넌트 매핑으로 완전 깔끔) */}
+                    <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
+                        <span>
+                            스터디 기간 <span className="text-red-100">*</span>
+                        </span>
+                        <button
+                            type="button"
+                            onClick={() => setIsCalendarOpen((prev) => !prev)}
+                            className="flex w-full items-center justify-between rounded-lg border border-main-20 bg-white px-3 py-2.5 text-sm font-medium text-gray-300 cursor-pointer hover:border-main-30 transition-colors text-left"
+                        >
+                            <span
+                                className={
+                                    startDate
+                                        ? 'text-gray-700'
+                                        : 'text-gray-400'
+                                }
+                            >
+                                {startDate
+                                    ? `${formatDisplay(startDate)} ~ ${formatDisplay(endDate)}`
+                                    : '날짜를 선택해 주세요'}
+                            </span>
+                            <Icon
+                                name="calendar"
+                                className="stroke-main-30 w-5 h-5"
+                            />
+                        </button>
+
+                        {isCalendarOpen && (
+                            <Calendar
+                                startDate={startDate}
+                                endDate={endDate}
+                                onDateSelect={handleDateSelect}
+                            />
+                        )}
+                    </div>
+
+                    {/* 4. 스터디 인원 */}
+                    <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
+                        <span>
+                            스터디 인원 <span className="text-red-100">*</span>
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                            {participantOptions.map((option) => (
+                                <TagButton
+                                    key={option}
+                                    selected={participants === option}
+                                    onClick={() => setParticipants(option)}
+                                    className="text-sm py-1 px-3.5"
+                                >
+                                    {option}명
+                                </TagButton>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* 5. 해시 태그 */}
+                    <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
+                        <span>
+                            해시 태그 <span className="text-red-100">*</span>
+                        </span>
+                        <Input
+                            value={tagInput}
+                            onChange={(event) =>
+                                setTagInput(event.target.value)
+                            }
+                            onKeyDown={handleTagKeyDown}
+                            placeholder="태그 입력 후 엔터 (클릭 시 삭제)"
+                            isFull
+                        />
+                        {tags.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mt-1.5 animate-in fade-in duration-150">
+                                {tags.map((tag) => (
+                                    <TagButton
+                                        key={tag}
+                                        selected={true}
+                                        onClick={() =>
+                                            setTags((prevTags) =>
+                                                prevTags.filter(
+                                                    (prevTag) =>
+                                                        prevTag !== tag,
+                                                ),
+                                            )
+                                        }
+                                        className="text-sm py-1 px-3.5"
+                                    >
+                                        {tag}
+                                    </TagButton>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 6. 비밀번호 설정 */}
+                    <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
+                        <div className="flex items-center gap-2 pt-1">
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setPasswordEnabled((prev) => !prev)
+                                }
+                                className={`flex h-5 w-5 items-center justify-center rounded-sm border cursor-pointer transition-colors ${
+                                    passwordEnabled
+                                        ? 'border-main-30 bg-main-30'
+                                        : 'border-main-20 bg-white'
+                                }`}
+                            >
+                                {passwordEnabled ? (
+                                    <Icon
+                                        name="check"
+                                        className="h-3 w-3 stroke-white"
+                                    />
+                                ) : null}
+                            </button>
+                            <span>비밀번호 설정</span>
+                        </div>
+
+                        {passwordEnabled && (
+                            <Input
+                                value={password}
+                                onChange={(event) =>
+                                    setPassword(event.target.value)
+                                }
+                                type="text"
+                                placeholder="비밀번호를 입력해주세요"
+                                isFull
+                            />
+                        )}
+                    </div>
+                </div>
+            </Modal.Body>
+
+            <Modal.Footer>
+                <SquareButton variant="cancel" onClick={onClose}>
+                    취소
+                </SquareButton>
+                <SquareButton onClick={handleSubmit} disabled={!isFormValid}>
+                    확인
+                </SquareButton>
+            </Modal.Footer>
+        </Modal>
+    );
+}
+
+export default CreateStudyModal;
