@@ -1,4 +1,4 @@
-import MainHeader from '@/common/MainHeader';
+import MainHeader from '@/components/MainHeader';
 
 export default function HomLayout({ children }: { children: React.ReactNode }) {
     return (

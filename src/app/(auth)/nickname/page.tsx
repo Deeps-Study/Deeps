@@ -1,6 +1,6 @@
 'use client';
-import Input from '@/common/Input';
-import RoundButton from '@/common/RoundButton';
+import Input from '@/components/Input';
+import RoundButton from '@/components/RoundButton';
 import { useState } from 'react';
 
 const inputConfig = {
