@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { type Editor, useEditorState } from '@tiptap/react';
 import cn from 'classnames';
 import Icon from '@/ui/Icon/Icon';
@@ -21,7 +21,6 @@ function Sep() {
 export function EditorToolbar({ editor }: EditorToolbarProps) {
     const [showLink, setShowLink] = useState(false);
     const [linkUrl, setLinkUrl] = useState('');
-    const linkBtnRef = useRef<HTMLButtonElement>(null);
 
     const activeMap = useEditorState({
         editor,
@@ -140,7 +139,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
                     />
                 </button>
                 <button
-                    ref={linkBtnRef}
                     type="button"
                     onClick={openLink}
                     className={cn(
@@ -238,7 +236,6 @@ export function EditorToolbar({ editor }: EditorToolbarProps) {
             {showLink && (
                 <LinkPopover
                     initialUrl={linkUrl}
-                    ignoreRef={linkBtnRef}
                     onApply={applyLink}
                     onClose={() => setShowLink(false)}
                 />
