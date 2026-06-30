@@ -4,6 +4,7 @@ import StudyCard from './components/StudyCard';
 import CreateCard from './components/CreateCard';
 import { getStudyStatus } from '@/utils/date';
 import StudyDetailModal from './components/StudyDetailModal';
+import CreateStudyModal from './components/CreateStudyModal';
 
 function HomePage() {
     const [studies] = useState<Study[]>([
@@ -69,6 +70,13 @@ function HomePage() {
                         console.log('딥스터디 입장하기');
                         setSelectedStudy(null);
                     }}
+                />
+            )}
+
+            {isCreateModalOpen && (
+                <CreateStudyModal
+                    isOpen={isCreateModalOpen}
+                    onClose={() => setIsCreateModalOpen(false)}
                 />
             )}
         </div>
