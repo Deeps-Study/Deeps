@@ -10,9 +10,9 @@ const variantStyles = {
     primary: {
         base: [
             'border border-main-20 bg-white text-gray-600',
-            'hover:bg-main-10 hover:border-main-30 disabled:bg-main-20 disabled:text-white',
+            'hover:border-main-30 disabled:bg-main-20 disabled:text-white',
         ].join(' '),
-        selected: 'border border-main-60 bg-main-50 text-white',
+        selected: 'border border-main-30 bg-main-10 text-gray-600',
     },
 };
 
@@ -27,7 +27,7 @@ const TagButton = ({
     return (
         <button
             className={cn(
-                'py-1.5 px-5 text-base font-medium  transition-colors rounded-[20px] cursor-pointer',
+                'text-base font-medium  transition-colors rounded-[20px] cursor-pointer',
                 selected ? variantStyle.selected : variantStyle.base,
                 className,
             )}
