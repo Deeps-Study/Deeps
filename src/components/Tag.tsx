@@ -19,7 +19,7 @@ const Tag = ({
     return (
         <span
             className={cn(
-                'py-1 px-2.5 text-xs font-medium rounded-[20px]',
+                'py-1 px-2.5 font-xs font-medium rounded-[20px]',
                 variantStyles[variant],
                 className,
             )}

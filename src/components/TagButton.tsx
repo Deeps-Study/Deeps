@@ -27,7 +27,7 @@ const TagButton = ({
     return (
         <button
             className={cn(
-                'py-2 px-5 text-base font-medium  transition-colors rounded-[20px] cursor-pointer',
+                'py-1.5 px-5 text-base font-medium  transition-colors rounded-[20px] cursor-pointer',
                 selected ? variantStyle.selected : variantStyle.base,
                 className,
             )}
