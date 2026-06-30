@@ -6,7 +6,7 @@ import { getStudyStatus } from '@/utils/date';
 import StudyDetailModal from './components/StudyDetailModal';
 
 function HomePage() {
-    const [studies, setStudies] = useState<Study[]>([
+    const [studies] = useState<Study[]>([
         {
             id: '1',
             title: '이것도 배우고 저것도 배우는 스터디',
@@ -31,17 +31,16 @@ function HomePage() {
     ]);
 
     const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
-    const [isExitPopupOpen, setIsExitPopupOpen] = useState<boolean>(false);
-    const [studyToExit, setStudyToExit] = useState<string | null>(null);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
     const maxStudyCount = 3;
 
     return (
         <div className="flex flex-col w-screen px-8">
-            <h1 className="my-6 text-gray-600 text-center text-3xl font-bold">
+            <h1 className="my-6 text-center text-3xl font-bold text-gray-600">
                 현재 진행중인 스터디를 확인하세요!
             </h1>
-            <main className="h-full flex items-center justify-center gap-10 py-14">
+            <main className="flex h-full items-center justify-center gap-10 py-14">
                 {studies.map((study) => (
                     <StudyCard
                         key={study.id}
@@ -56,20 +55,16 @@ function HomePage() {
 
                 {studies.length < maxStudyCount && (
                     <CreateCard
-                        onCreateClick={() =>
-                            console.log('딥스터디 만들기 팝업 오픈')
-                        }
+                        onCreateClick={() => setIsCreateModalOpen(true)}
                     />
                 )}
             </main>
+
             {selectedStudy && (
                 <StudyDetailModal
+                    isOpen={!!selectedStudy}
                     study={selectedStudy}
                     onClose={() => setSelectedStudy(null)}
-                    onExit={() => {
-                        console.log('딥스터디 나가기');
-                        setSelectedStudy(null);
-                    }}
                     onEnter={() => {
                         console.log('딥스터디 입장하기');
                         setSelectedStudy(null);
