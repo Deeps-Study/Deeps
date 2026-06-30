@@ -1,5 +1,5 @@
-import RoundButton from '@/common/RoundButton';
-import Tag from '@/common/Tag';
+import RoundButton from '@/components/RoundButton';
+import Tag from '@/components/Tag';
 import Icon from '@/ui/Icon/Icon';
 
 function StudyCard({
