@@ -73,6 +73,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                             onChange={(event) => setTitle(event.target.value)}
                             placeholder="스터디 제목을 입력해주세요"
                             isFull
+                            className="placeholder-gray-300"
                         />
                     </div>
 
@@ -84,14 +85,19 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                 {description.length}/50자
                             </span>
                         </div>
-                        <Input
+                        <textarea
                             value={description}
                             onChange={(event) =>
                                 setDescription(event.target.value)
                             }
                             maxLength={50}
                             placeholder="스터디에 대해 간단히 설명해주세요 (50자 이내)"
-                            isFull
+                            className="w-full min-h-11 h-auto py-2.5 px-3 text-sm text-gray-400 transition-colors rounded-lg bg-white border border-main-20 focus:outline-none resize-none field-sizing-content"
+                            style={
+                                {
+                                    fieldSizing: 'content',
+                                } as React.CSSProperties
+                            }
                         />
                     </div>
 
@@ -109,7 +115,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                 className={
                                     startDate
                                         ? 'text-gray-700'
-                                        : 'text-gray-400'
+                                        : 'text-gray-300'
                                 }
                             >
                                 {startDate
@@ -163,6 +169,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                             onKeyDown={handleTagKeyDown}
                             placeholder="태그 입력 후 엔터 (클릭 시 삭제)"
                             isFull
+                            className="placeholder-gray-300"
                         />
                         {tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-1.5 animate-in fade-in duration-150">
@@ -220,6 +227,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                 type="text"
                                 placeholder="비밀번호를 입력해주세요"
                                 isFull
+                                className="placeholder-gray-300"
                             />
                         )}
                     </div>
