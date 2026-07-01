@@ -1,5 +1,5 @@
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
-import SquareButton from '@/common/SquareButton';
+import SquareButton from '@/components/SquareButton';
 import { TimeSelector } from './TimeSelector';
 
 interface RightPanelProps {

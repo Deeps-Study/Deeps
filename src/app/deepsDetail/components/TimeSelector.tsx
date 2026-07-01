@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import TagButton from '@/common/TagButton';
-import Input from '@/common/Input';
+import TagButton from '@/components/TagButton';
+import Input from '@/components/Input';
 
 const PRESET_TIMES = [
     '1 시간',

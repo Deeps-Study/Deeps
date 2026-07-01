@@ -1,4 +1,4 @@
-import Input from '@/common/Input';
+import Input from '@/components/Input';
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 
 interface LeftPanelProps {
