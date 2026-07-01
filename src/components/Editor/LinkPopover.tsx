@@ -9,7 +9,11 @@ interface LinkPopoverProps {
     onClose: () => void;
 }
 
-export function LinkPopover({ initialUrl, onApply, onClose }: LinkPopoverProps) {
+export function LinkPopover({
+    initialUrl,
+    onApply,
+    onClose,
+}: LinkPopoverProps) {
     const [url, setUrl] = useState(initialUrl);
 
     function handleKeyDown(e: React.KeyboardEvent) {
@@ -23,7 +27,7 @@ export function LinkPopover({ initialUrl, onApply, onClose }: LinkPopoverProps) 
     return (
         <>
             <div className="fixed inset-0 z-40" onClick={onClose} />
-            <div className="absolute top-full right-0 mt-1 z-50 flex items-center gap-2 bg-white border border-main-20 rounded-lg px-3 py-2 shadow-sm min-w-[260px]">
+            <div className="absolute top-full right-0 mt-1 z-50 flex items-center gap-2 bg-white border border-main-20 rounded-lg px-3 py-2 shadow-sm min-w-65">
                 <Icon name="link" className="w-4 h-4 text-gray-400 shrink-0" />
                 <input
                     type="url"
