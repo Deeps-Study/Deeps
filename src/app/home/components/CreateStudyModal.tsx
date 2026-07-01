@@ -92,7 +92,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                             }
                             maxLength={50}
                             placeholder="스터디에 대해 간단히 설명해주세요 (50자 이내)"
-                            className="w-full min-h-11 h-auto py-2.5 px-3 text-sm text-gray-400 transition-colors rounded-lg bg-white border border-main-20 focus:outline-none resize-none field-sizing-content"
+                            className="w-full min-h-8 h-auto py-2 px-3 text-sm text-gray-600 transition-colors rounded-lg bg-white border border-main-20 focus:outline-none resize-none field-sizing-content"
                             style={
                                 {
                                     fieldSizing: 'content',
@@ -101,7 +101,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                         />
                     </div>
 
-                    {/* 3. 스터디 기간 선택 (독립된 캘린더 컴포넌트 매핑으로 완전 깔끔) */}
+                    {/* 3. 스터디 기간 선택 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
                         <span>
                             스터디 기간 <span className="text-red-100">*</span>
