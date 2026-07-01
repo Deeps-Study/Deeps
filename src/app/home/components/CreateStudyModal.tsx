@@ -176,7 +176,6 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                 {tags.map((tag) => (
                                     <TagButton
                                         key={tag}
-                                        selected={true}
                                         onClick={() =>
                                             setTags((prevTags) =>
                                                 prevTags.filter(
