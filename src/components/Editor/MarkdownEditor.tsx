@@ -44,7 +44,40 @@ function MarkdownEditor({
     const previewRef = useRef<HTMLDivElement>(null);
 
     const editor = useEditor({
-        editorProps: { attributes: { class: 'tiptap' } },
+        editorProps: {
+            attributes: { class: 'tiptap' },
+handleDOMEvents: {
+                drop: (view, event) => {
+                    const files = Array.from(event.dataTransfer?.files ?? []);
+                    const imageFile = files.find((f) =>
+                        f.type.startsWith('image/'),
+                    );
+                    if (!imageFile) return false;
+
+                    event.preventDefault();
+
+                    // ImageUploadView 위에 드롭된 경우 해당 컴포넌트의 onDrop에 위임
+                    const target = event.target as Element;
+                    if (target.closest('[data-node-view-wrapper]')) return false;
+
+                    const dropPos =
+                        view.posAtCoords({
+                            left: event.clientX,
+                            top: event.clientY,
+                        })?.pos ?? view.state.doc.content.size;
+
+                    const reader = new FileReader();
+                    reader.addEventListener('load', () => {
+                        const node = view.state.schema.nodes.image.create({
+                            src: reader.result as string,
+                        });
+                        view.dispatch(view.state.tr.insert(dropPos, node));
+                    });
+                    reader.readAsDataURL(imageFile);
+                    return true;
+                },
+            },
+        },
         extensions: [
             StarterKit.configure({
                 codeBlock: false,
