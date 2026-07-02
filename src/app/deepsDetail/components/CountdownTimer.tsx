@@ -1,5 +1,6 @@
 'use client';
 
+import Tag from '@/components/Tag';
 import { useEffect, useState } from 'react';
 
 interface CountdownTimerProps {
@@ -29,9 +30,5 @@ export function CountdownTimer({ initialSeconds }: CountdownTimerProps) {
         return () => clearInterval(interval);
     }, []);
 
-    return (
-        <span className="py-1 px-2.5 text-xs font-medium rounded-[20px] border border-red-20 bg-red-10 text-red-200">
-            {formatTime(remaining)}
-        </span>
-    );
+    return <Tag variant="red">{formatTime(remaining)}</Tag>;
 }
