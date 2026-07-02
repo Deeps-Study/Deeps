@@ -1,0 +1,38 @@
+import Tag from '@/components/Tag';
+import BackButton from './BackButton';
+import { CountdownTimer } from './CountdownTimer';
+
+interface DeepsDetailHeaderProps {
+    title: string;
+    timeLimitLabel: string;
+    remainSeconds: number;
+}
+
+export function DeepsDetailHeader({
+    title,
+    timeLimitLabel,
+    remainSeconds,
+}: DeepsDetailHeaderProps) {
+    return (
+        <header className="bg-white border-b border-gray-100 flex items-center gap-8 h-16.5 px-8 shrink-0">
+            <div className="flex items-center gap-4 shrink-0">
+                <BackButton />
+                <h1 className="text-2xl font-bold text-main-100">{title}</h1>
+            </div>
+            <div className="flex items-center gap-8 shrink-0">
+                <div className="flex items-center gap-2.5">
+                    <span className="text-sm font-medium text-gray-500">
+                        제한 시간
+                    </span>
+                    <Tag>{timeLimitLabel}</Tag>
+                </div>
+                <div className="flex items-center gap-2.5">
+                    <span className="text-sm font-medium text-gray-500">
+                        남은 시간
+                    </span>
+                    <CountdownTimer initialSeconds={remainSeconds} />
+                </div>
+            </div>
+        </header>
+    );
+}
