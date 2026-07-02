@@ -1,5 +1,6 @@
 import { UserProfileModel } from '@/types/user';
 import Icon from '@/ui/Icon/Icon';
+import Image from 'next/image';
 import Link from 'next/link';
 
 interface MainHeaderProps {
@@ -16,7 +17,7 @@ function UserProfile({ image, nickname }: UserProfileModel) {
         >
             <div>
                 {image ? (
-                    <img
+                    <Image
                         src={image}
                         alt="프로필"
                         className="h-full w-full rounded-full object-cover"

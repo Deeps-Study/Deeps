@@ -4,9 +4,10 @@ import StudyCard from './components/StudyCard';
 import CreateCard from './components/CreateCard';
 import { getStudyStatus } from '@/utils/date';
 import StudyDetailModal from './components/StudyDetailModal';
-import CreateStudyModal from './components/CreateStudyModal';
+import { useOpenCreateModal } from './layout';
 
 function HomePage() {
+    const openCreateModal = useOpenCreateModal();
     const [studies] = useState<Study[]>([
         {
             id: '1',
@@ -32,12 +33,11 @@ function HomePage() {
     ]);
 
     const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
-    const [isCreateModalOpen, setIsCreateModalOpen] = useState<boolean>(false);
 
     const maxStudyCount = 3;
 
     return (
-        <div className="flex flex-col w-screen px-8">
+        <div className="flex flex-col w-full px-8">
             <h1 className="my-6 text-center text-3xl font-bold text-gray-600">
                 현재 진행중인 스터디를 확인하세요!
             </h1>
@@ -55,9 +55,7 @@ function HomePage() {
                 ))}
 
                 {studies.length < maxStudyCount && (
-                    <CreateCard
-                        onCreateClick={() => setIsCreateModalOpen(true)}
-                    />
+                    <CreateCard onCreateClick={openCreateModal} />
                 )}
             </main>
 
@@ -70,13 +68,6 @@ function HomePage() {
                         console.log('딥스터디 입장하기');
                         setSelectedStudy(null);
                     }}
-                />
-            )}
-
-            {isCreateModalOpen && (
-                <CreateStudyModal
-                    isOpen={isCreateModalOpen}
-                    onClose={() => setIsCreateModalOpen(false)}
                 />
             )}
         </div>
