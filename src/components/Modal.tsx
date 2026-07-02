@@ -19,6 +19,17 @@ interface ModalProps {
 interface ModalHeaderProps {
     title?: string;
     children?: ReactNode;
+    className?: string;
+}
+
+interface ModalBodyProps {
+    children: ReactNode;
+    className?: string;
+}
+
+interface ModalFooterProps {
+    children: ReactNode;
+    className?: string;
 }
 
 interface ModalComponent extends React.FC<ModalProps> {
@@ -27,9 +38,9 @@ interface ModalComponent extends React.FC<ModalProps> {
     Footer: typeof ModalFooter;
 }
 
-function ModalHeader({ title, children }: ModalHeaderProps) {
+function ModalHeader({ title, children, className }: ModalHeaderProps) {
     return (
-        <div className="mb-4 flex items-center">
+        <div className={cn('mb-4 flex items-center', className)}>
             <div className="flex-1">
                 {title ? (
                     <h2 className="text-xl text-center font-bold tracking-tight text-gray-600">
@@ -42,13 +53,19 @@ function ModalHeader({ title, children }: ModalHeaderProps) {
     );
 }
 
-function ModalBody({ children }: { children: ReactNode }) {
-    return <div className="flex flex-col gap-4 px-5 py-2.5">{children}</div>;
+function ModalBody({ children, className }: ModalBodyProps) {
+    return (
+        <div className={cn('flex flex-col gap-4 px-5 py-2.5', className)}>
+            {children}
+        </div>
+    );
 }
 
-function ModalFooter({ children }: { children: ReactNode }) {
+function ModalFooter({ children, className }: ModalFooterProps) {
     return (
-        <div className="mt-5 flex w-full gap-2.5 px-5 py-2.5">{children}</div>
+        <div className={cn('mt-3 flex w-full gap-2.5 px-5 py-2.5', className)}>
+            {children}
+        </div>
     );
 }
 
