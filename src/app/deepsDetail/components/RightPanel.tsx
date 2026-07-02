@@ -1,6 +1,6 @@
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 import SquareButton from '@/components/SquareButton';
-import { TimeSelector } from './TimeSelector';
+import { TimeSelector } from '@/app/deepsCreator/components/TimeSelector';
 
 interface RightPanelProps {
     onTimeChange: (value: string | null) => void;
