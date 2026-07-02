@@ -47,11 +47,7 @@ export function RightPanel({
                 <SquareButton variant="cancel" onClick={onCancel}>
                     취소
                 </SquareButton>
-                <SquareButton
-                    variant="primary"
-                    type="submit"
-                    disabled={!isFormValid}
-                >
+                <SquareButton variant="primary" disabled={!isFormValid}>
                     확인
                 </SquareButton>
             </div>
