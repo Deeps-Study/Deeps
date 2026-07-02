@@ -1,11 +1,13 @@
 interface DeepsDescriptionProps {
     author: string;
     description: string;
+    image?: string;
 }
 
 export function DeepsDescription({
     author,
     description,
+    image,
 }: DeepsDescriptionProps) {
     return (
         <section className="flex flex-col gap-3">
@@ -15,7 +17,7 @@ export function DeepsDescription({
                 </h2>
                 <p className="flex items-center gap-2 text-sm font-medium text-gray-500">
                     <span className="w-6 h-6 rounded-full border border-main-100 flex items-center justify-center text-base leading-none shrink-0">
-                        🐱
+                        {image}
                     </span>
                     {author}님이 출제했습니다.
                 </p>
