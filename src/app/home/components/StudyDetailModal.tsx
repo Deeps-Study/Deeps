@@ -2,6 +2,7 @@
 
 import Modal from '@/components/Modal';
 import SquareButton from '@/components/SquareButton';
+import { Study } from '@/types/study';
 import Icon from '@/ui/Icon/Icon';
 
 interface StudyDetailModalProps {

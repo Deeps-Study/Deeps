@@ -1,4 +1,6 @@
-interface Study {
+import { UserProfileModel } from './user';
+
+export interface Study {
     id: string;
     title: string;
     startDate: string;
@@ -10,11 +12,26 @@ interface Study {
     password?: string;
 }
 
-interface StudyViewModel {
+export interface StudyViewModel {
     title: string;
     status: 'before' | 'ing' | 'end';
     currentParticipants: number;
     tags: string[];
     onCardClick: () => void;
     onEnterClick: () => void;
+}
+
+export interface StudyDetailModel {
+    id: string;
+    title: string;
+    startDate: string;
+    endDate: string;
+    maxParticipants: number;
+    tags: string[];
+    description: string;
+    members: StudyMemberModel[];
+}
+
+export interface StudyMemberModel extends UserProfileModel {
+    count: number;
 }
