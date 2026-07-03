@@ -33,6 +33,16 @@
     /* 커스텀 이펙트 */
     --shadow-mint: 0 0 10px 0 #cceedd;
     --shadow-green: 0 0 10px 0 #55ae8399;
+
+    /* 토스트 애니메이션 */
+    --animate-toast: toast-fade 4s ease forwards;
+}
+
+@keyframes toast-fade {
+    0% { opacity: 0; }
+    8% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
 }
 
 /* content: attr()는 런타임 CSS 함수라 Tailwind 유틸리티로 표현 불가 */
