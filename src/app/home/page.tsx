@@ -4,7 +4,8 @@ import StudyCard from './components/StudyCard';
 import CreateCard from './components/CreateCard';
 import { getStudyStatus } from '@/utils/date';
 import StudyDetailModal from './components/StudyDetailModal';
-import { useOpenCreateModal } from './layout';
+import { useOpenCreateModal } from './CreateStudyModalContext';
+import { Study } from '@/types/study';
 
 function HomePage() {
     const openCreateModal = useOpenCreateModal();
