@@ -72,9 +72,9 @@ function MainHeader({ type, onActionClick, userProfile }: MainHeaderProps) {
                 <div className="flex gap-4">
                     <button
                         onClick={onActionClick}
-                        className="flex whitespace-nowrap items-center gap-2 px-3 py-2 rounded-xl bg-white text-sm font-bold text-main-100 hover:text-main-60 hover:cursor-pointer"
+                        className="flex whitespace-nowrap items-center gap-2 w-fit px-3 py-2 rounded-xl bg-white text-sm font-bold text-main-100 hover:text-main-60 hover:cursor-pointer"
                     >
-                        {/* <Icon name="out" /> */}
+                        <Icon name="out" className="w-4.5 h-4.5 stroke-3" />
                         스터디 나가기
                     </button>
 
