@@ -8,7 +8,7 @@ interface SquareButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const variantStyles = {
     primary: [
         'bg-main-30 text-white',
-        'hover:bg-main-50 disabled:bg-main-20 disabled:text-white disabled:cursor-default',
+        'hover:bg-main-50 disabled:bg-main-20 disabled:text-white disabled:cursor-default disabled:hover:bg-main-20',
     ].join(' '),
     cancel: [
         'bg-white text-main-30 border border-main-20',
