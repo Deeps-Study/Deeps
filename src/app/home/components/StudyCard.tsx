@@ -1,5 +1,6 @@
 import RoundButton from '@/components/RoundButton';
 import Tag from '@/components/Tag';
+import { StudyViewModel } from '@/types/study';
 import Icon from '@/ui/Icon/Icon';
 
 function StudyCard({
