@@ -35,3 +35,15 @@ export interface StudyDetailModel {
 export interface StudyMemberModel extends UserProfileModel {
     count: number;
 }
+
+export interface Deeps {
+    id: string;
+    title: string;
+    creator: string;
+    emoji: string;
+    timeLeft: string;
+    solvedCount: number;
+    totalCount: number;
+    isAnswered: boolean;
+    isTimeEnded: boolean;
+}
