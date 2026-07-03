@@ -1,15 +1,13 @@
 'use client';
 
-import { memo, useState } from 'react';
+import { useState } from 'react';
 import cn from 'classnames';
 
 interface HintSectionProps {
     hint: string;
 }
 
-export const HintSection = memo(function HintSection({
-    hint,
-}: HintSectionProps) {
+export function HintSection({ hint }: HintSectionProps) {
     const [isVisible, setIsVisible] = useState(false);
 
     return (
@@ -36,4 +34,4 @@ export const HintSection = memo(function HintSection({
             </div>
         </section>
     );
-});
+}
