@@ -1,6 +1,7 @@
 'use client';
 import Input from '@/components/Input';
 import RoundButton from '@/components/RoundButton';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const inputConfig = {
@@ -12,11 +13,18 @@ const inputConfig = {
 export default function NicknamePage() {
     const [nickname, setNickname] = useState('');
     const isValid = nickname.trim().length >= 2;
+    const router = useRouter();
 
     return (
         <>
             <div className="w-125 h-78.5 pt-11 pb-14 px-12 border border-main-10 shadow-mint rounded-[40px] bg-white">
-                <form className="flex flex-col h-full justify-between">
+                <form
+                    className="flex flex-col h-full justify-between"
+                    onSubmit={(e) => {
+                        e.preventDefault();
+                        router.push('/home');
+                    }}
+                >
                     <span className="text-main-100 text-xl font-bold text-center">
                         안녕하세요! 닉네임을 알려주세요
                     </span>
