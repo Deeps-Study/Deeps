@@ -1,10 +1,9 @@
 'use client';
 
-import { memo } from 'react';
 import { useRouter } from 'next/navigation';
 import Icon from '@/ui/Icon/Icon';
 
-function BackButton() {
+export default function BackButton() {
     const router = useRouter();
     return (
         <button
@@ -16,5 +15,3 @@ function BackButton() {
         </button>
     );
 }
-
-export default memo(BackButton);
