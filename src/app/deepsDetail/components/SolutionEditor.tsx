@@ -7,15 +7,17 @@ import Icon from '@/ui/Icon/Icon';
 import { isHtmlEmpty } from '@/utils/editor';
 
 interface SolutionEditorProps {
+    initialContent?: string;
     onSubmit: (content: string) => void;
     onContentChange?: (html: string) => void;
 }
 
 export function SolutionEditor({
+    initialContent,
     onSubmit,
     onContentChange,
 }: SolutionEditorProps) {
-    const [content, setContent] = useState('');
+    const [content, setContent] = useState(initialContent ?? '');
 
     const isEmpty = isHtmlEmpty(content);
 
@@ -29,6 +31,7 @@ export function SolutionEditor({
             <MarkdownEditor
                 placeholder="딥스 풀이를 작성해 주세요"
                 className="h-[430px]"
+                initialContent={initialContent}
                 onChange={handleChange}
             />
             <SquareButton disabled={isEmpty} onClick={() => onSubmit(content)}>
