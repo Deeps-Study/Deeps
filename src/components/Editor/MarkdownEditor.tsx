@@ -17,6 +17,7 @@ import { hastToHtml, type HastNode } from './hastToHtml';
 interface MarkdownEditorProps {
     placeholder?: string;
     className?: string;
+    onChange?: (html: string) => void;
 }
 
 const lowlight = createLowlight(common);
@@ -39,6 +40,7 @@ const PREVIEW_CLASSES = cn(
 function MarkdownEditor({
     placeholder,
     className,
+    onChange,
 }: MarkdownEditorProps) {
     const [tab, setTab] = useState<'write' | 'preview'>('write');
     const previewRef = useRef<HTMLDivElement>(null);
@@ -46,7 +48,7 @@ function MarkdownEditor({
     const editor = useEditor({
         editorProps: {
             attributes: { class: 'tiptap' },
-handleDOMEvents: {
+            handleDOMEvents: {
                 drop: (view, event) => {
                     const files = Array.from(event.dataTransfer?.files ?? []);
                     const imageFile = files.find((f) =>
@@ -56,9 +58,9 @@ handleDOMEvents: {
 
                     event.preventDefault();
 
-                    // ImageUploadView 위에 드롭된 경우 해당 컴포넌트의 onDrop에 위임
                     const target = event.target as Element;
-                    if (target.closest('[data-node-view-wrapper]')) return false;
+                    if (target.closest('[data-node-view-wrapper]'))
+                        return false;
 
                     const dropPos =
                         view.posAtCoords({
@@ -90,6 +92,9 @@ handleDOMEvents: {
             Image.configure({ allowBase64: true }),
             ImageUploadExtension,
         ],
+        onUpdate: ({ editor }) => {
+            onChange?.(editor.getHTML());
+        },
         immediatelyRender: false,
         shouldRerenderOnTransaction: false,
     });
