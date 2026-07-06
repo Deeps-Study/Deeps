@@ -4,6 +4,7 @@ import { useState } from 'react';
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 import SquareButton from '@/components/SquareButton';
 import Icon from '@/ui/Icon/Icon';
+import { isHtmlEmpty } from '@/utils/editor';
 
 interface SolutionEditorProps {
     onSubmit: (content: string) => void;
@@ -16,7 +17,7 @@ export function SolutionEditor({
 }: SolutionEditorProps) {
     const [content, setContent] = useState('');
 
-    const isEmpty = content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim().length === 0;
+    const isEmpty = isHtmlEmpty(content);
 
     function handleChange(html: string) {
         setContent(html);

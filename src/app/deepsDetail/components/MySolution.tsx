@@ -3,6 +3,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import Icon from '@/ui/Icon/Icon';
 import { SolutionEditor } from './SolutionEditor';
+import { isHtmlEmpty } from '@/utils/editor';
 
 interface MySolutionProps {
     isExpired: boolean;
@@ -16,7 +17,7 @@ export const MySolution = memo(function MySolution({
     const latestContentRef = useRef('');
 
     const showEditor = isEditing && !isExpired;
-    const isEmpty = content.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim().length === 0;
+    const isEmpty = isHtmlEmpty(content);
 
     useEffect(() => {
         if (!isExpired) return;
