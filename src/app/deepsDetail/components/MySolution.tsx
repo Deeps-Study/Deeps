@@ -51,6 +51,7 @@ export const MySolution = memo(function MySolution({
             </div>
             {showEditor ? (
                 <SolutionEditor
+                    initialContent={content}
                     onSubmit={handleSubmit}
                     onContentChange={(html) => {
                         latestContentRef.current = html;

@@ -17,6 +17,7 @@ import { hastToHtml, type HastNode } from './hastToHtml';
 interface MarkdownEditorProps {
     placeholder?: string;
     className?: string;
+    initialContent?: string;
     onChange?: (html: string) => void;
 }
 
@@ -40,12 +41,14 @@ const PREVIEW_CLASSES = cn(
 function MarkdownEditor({
     placeholder,
     className,
+    initialContent,
     onChange,
 }: MarkdownEditorProps) {
     const [tab, setTab] = useState<'write' | 'preview'>('write');
     const previewRef = useRef<HTMLDivElement>(null);
 
     const editor = useEditor({
+        content: initialContent,
         editorProps: {
             attributes: { class: 'tiptap' },
             handleDOMEvents: {
