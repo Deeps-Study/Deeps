@@ -6,12 +6,14 @@ interface DeepsDetailHeaderProps {
     title: string;
     timeLimitLabel: string;
     remainSeconds: number;
+    onExpire?: () => void;
 }
 
 export function DeepsDetailHeader({
     title,
     timeLimitLabel,
     remainSeconds,
+    onExpire,
 }: DeepsDetailHeaderProps) {
     return (
         <header className="bg-white border-b border-gray-100 flex items-center gap-8 h-16.5 px-8 shrink-0">
@@ -30,7 +32,7 @@ export function DeepsDetailHeader({
                     <span className="text-sm font-medium text-gray-500">
                         남은 시간
                     </span>
-                    <CountdownTimer initialSeconds={remainSeconds} />
+                    <CountdownTimer initialSeconds={remainSeconds} onExpire={onExpire} />
                 </div>
             </div>
         </header>
