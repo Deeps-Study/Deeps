@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 interface CountdownTimerProps {
     initialSeconds: number;
+    onExpire?: () => void;
 }
 
 function formatTime(totalSeconds: number): string {
@@ -14,10 +15,11 @@ function formatTime(totalSeconds: number): string {
     return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-export function CountdownTimer({ initialSeconds }: CountdownTimerProps) {
+export function CountdownTimer({ initialSeconds, onExpire }: CountdownTimerProps) {
     const [remaining, setRemaining] = useState(initialSeconds);
 
     useEffect(() => {
+        if (initialSeconds <= 0) return;
         const interval = setInterval(() => {
             setRemaining((prev) => {
                 if (prev <= 1) {
@@ -28,7 +30,12 @@ export function CountdownTimer({ initialSeconds }: CountdownTimerProps) {
             });
         }, 1000);
         return () => clearInterval(interval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => {
+        if (remaining === 0) onExpire?.();
+    }, [remaining, onExpire]);
 
     return <Tag variant="red">{formatTime(remaining)}</Tag>;
 }
