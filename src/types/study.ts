@@ -36,14 +36,16 @@ export interface StudyMemberModel extends UserProfileModel {
     count: number;
 }
 
-export interface Deeps {
+export interface DeepsModel {
     id: string;
+    studyId: string;
     title: string;
-    creator: string;
-    emoji: string;
-    timeLeft: string;
+    content: string;
+    creator: UserProfileModel;
+    timeLimit: number;
+    createdAt: string;
     solvedCount: number;
     totalCount: number;
-    isAnswered: boolean;
+    isMyAnswered: boolean;
     isTimeEnded: boolean;
 }
