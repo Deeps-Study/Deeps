@@ -17,12 +17,16 @@ export function OtherAnswerCard({
     content,
     recommendCount,
 }: OtherAnswerCardProps) {
-    const [recommended, setRecommended] = useState(false);
-    const [count, setCount] = useState(recommendCount);
+    const [{ recommended, count }, setState] = useState({
+        recommended: false,
+        count: recommendCount,
+    });
 
     function handleRecommend() {
-        setCount((prev) => (recommended ? prev - 1 : prev + 1));
-        setRecommended((prev) => !prev);
+        setState((prev) => ({
+            recommended: !prev.recommended,
+            count: prev.recommended ? prev.count - 1 : prev.count + 1,
+        }));
     }
 
     return (
