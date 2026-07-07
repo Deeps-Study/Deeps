@@ -1,7 +1,7 @@
 'use client';
 
 import Tag from '@/components/Tag';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 interface CountdownTimerProps {
     initialSeconds: number;
@@ -15,8 +15,16 @@ function formatTime(totalSeconds: number): string {
     return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-export function CountdownTimer({ initialSeconds, onExpire }: CountdownTimerProps) {
+export function CountdownTimer({
+    initialSeconds,
+    onExpire,
+}: CountdownTimerProps) {
     const [remaining, setRemaining] = useState(initialSeconds);
+    const onExpireRef = useRef(onExpire);
+
+    useEffect(() => {
+        onExpireRef.current = onExpire;
+    }, [onExpire]);
 
     useEffect(() => {
         if (initialSeconds <= 0) return;
@@ -34,8 +42,8 @@ export function CountdownTimer({ initialSeconds, onExpire }: CountdownTimerProps
     }, []);
 
     useEffect(() => {
-        if (remaining === 0) onExpire?.();
-    }, [remaining, onExpire]);
+        if (remaining === 0) onExpireRef.current?.();
+    }, [remaining]);
 
     return <Tag variant="red">{formatTime(remaining)}</Tag>;
 }
