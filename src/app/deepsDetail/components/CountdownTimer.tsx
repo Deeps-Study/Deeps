@@ -33,6 +33,7 @@ export function CountdownTimer({
             setRemaining((prev) => {
                 if (prev <= 1) {
                     clearInterval(interval);
+                    onExpireRef.current?.();
                     return 0;
                 }
                 return prev - 1;
@@ -41,10 +42,6 @@ export function CountdownTimer({
         return () => clearInterval(interval);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    useEffect(() => {
-        if (remaining === 0) onExpireRef.current?.();
-    }, [remaining]);
 
     return <Tag variant="red">{formatTime(remaining)}</Tag>;
 }
