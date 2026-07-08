@@ -6,7 +6,7 @@ import Icon from '@/ui/Icon/Icon';
 
 export interface OtherAnswerCardProps {
     author: string;
-    image: string;
+    image?: string;
     content: string;
     recommendCount: number;
 }
@@ -34,7 +34,7 @@ export function OtherAnswerCard({
             <div className="flex items-center justify-between">
                 <p className="flex items-center gap-2 text-sm font-medium text-gray-500">
                     <span className="w-6 h-6 rounded-full border border-main-100 flex items-center justify-center text-base leading-none shrink-0">
-                        {image}
+                        {image ?? '🐱'}
                     </span>
                     {author}
                 </p>
