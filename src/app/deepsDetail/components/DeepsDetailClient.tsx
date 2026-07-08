@@ -9,6 +9,7 @@ interface DeepsDetailClientProps {
     title: string;
     timeLimitLabel: string;
     remainSeconds: number;
+    hasSubmitted: boolean;
     leftContent: React.ReactNode;
     otherAnswerCards: React.ReactNode;
 }
@@ -17,6 +18,7 @@ export function DeepsDetailClient({
     title,
     timeLimitLabel,
     remainSeconds,
+    hasSubmitted,
     leftContent,
     otherAnswerCards,
 }: DeepsDetailClientProps) {
@@ -48,7 +50,7 @@ export function DeepsDetailClient({
                     <MySolution isExpired={isExpired} />
                 </div>
             </main>
-            <TimeAlert show={isExpired} />
+            <TimeAlert key={String(isExpired)} show={hasSubmitted || isExpired} isExpired={isExpired} />
         </div>
     );
 }
