@@ -8,7 +8,8 @@ import { DeepsAnswerModel } from '@/types/deepsAnswerModel';
 const MOCK_DEEP = {
     title: '피그마로 로티는 어떻게 구현할까요?',
     timeLimitLabel: '12시간',
-    remainSeconds: 0,
+    remainSeconds: 5,
+    hasSubmitted: true,
     description: `피그마로 로티를 구현하는 방법에 대해서 설명해주세요
 
 예시 :
@@ -57,6 +58,7 @@ export default function DeepsDetailPage() {
             title={MOCK_DEEP.title}
             timeLimitLabel={MOCK_DEEP.timeLimitLabel}
             remainSeconds={MOCK_DEEP.remainSeconds}
+            hasSubmitted={MOCK_DEEP.hasSubmitted}
             otherAnswerCards={
                 <>
                     {MOCK_OTHER_ANSWERS.map((answer) => (
