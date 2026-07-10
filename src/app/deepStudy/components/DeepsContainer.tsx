@@ -11,9 +11,7 @@ export default function DeepsContainer() {
         'progress',
     );
 
-    const [deepsList] = useState<DeepsModel[]>(() => {
-        const now = Date.now();
-
+    const [deepsList, setDeepsList] = useState<DeepsModel[]>(() => {
         return [
             {
                 id: '1',
@@ -56,7 +54,13 @@ export default function DeepsContainer() {
             },
         ];
     });
-
+    const handleExpireDeeps = (targetId: string) => {
+        setDeepsList((prevList) =>
+            prevList.map((deep) =>
+                deep.id === targetId ? { ...deep, isTimeEnded: true } : deep,
+            ),
+        );
+    };
     const progressDeeps = deepsList.filter((deep) => !deep.isTimeEnded);
     const completedDeeps = deepsList.filter((deep) => deep.isTimeEnded);
     const displayDeeps =
@@ -102,7 +106,11 @@ export default function DeepsContainer() {
             ) : (
                 <div className="flex flex-col gap-3.5">
                     {displayDeeps.map((deep) => (
-                        <DeepsCard key={deep.id} deeps={deep} />
+                        <DeepsCard
+                            key={deep.id}
+                            deeps={deep}
+                            onExpire={handleExpireDeeps}
+                        />
                     ))}
                 </div>
             )}
