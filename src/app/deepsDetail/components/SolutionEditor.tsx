@@ -30,7 +30,7 @@ export function SolutionEditor({
         <div className="flex flex-col gap-3">
             <MarkdownEditor
                 placeholder="딥스 풀이를 작성해 주세요"
-                className="h-[430px]"
+                className="h-107.5"
                 initialContent={initialContent}
                 onChange={handleChange}
             />

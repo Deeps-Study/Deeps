@@ -16,7 +16,7 @@ export default function MyPage() {
         <div className="flex flex-col bg-white min-h-screen">
             <MyPageHeader />
             <main className="flex gap-12 px-19.5 py-10 items-start">
-                <div className="flex flex-col gap-9 w-[420px] shrink-0">
+                <div className="flex flex-col gap-9 w-105 shrink-0">
                     <ProfileCard
                         nickname={MOCK_USER.nickname}
                         fallbackEmoji={MOCK_USER.fallbackEmoji}
