@@ -12,7 +12,7 @@ interface MainHeaderProps {
 function UserProfile({ image, nickname }: UserProfileModel) {
     return (
         <Link
-            href="/myPage"
+            href="/mypage"
             className="flex flex-row whitespace-nowrap items-center px-2 py-2 h-10 rounded-xl gap-2.5 bg-white border border-main-20 hover:border-main-60 hover:shadow-green"
         >
             <div>
