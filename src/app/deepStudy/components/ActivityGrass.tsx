@@ -1,13 +1,13 @@
 'use client';
 
-import Image from 'next/image';
 import { StudyDetailModel } from '@/types/study';
+import Image from 'next/image';
 
-interface ActivityGrassProps {
+export default function ActivityGrass({
+    members,
+}: {
     members: StudyDetailModel['members'];
-}
-
-export default function ActivityGrass({ members }: ActivityGrassProps) {
+}) {
     return (
         <div className="flex flex-col w-full">
             <div className="w-full rounded-2xl border border-main-20 p-5 bg-white shadow-mint flex flex-col gap-2">

@@ -3,11 +3,11 @@
 import Image from 'next/image';
 import { StudyDetailModel } from '@/types/study';
 
-interface DeepsRankingProps {
+export default function DeepsRanking({
+    members,
+}: {
     members: StudyDetailModel['members'];
-}
-
-export default function DeepsRanking({ members }: DeepsRankingProps) {
+}) {
     const sortedMembers = [...members].sort((a, b) => b.count - a.count);
 
     return (
