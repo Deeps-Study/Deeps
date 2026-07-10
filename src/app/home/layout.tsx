@@ -11,7 +11,11 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <MainHeader type="home" onActionClick={openModal} />
+            <MainHeader
+                type="home"
+                onActionClick={openModal}
+                userProfile={{ nickname: '박딥스', fallbackEmoji: '👻' }}
+            />
 
             <div className="flex flex-1 justify-center bg-white">
                 {children}
