@@ -1,23 +1,19 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
 import Icon from '@/ui/Icon/Icon';
 import { DeepsModel } from '@/types/study';
+import { formatTime } from '@/utils/time';
+import { useTimer } from '@/hooks/useTimer';
 
 interface DeepsCardProps {
     deeps: DeepsModel;
+    onExpire: (id: string) => void;
 }
 
-function formatTime(totalSeconds: number): string {
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = totalSeconds % 60;
-    return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
-export default function DeepsCard({ deeps }: DeepsCardProps) {
+export default function DeepsCard({ deeps, onExpire }: DeepsCardProps) {
     const {
+        id,
         title,
         creator,
         solvedCount,
@@ -25,6 +21,7 @@ export default function DeepsCard({ deeps }: DeepsCardProps) {
         isMyAnswered,
         createdAt,
         timeLimit,
+        isTimeEnded,
     } = deeps;
 
     const getInitialRemainingSeconds = () => {
@@ -37,22 +34,38 @@ export default function DeepsCard({ deeps }: DeepsCardProps) {
         return differenceSeconds > 0 ? differenceSeconds : 0;
     };
 
-    const [remaining, setRemaining] = useState(getInitialRemainingSeconds);
+    const remaining = useTimer({
+        initialSeconds: getInitialRemainingSeconds(),
+        onExpire: () => onExpire(id),
+    });
 
-    useEffect(() => {
-        const interval = setInterval(() => {
-            setRemaining((prev) => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-    }, []);
+    const currentIsTimeEnded = isTimeEnded || remaining <= 0;
 
-    const isTimeEnded = remaining <= 0;
+    const renderAnswerStatus = () => {
+        if (currentIsTimeEnded) return null;
+
+        if (isMyAnswered) {
+            return (
+                <div className="flex items-center gap-1 px-1.5">
+                    <Icon
+                        name="doubleCheck"
+                        className="h-4 w-4 text-main-100 stroke-2"
+                    />
+                    <span className="text-xs font-medium text-main-100">
+                        답변 완료
+                    </span>
+                </div>
+            );
+        }
+        return (
+            <div className="flex items-center gap-1 px-1.5">
+                <Icon name="circleAlert" className="h-4 w-4 text-red-200" />
+                <span className="text-xs font-medium text-red-200">
+                    답변 필요
+                </span>
+            </div>
+        );
+    };
 
     return (
         <div className="flex flex-col gap-2 rounded-lg border border-main-20 bg-white px-3 py-2 shadow-sm hover:shadow-mint hover:cursor-pointer transition-all">
@@ -92,7 +105,7 @@ export default function DeepsCard({ deeps }: DeepsCardProps) {
                 <div className="flex items-center gap-5">
                     <div className="flex items-center gap-2">
                         <Icon name="clock" className="h-4 w-4 text-main-200" />
-                        <span className="text-xs font-medium text-gray-600">
+                        <span className="text-xs font-medium text-gray-600 tabular-nums">
                             {formatTime(remaining)}
                         </span>
                     </div>
@@ -107,21 +120,7 @@ export default function DeepsCard({ deeps }: DeepsCardProps) {
                     </div>
                 </div>
 
-                {!isTimeEnded && (
-                    <div
-                        className={`flex items-center gap-1 px-2 py-1 rounded-md ${isMyAnswered ? 'bg-main-10' : 'bg-red-10'}`}
-                    >
-                        <Icon
-                            name={isMyAnswered ? 'doubleCheck' : 'circleAlert'}
-                            className={`h-3.5 w-3.5 stroke-2 ${isMyAnswered ? 'text-main-100' : 'text-red-200'}`}
-                        />
-                        <span
-                            className={`text-xs font-medium ${isMyAnswered ? 'text-main-100' : 'text-red-200'}`}
-                        >
-                            {isMyAnswered ? '답변 완료' : '답변 필요'}
-                        </span>
-                    </div>
-                )}
+                {renderAnswerStatus()}
             </div>
         </div>
     );
