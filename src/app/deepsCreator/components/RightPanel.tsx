@@ -18,7 +18,7 @@ export function RightPanel({
     onCancel,
 }: RightPanelProps) {
     return (
-        <div className="flex flex-col gap-9 w-[575px] pb-3 shrink-0 min-h-0">
+        <div className="flex flex-col gap-9 w-143.75 pb-3 shrink-0 min-h-0">
             <div className="flex flex-col flex-1 gap-9 min-h-0">
                 <TimeSelector onChange={onTimeChange} />
                 <div className="flex flex-col gap-2.5 shrink-0">

@@ -58,7 +58,7 @@ export const MySolution = memo(function MySolution({
                     }}
                 />
             ) : isEmpty ? (
-                <div className="min-h-[430px] max-h-[430px] border border-gray-300 rounded-lg px-6 py-5 flex items-center justify-center">
+                <div className="min-h-107.5 max-h-107.5 border border-gray-300 rounded-lg px-6 py-5 flex items-center justify-center">
                     <p className="text-sm font-medium text-gray-300 text-center">
                         문제를 풀지 못했어요 😢 <br />
                         다른 멤버는 어떻게 풀었는지 확인하고 같이 공부해 볼까요?
@@ -66,7 +66,7 @@ export const MySolution = memo(function MySolution({
                 </div>
             ) : (
                 <div
-                    className="min-h-[430px] max-h-[430px] overflow-y-auto border border-main-100 rounded-lg px-6 py-5 prose prose-sm max-w-none"
+                    className="min-h-107.5 max-h-107.5 overflow-y-auto border border-main-100 rounded-lg px-6 py-5 prose prose-sm max-w-none"
                     dangerouslySetInnerHTML={{ __html: content }}
                 />
             )}

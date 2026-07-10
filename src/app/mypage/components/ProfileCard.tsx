@@ -7,7 +7,7 @@ export function ProfileCard({
     fallbackEmoji,
 }: UserProfileModel) {
     return (
-        <div className="border border-main-20 rounded-2xl h-[212px] flex flex-col items-center justify-center gap-4 py-5">
+        <div className="border border-main-20 rounded-2xl h-53 flex flex-col items-center justify-center gap-4 py-5">
             <div className="flex items-center justify-center size-25 rounded-full border border-main-30 overflow-hidden text-3xl">
                 {image ? (
                     <Image
