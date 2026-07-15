@@ -1,31 +1,39 @@
 import Icon from '@/ui/Icon/Icon';
+import type { AttendanceDay } from '@/types/user';
 
 interface WeeklyAttendanceProps {
-    attendedDays: boolean[];
+    attendance: AttendanceDay[];
 }
 
-const DAYS = ['월', '화', '수', '목', '금', '토', '일'] as const;
+const DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토'];
 
-export function WeeklyAttendance({ attendedDays }: WeeklyAttendanceProps) {
+function getDayLabel(date: string): string {
+    return DAY_LABELS[new Date(date).getUTCDay()];
+}
+
+export function WeeklyAttendance({ attendance }: WeeklyAttendanceProps) {
     return (
         <div className="border border-main-20 rounded-xl flex flex-col gap-2.5 py-5">
             <p className="text-base font-bold text-gray-600 px-4">
                 이번주 출석
             </p>
-            <div className="flex gap-4.5 items-center justify-center px-3.5">
-                {DAYS.map((day, i) => (
-                    <div key={day} className="flex flex-col gap-1 items-center">
+            <div className="flex items-center justify-between px-4">
+                {attendance.map(({ date, attended }) => (
+                    <div
+                        key={date}
+                        className="flex flex-col gap-1 items-center"
+                    >
                         <span className="text-sm font-bold text-gray-600 text-center">
-                            {day}
+                            {getDayLabel(date)}
                         </span>
                         <div
                             className={`size-7.5 rounded-full border flex items-center justify-center ${
-                                attendedDays[i]
+                                attended
                                     ? 'bg-main-30 border-main-30'
                                     : 'border-main-20'
                             }`}
                         >
-                            {attendedDays[i] && (
+                            {attended && (
                                 <Icon
                                     name="check"
                                     className="w-5 h-5 text-white"

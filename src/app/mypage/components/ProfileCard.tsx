@@ -15,6 +15,7 @@ export function ProfileCard({
                         alt={nickname}
                         width={100}
                         height={100}
+                        priority
                         className="size-full object-cover"
                     />
                 ) : (
