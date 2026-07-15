@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { API_URL } from '@/constants/api';
+import { setAccessTokenHeader } from '@/api';
 
 interface AuthContextValue {
     accessToken: string | null;
@@ -16,6 +17,10 @@ const AuthContext = createContext<AuthContextValue>({
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        setAccessTokenHeader(accessToken);
+    }, [accessToken]);
 
     useEffect(() => {
         async function fetchAccessToken() {
