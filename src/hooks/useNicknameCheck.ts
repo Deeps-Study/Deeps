@@ -25,7 +25,7 @@ export function useNicknameCheck(
             setIsChecking(true);
             try {
                 const res = await fetch(
-                    `${API_URL}/auth/nickname/check?nickname=${encodeURIComponent(debouncedNickname)}`,
+                    `${API_URL}/users/me/nickname/check?nickname=${encodeURIComponent(debouncedNickname)}`,
                     { headers: { Authorization: `Bearer ${accessToken}` } },
                 );
                 if (!res.ok) {

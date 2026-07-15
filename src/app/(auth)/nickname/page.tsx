@@ -2,8 +2,8 @@
 import Input from '@/components/Input';
 import RoundButton from '@/components/RoundButton';
 import { useAuth } from '@/components/AuthProvider';
-import { useNicknameCheck } from './useNicknameCheck';
-import { NicknameStatusMessage } from './NicknameStatusMessage';
+import { useNicknameCheck } from '@/hooks/useNicknameCheck';
+import { NicknameStatusMessage } from '@/components/NicknameStatusMessage';
 import { isValidNickname } from '@/utils/validateNickname';
 import { API_URL } from '@/constants/api';
 import { useRouter } from 'next/navigation';
@@ -29,8 +29,8 @@ export default function NicknamePage() {
         e.preventDefault();
         if (!accessToken) return;
         setSubmitError('');
-        const res = await fetch(`${API_URL}/auth/nickname`, {
-            method: 'POST',
+        const res = await fetch(`${API_URL}/users/me/nickname`, {
+            method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
                 Authorization: `Bearer ${accessToken}`,
