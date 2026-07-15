@@ -1,16 +1,24 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import {
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+    useState,
+} from 'react';
 import { API_URL } from '@/constants/api';
 
 interface AuthContextValue {
     accessToken: string | null;
     isLoading: boolean;
+    clearAccessToken: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue>({
     accessToken: null,
     isLoading: true,
+    clearAccessToken: () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -36,8 +44,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         fetchAccessToken();
     }, []);
 
+    const clearAccessToken = useCallback(() => setAccessToken(null), []);
+
     return (
-        <AuthContext.Provider value={{ accessToken, isLoading }}>
+        <AuthContext.Provider
+            value={{ accessToken, isLoading, clearAccessToken }}
+        >
             {children}
         </AuthContext.Provider>
     );
