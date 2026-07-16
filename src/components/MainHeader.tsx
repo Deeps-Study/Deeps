@@ -1,3 +1,5 @@
+'use client';
+
 import { UserProfileModel } from '@/types/user';
 import Icon from '@/ui/Icon/Icon';
 import Image from 'next/image';
@@ -15,17 +17,23 @@ function UserProfile({ image, nickname }: UserProfileModel) {
             href="/mypage"
             className="flex flex-row whitespace-nowrap items-center px-2 py-2 h-10 rounded-xl gap-2.5 bg-white border border-main-20 hover:border-main-60 hover:shadow-green"
         >
-            <div>
+            <div className="relative flex items-center justify-center w-6 h-6 rounded-full overflow-hidden shrink-0">
                 {image ? (
                     <Image
                         src={image}
                         alt="프로필"
-                        className="h-full w-full rounded-full object-cover"
+                        fill
+                        sizes="24px"
+                        priority
+                        className="object-cover rounded-full"
                     />
                 ) : (
-                    <span className="rounded-full bg-gray-100 py-2 px-2 font-medium">
-                        🐱
-                    </span>
+                    <div className="flex items-center justify-center w-full h-full rounded-full bg-gray-100 p-1">
+                        <Icon
+                            name="user"
+                            className="w-4 h-4 text-main-100 stroke-2 fill-current"
+                        />
+                    </div>
                 )}
             </div>
             <span className="text-sm font-semibold text-gray-600">
@@ -60,6 +68,7 @@ function MainHeader({ type, onActionClick, userProfile }: MainHeaderProps) {
 
                     {userProfile && (
                         <UserProfile
+                            id={userProfile.id}
                             image={userProfile.image}
                             nickname={userProfile.nickname}
                         />
@@ -80,6 +89,7 @@ function MainHeader({ type, onActionClick, userProfile }: MainHeaderProps) {
 
                     {userProfile && (
                         <UserProfile
+                            id={userProfile.id}
                             image={userProfile.image}
                             nickname={userProfile.nickname}
                         />
