@@ -33,6 +33,7 @@ export function useCurrentUser(): UseCurrentUserResult {
                 if (!isStale) setIsLoading(false);
             }
         }
+
         fetchCurrentUser();
 
         return () => {
