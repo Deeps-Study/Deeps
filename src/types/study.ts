@@ -1,5 +1,25 @@
 import { UserProfileModel } from './user';
 
+export interface StudyResponse {
+    id: string;
+    title: string;
+    status: 'BEFORE_START' | 'IN_PROGRESS' | 'ENDED';
+    currentMemberCount: number;
+    tags: string[];
+}
+
+export function mapServerStatusToUI(
+    status: StudyResponse['status'],
+): 'before' | 'ing' | 'end' {
+    const statusMap: Record<StudyResponse['status'], 'before' | 'ing' | 'end'> =
+        {
+            BEFORE_START: 'before',
+            IN_PROGRESS: 'ing',
+            ENDED: 'end',
+        };
+    return statusMap[status] ?? 'before';
+}
+
 export interface Study {
     id: string;
     title: string;
@@ -10,15 +30,6 @@ export interface Study {
     tags: string[];
     description: string;
     password?: string;
-}
-
-export interface StudyViewModel {
-    title: string;
-    status: 'before' | 'ing' | 'end';
-    currentParticipants: number;
-    tags: string[];
-    onCardClick: () => void;
-    onEnterClick: () => void;
 }
 
 export interface StudyDetailModel {
