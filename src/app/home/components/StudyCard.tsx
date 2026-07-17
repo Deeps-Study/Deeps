@@ -1,16 +1,19 @@
+'use client';
+
 import RoundButton from '@/components/RoundButton';
 import Tag from '@/components/Tag';
-import { StudyViewModel } from '@/types/study';
 import Icon from '@/ui/Icon/Icon';
+import { StudyResponse, mapServerStatusToUI } from '@/types/study';
 
-function StudyCard({
-    title,
-    status,
-    currentParticipants,
-    tags,
-    onCardClick,
-    onEnterClick,
-}: StudyViewModel) {
+interface StudyCardProps {
+    study: StudyResponse;
+    onCardClick: () => void;
+    onEnterClick: () => void;
+}
+
+function StudyCard({ study, onCardClick, onEnterClick }: StudyCardProps) {
+    const uiStatus = mapServerStatusToUI(study.status);
+
     const statusConfig = {
         before: { text: '시작전', icon: '🌱', tagElement: <Tag>시작전</Tag> },
         ing: {
@@ -31,23 +34,25 @@ function StudyCard({
             className="w-60 h-96 flex flex-col justify-between rounded-[30px] shadow-mint bg-white border border-main-20 hover:cursor-pointer hover:shadow-green"
         >
             <header className="w-full h-11 flex justify-between items-center px-6 pt-3">
-                {statusConfig[status].tagElement}
+                {statusConfig[uiStatus].tagElement}
                 <div className="flex gap-2 text-xs font-medium text-main-200">
                     <Icon
                         name="users"
                         className="w-3.5 h-3.5 stroke-main-200 stroke-2"
                     />
-                    {currentParticipants}명 참여
+                    {study.currentMemberCount}명 참여
                 </div>
             </header>
             <main className="w-full h-full flex flex-col items-center justify-center px-6 py-6 ">
-                <span className="text-[50px]">{statusConfig[status].icon}</span>
+                <span className="text-[50px]">
+                    {statusConfig[uiStatus].icon}
+                </span>
                 <div className="flex flex-col gap-2 h-36.5 ">
                     <div className="flex items-center h-20.5 w-full text-xl text-main-200 text-center font-bold">
-                        {title}
+                        {study.title}
                     </div>
                     <div className="flex flex-wrap px-2 py-1 gap-1 justify-center bg-gray-50 rounded-[10px]">
-                        {tags.slice(0, 3).map((tag, i) => (
+                        {study.tags.slice(0, 3).map((tag, i) => (
                             <span key={i} className="text-xs text-main-200 ">
                                 # {tag}
                             </span>
