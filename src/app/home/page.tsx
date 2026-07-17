@@ -1,41 +1,54 @@
 'use client';
-import { useState } from 'react';
+
+import { useEffect, useState } from 'react';
 import StudyCard from './components/StudyCard';
 import CreateCard from './components/CreateCard';
-import { getStudyStatus } from '@/utils/date';
 import StudyDetailModal from './components/StudyDetailModal';
 import { useOpenCreateModal } from './CreateStudyModalContext';
-import { Study } from '@/types/study';
+import { api } from '@/api';
+import { useAuth } from '@/components/AuthProvider';
+import { StudyResponse } from '@/types/study';
 
 function HomePage() {
     const openCreateModal = useOpenCreateModal();
-    const [studies] = useState<Study[]>([
-        {
-            id: '1',
-            title: '이것도 배우고 저것도 배우는 스터디',
-            currentParticipants: 3,
-            maxParticipants: 6,
-            startDate: '2026.05.05',
-            endDate: '2026.06.04',
-            tags: ['React', 'TailwindCSS', 'Frontend'],
-            description:
-                '안녕하세요 반갑습니다 스터디 설명은 여기에 이렇게 적힙니다. 잘 부탁드려요 호호호',
-        },
-        {
-            id: '2',
-            title: '야 너두 백엔드 ㄱ?',
-            currentParticipants: 2,
-            maxParticipants: 5,
-            startDate: '2026.06.01',
-            endDate: '2026.07.01',
-            tags: ['Backend', 'SpringBoot'],
-            description: '백엔드 정복 스터디입니다.',
-        },
-    ]);
+    const { accessToken } = useAuth();
 
-    const [selectedStudy, setSelectedStudy] = useState<Study | null>(null);
+    const [studies, setStudies] = useState<StudyResponse[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [selectedStudyId, setSelectedStudyId] = useState<string | null>(null);
 
     const maxStudyCount = 3;
+
+    useEffect(() => {
+        if (!accessToken) return;
+
+        async function fetchMyStudies() {
+            setIsLoading(true);
+            try {
+                const res = await api.get<StudyResponse[]>('/studies/me');
+                setStudies(res.data);
+            } catch (error) {
+                console.error(
+                    '스터디 목록을 불러오는 중 오류가 발생했습니다:',
+                    error,
+                );
+            } finally {
+                setIsLoading(false);
+            }
+        }
+
+        fetchMyStudies();
+    }, [accessToken]);
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-1 items-center justify-center">
+                <p className="text-gray-500 font-medium">
+                    스터디 목록을 불러오는 중입니다...
+                </p>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col w-full px-8">
@@ -46,11 +59,8 @@ function HomePage() {
                 {studies.map((study) => (
                     <StudyCard
                         key={study.id}
-                        title={study.title}
-                        status={getStudyStatus(study.startDate, study.endDate)}
-                        currentParticipants={study.currentParticipants}
-                        tags={study.tags}
-                        onCardClick={() => setSelectedStudy(study)}
+                        study={study}
+                        onCardClick={() => setSelectedStudyId(study.id)}
                         onEnterClick={() => console.log('딥스터디 입장')}
                     />
                 ))}
@@ -59,18 +69,15 @@ function HomePage() {
                     <CreateCard onCreateClick={openCreateModal} />
                 )}
             </main>
-
-            {selectedStudy && (
-                <StudyDetailModal
-                    isOpen={!!selectedStudy}
-                    study={selectedStudy}
-                    onClose={() => setSelectedStudy(null)}
-                    onEnter={() => {
-                        console.log('딥스터디 입장하기');
-                        setSelectedStudy(null);
-                    }}
-                />
-            )}
+            <StudyDetailModal
+                isOpen={!!selectedStudyId}
+                studyId={selectedStudyId}
+                onClose={() => setSelectedStudyId(null)}
+                onEnter={() => {
+                    console.log('딥스터디 입장하기');
+                    setSelectedStudyId(null);
+                }}
+            />
         </div>
     );
 }
