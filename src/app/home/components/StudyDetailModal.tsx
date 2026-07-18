@@ -4,18 +4,7 @@ import { useEffect, useState } from 'react';
 import Modal from '@/components/Modal';
 import SquareButton from '@/components/SquareButton';
 import Icon from '@/ui/Icon/Icon';
-import { api } from '@/api';
-
-interface StudyDetailResponse {
-    id: string;
-    title: string;
-    description: string;
-    startDate: string;
-    endDate: string;
-    currentMemberCount: number;
-    maxMemberCount: number;
-    tags: string[];
-}
+import { StudyDetailResponse } from '@/types/study';
 
 interface StudyDetailModalProps {
     studyId: string | null;
@@ -40,11 +29,18 @@ function StudyDetailModal({
         async function fetchStudyDetail() {
             setIsLoading(true);
             try {
-                const res = await api.get<StudyDetailResponse>(
-                    `/studies/${studyId}`,
-                );
+                const res = await fetch(`/api/studies/${studyId}`);
+
+                if (res.status === 401) {
+                    console.warn('인증 세션이 만료되었습니다.');
+                    return;
+                }
+
+                if (!res.ok) return;
+
+                const data: StudyDetailResponse = await res.json();
                 if (!isStale) {
-                    setDetail(res.data);
+                    setDetail(data);
                 }
             } catch (error) {
                 console.error(
