@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { UserProfileModel } from '@/types/user';
 import Icon from '@/ui/Icon/Icon';
 
-export function ProfileCard({ id, nickname, image }: UserProfileModel) {
+export function ProfileCard({ nickname, image }: UserProfileModel) {
     return (
         <div className="border border-main-20 rounded-2xl h-53 flex flex-col items-center justify-center gap-4 py-5">
             <div className="flex items-center justify-center size-25 rounded-full border border-main-30 overflow-hidden text-3xl">
