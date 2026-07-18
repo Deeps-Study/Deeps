@@ -1,7 +1,6 @@
 'use client';
 import { Suspense } from 'react';
 import Icon from '@/ui/Icon/Icon';
-import { API_URL } from '@/constants/api';
 import { useSearchParams } from 'next/navigation';
 
 function LoginCard() {
@@ -9,7 +8,7 @@ function LoginCard() {
     const isLoginFailed = searchParams.get('error') === 'oauth_failed';
 
     const handleLoginButtonClick = () => {
-        window.location.href = `${API_URL}/auth/google`;
+        window.location.href = '/api/auth/google';
     };
 
     return (
