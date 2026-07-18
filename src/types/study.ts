@@ -20,6 +20,17 @@ export function mapServerStatusToUI(
     return statusMap[status] ?? 'before';
 }
 
+export interface StudyDetailResponse {
+    id: string;
+    title: string;
+    description: string;
+    startDate: string;
+    endDate: string;
+    currentMemberCount: number;
+    maxMemberCount: number;
+    tags: string[];
+}
+
 export interface Study {
     id: string;
     title: string;
