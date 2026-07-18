@@ -1,17 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import StudyCard from './components/StudyCard';
 import CreateCard from './components/CreateCard';
 import StudyDetailModal from './components/StudyDetailModal';
 import { useOpenCreateModal } from './CreateStudyModalContext';
-import { api } from '@/api';
-import { useAuth } from '@/components/AuthProvider';
 import { StudyResponse } from '@/types/study';
 
 function HomePage() {
     const openCreateModal = useOpenCreateModal();
-    const { accessToken } = useAuth();
 
     const [studies, setStudies] = useState<StudyResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -19,26 +16,47 @@ function HomePage() {
 
     const maxStudyCount = 3;
 
-    useEffect(() => {
-        if (!accessToken) return;
+    const fetchMyStudies = useCallback(async (isStale = false) => {
+        try {
+            if (!isStale) setIsLoading(true);
 
-        async function fetchMyStudies() {
-            setIsLoading(true);
-            try {
-                const res = await api.get<StudyResponse[]>('/studies/me');
-                setStudies(res.data);
-            } catch (error) {
-                console.error(
-                    '스터디 목록을 불러오는 중 오류가 발생했습니다:',
-                    error,
-                );
-            } finally {
+            const res = await fetch('/api/studies/me');
+            if (res.status === 401) {
+                console.warn('인증 세션이 만료되었습니다.');
+                return;
+            }
+
+            if (!res.ok) return;
+
+            const data: StudyResponse[] = await res.json();
+            if (!isStale) {
+                setStudies(data);
+            }
+        } catch (error) {
+            console.error(
+                '스터디 목록을 불러오는 중 오류가 발생했습니다:',
+                error,
+            );
+        } finally {
+            if (!isStale) {
                 setIsLoading(false);
             }
         }
+    }, []);
 
-        fetchMyStudies();
-    }, [accessToken]);
+    useEffect(() => {
+        let isStale = false;
+
+        const loadInitialData = async () => {
+            await fetchMyStudies(isStale);
+        };
+
+        loadInitialData();
+
+        return () => {
+            isStale = true;
+        };
+    }, [fetchMyStudies]);
 
     if (isLoading) {
         return (
