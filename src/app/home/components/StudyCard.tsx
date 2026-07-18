@@ -51,9 +51,12 @@ function StudyCard({ study, onCardClick, onEnterClick }: StudyCardProps) {
                     <div className="flex items-center h-20.5 w-full text-xl text-main-200 text-center font-bold">
                         {study.title}
                     </div>
-                    <div className="flex flex-wrap px-2 py-1 gap-1 justify-center bg-gray-50 rounded-[10px]">
-                        {study.tags.slice(0, 3).map((tag, i) => (
-                            <span key={i} className="text-xs text-main-200 ">
+                    <div className="flex flex-wrap px-2 py-1.5 gap-x-1.5 gap-y-1 justify-center bg-gray-50 rounded-[10px] max-h-20 overflow-y-auto no-scrollbar">
+                        {study.tags.slice(0, 6).map((tag, i) => (
+                            <span
+                                key={i}
+                                className="text-[11px] text-main-200 whitespace-nowrap"
+                            >
                                 # {tag}
                             </span>
                         ))}
