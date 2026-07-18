@@ -7,6 +7,7 @@ import SquareButton from '@/components/SquareButton';
 import Icon from '@/ui/Icon/Icon';
 import TagButton from '@/components/TagButton';
 import Calendar from './Calendar';
+import { useStudyRefresh } from '../StudyRefreshContext';
 
 interface CreateStudyModalProps {
     isOpen: boolean;
@@ -26,9 +27,16 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
     const [passwordEnabled, setPasswordEnabled] = useState(false);
     const [password, setPassword] = useState('');
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const refetch = useStudyRefresh();
 
     const isFormValid = Boolean(
-        title.trim() && startDate && endDate && tags.length > 0,
+        title.trim() &&
+        startDate &&
+        endDate &&
+        tags.length > 0 &&
+        (!passwordEnabled || password.trim()),
     );
 
     const formatDisplay = (dateStr: string) => {
@@ -53,9 +61,54 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
         setTagInput('');
     };
 
-    const handleSubmit = () => {
-        if (!isFormValid) return;
-        onClose?.();
+    const handleSubmit = async () => {
+        if (!isFormValid || isSubmitting) return;
+
+        setIsSubmitting(true);
+        try {
+            const res = await fetch('/api/studies', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    title: title.trim(),
+                    description: description.trim(),
+                    startDate,
+                    endDate,
+                    maxMemberCount: participants,
+                    tags,
+                    password: passwordEnabled ? password : null,
+                }),
+            });
+
+            if (res.status === 401) {
+                alert('인증 세션이 만료되었습니다. 다시 로그인해 주세요.');
+                return;
+            }
+
+            if (!res.ok) {
+                throw new Error('스터디 생성 실패');
+            }
+
+            setTitle('');
+            setDescription('');
+            setStartDate('');
+            setEndDate('');
+            setTags([]);
+            setPassword('');
+            setPasswordEnabled(false);
+
+            refetch();
+            onClose?.();
+        } catch (error) {
+            console.error('스터디 생성 중 오류 발생:', error);
+            alert(
+                '스터디를 만드는 도중 오류가 발생했습니다. 다시 시도해 주세요.',
+            );
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -74,6 +127,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                             placeholder="스터디 제목을 입력해주세요"
                             isFull
                             className="placeholder-gray-300"
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -98,6 +152,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                     fieldSizing: 'content',
                                 } as React.CSSProperties
                             }
+                            disabled={isSubmitting}
                         />
                     </div>
 
@@ -110,6 +165,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                             type="button"
                             onClick={() => setIsCalendarOpen((prev) => !prev)}
                             className="flex w-full items-center justify-between rounded-lg border border-main-20 bg-white px-3 py-2.5 text-sm font-medium text-gray-300 cursor-pointer hover:border-main-30 transition-colors text-left"
+                            disabled={isSubmitting}
                         >
                             <span
                                 className={
@@ -149,6 +205,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                     selected={participants === option}
                                     onClick={() => setParticipants(option)}
                                     className="text-sm py-1 px-3.5"
+                                    disabled={isSubmitting}
                                 >
                                     {option}명
                                 </TagButton>
@@ -170,6 +227,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                             placeholder="태그 입력 후 엔터 (클릭 시 삭제)"
                             isFull
                             className="placeholder-gray-300"
+                            disabled={isSubmitting}
                         />
                         {tags.length > 0 && (
                             <div className="flex flex-wrap gap-2 mt-1.5 animate-in fade-in duration-150">
@@ -185,6 +243,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                             )
                                         }
                                         className="text-sm py-1 px-3.5"
+                                        disabled={isSubmitting}
                                     >
                                         {tag}
                                     </TagButton>
@@ -206,6 +265,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                         ? 'border-main-30 bg-main-30'
                                         : 'border-main-20 bg-white'
                                 }`}
+                                disabled={isSubmitting}
                             >
                                 {passwordEnabled ? (
                                     <Icon
@@ -227,6 +287,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                 placeholder="비밀번호를 입력해주세요"
                                 isFull
                                 className="placeholder-gray-300"
+                                disabled={isSubmitting}
                             />
                         )}
                     </div>
@@ -234,11 +295,18 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
             </Modal.Body>
 
             <Modal.Footer>
-                <SquareButton variant="cancel" onClick={onClose}>
+                <SquareButton
+                    variant="cancel"
+                    onClick={onClose}
+                    disabled={isSubmitting}
+                >
                     취소
                 </SquareButton>
-                <SquareButton onClick={handleSubmit} disabled={!isFormValid}>
-                    확인
+                <SquareButton
+                    onClick={handleSubmit}
+                    disabled={!isFormValid || isSubmitting}
+                >
+                    {isSubmitting ? '생성중...' : '확인'}
                 </SquareButton>
             </Modal.Footer>
         </Modal>
