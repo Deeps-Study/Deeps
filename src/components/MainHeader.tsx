@@ -68,7 +68,6 @@ function MainHeader({ type, onActionClick, userProfile }: MainHeaderProps) {
 
                     {userProfile && (
                         <UserProfile
-                            id={userProfile.id}
                             image={userProfile.image}
                             nickname={userProfile.nickname}
                         />
@@ -89,7 +88,6 @@ function MainHeader({ type, onActionClick, userProfile }: MainHeaderProps) {
 
                     {userProfile && (
                         <UserProfile
-                            id={userProfile.id}
                             image={userProfile.image}
                             nickname={userProfile.nickname}
                         />
