@@ -1,5 +1,4 @@
 export interface UserProfileModel {
-    id: string;
     nickname: string;
     image?: string;
 }

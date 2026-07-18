@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCurrentUser } from './useCurrentUser';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { useAccountActions } from './useAccountActions';
 import { AccountInfo } from './components/AccountInfo';
 import { AccountManagement } from './components/AccountManagement';
