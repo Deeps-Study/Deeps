@@ -1,100 +1,11 @@
-'use client';
-import Input from '@/components/Input';
-import RoundButton from '@/components/RoundButton';
-import { useAuth } from '@/components/AuthProvider';
-import { useNicknameCheck } from '@/hooks/useNicknameCheck';
-import { NicknameStatusMessage } from '@/components/NicknameStatusMessage';
-import { isValidNickname } from '@/utils/validateNickname';
-import { API_URL } from '@/constants/api';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { REFRESH_COOKIE } from '@/api/authSession';
+import { NicknameForm } from './NicknameForm';
 
-const inputConfig = {
-    id: 'nickname',
-    name: 'nickname',
-    placeholder: '닉네임을 입력해주세요.',
-};
-export default function NicknamePage() {
-    const [nickname, setNickname] = useState('');
-    const [submitError, setSubmitError] = useState('');
-    const isValid = isValidNickname(nickname.trim());
-    const { accessToken } = useAuth();
-    const { isAvailable, isChecking } = useNicknameCheck(
-        nickname.trim(),
-        accessToken,
-    );
-    const router = useRouter();
+export default async function NicknamePage() {
+    const cookieStore = await cookies();
+    if (!cookieStore.get(REFRESH_COOKIE)?.value) redirect('/login');
 
-    const handleSubmit = async (e: React.SubmitEvent) => {
-        e.preventDefault();
-        if (!accessToken) return;
-        setSubmitError('');
-        const res = await fetch(`${API_URL}/users/me/nickname`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({ nickname: nickname.trim() }),
-        });
-
-        if (res.status === 409) {
-            setSubmitError('이미 사용 중인 닉네임입니다.');
-            return;
-        }
-        if (!res.ok) {
-            setSubmitError('닉네임 저장에 실패했습니다. 다시 시도해 주세요.');
-            return;
-        }
-
-        router.push('/home');
-    };
-
-    return (
-        <>
-            <div className="w-125 min-h-78.5 pt-11 pb-14 px-12 border border-main-10 shadow-mint rounded-[40px] bg-white">
-                <form
-                    className="flex flex-col h-full justify-between gap-6"
-                    onSubmit={handleSubmit}
-                >
-                    <span className="text-main-100 text-xl font-bold text-center">
-                        안녕하세요! 닉네임을 알려주세요
-                    </span>
-
-                    <div className="flex flex-col gap-2">
-                        <p className="text-gray-600 text-base font-bold text-left">
-                            닉네임 입력
-                        </p>
-
-                        <Input
-                            {...inputConfig}
-                            maxLength={10}
-                            className={`transition-all duration-100 ${isValid ? `shadow-mint` : `shadow-none`}`}
-                            value={nickname}
-                            onChange={(e) => {
-                                setNickname(e.target.value);
-                                setSubmitError('');
-                            }}
-                        ></Input>
-
-                        <NicknameStatusMessage
-                            isValid={isValid}
-                            isChecking={isChecking}
-                            isAvailable={isAvailable}
-                            submitError={submitError}
-                        />
-                    </div>
-
-                    <RoundButton
-                        variant="complete"
-                        isFull
-                        type="submit"
-                        disabled={!isValid || isAvailable !== true}
-                    >
-                        완료
-                    </RoundButton>
-                </form>
-            </div>
-        </>
-    );
+    return <NicknameForm />;
 }
