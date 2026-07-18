@@ -1,32 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { isValidNickname } from '@/utils/validateNickname';
-import { API_URL } from '@/constants/api';
 
 interface NicknameCheckResult {
     isAvailable: boolean | null;
     isChecking: boolean;
 }
 
-export function useNicknameCheck(
-    nickname: string,
-    accessToken: string | null,
-): NicknameCheckResult {
+export function useNicknameCheck(nickname: string): NicknameCheckResult {
     const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
     const [isChecking, setIsChecking] = useState(false);
     const isValid = isValidNickname(nickname);
     const debouncedNickname = useDebounce(nickname, 600);
 
     useEffect(() => {
-        if (!isValid || !accessToken) return;
+        if (!isValid) return;
 
         let isStale = false;
         async function checkNickname() {
             setIsChecking(true);
             try {
                 const res = await fetch(
-                    `${API_URL}/users/me/nickname/check?nickname=${encodeURIComponent(debouncedNickname)}`,
-                    { headers: { Authorization: `Bearer ${accessToken}` } },
+                    `/api/users/me/nickname/check?nickname=${encodeURIComponent(debouncedNickname)}`,
                 );
                 if (!res.ok) {
                     if (!isStale) setIsAvailable(null);
@@ -45,7 +40,7 @@ export function useNicknameCheck(
         return () => {
             isStale = true;
         };
-    }, [debouncedNickname, isValid, accessToken]);
+    }, [debouncedNickname, isValid]);
 
     return { isAvailable, isChecking };
 }
