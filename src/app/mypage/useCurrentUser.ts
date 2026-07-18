@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { API_URL } from '@/constants/api';
 import type { CurrentUserModel } from '@/types/user';
 
 interface UseCurrentUserResult {
@@ -9,9 +8,7 @@ interface UseCurrentUserResult {
     refetch: () => void;
 }
 
-export function useCurrentUser(
-    accessToken: string | null,
-): UseCurrentUserResult {
+export function useCurrentUser(): UseCurrentUserResult {
     const [currentUser, setCurrentUser] = useState<CurrentUserModel | null>(
         null,
     );
@@ -20,15 +17,11 @@ export function useCurrentUser(
     const [refetchKey, setRefetchKey] = useState(0);
 
     useEffect(() => {
-        if (!accessToken) return;
-
         let isStale = false;
         async function fetchCurrentUser() {
             setIsLoading(true);
             try {
-                const res = await fetch(`${API_URL}/users/me`, {
-                    headers: { Authorization: `Bearer ${accessToken}` },
-                });
+                const res = await fetch('/api/users/me');
                 if (res.status === 401) {
                     if (!isStale) setIsUnauthorized(true);
                     return;
@@ -45,7 +38,7 @@ export function useCurrentUser(
         return () => {
             isStale = true;
         };
-    }, [accessToken, refetchKey]);
+    }, [refetchKey]);
 
     const refetch = useCallback(() => setRefetchKey((key) => key + 1), []);
 
