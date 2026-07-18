@@ -2,10 +2,8 @@
 
 import { useState } from 'react';
 import { NicknameStatusMessage } from '@/components/NicknameStatusMessage';
-import { useAuth } from '@/components/AuthProvider';
 import { useNicknameCheck } from '@/hooks/useNicknameCheck';
 import { isValidNickname } from '@/utils/validateNickname';
-import { API_URL } from '@/constants/api';
 
 interface NicknameEditFormProps {
     nickname: string;
@@ -20,24 +18,17 @@ export function NicknameEditForm({
     const [draft, setDraft] = useState(nickname);
     const [submitError, setSubmitError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { accessToken } = useAuth();
     const isValid = isValidNickname(draft.trim());
-    const { isAvailable, isChecking } = useNicknameCheck(
-        draft.trim(),
-        accessToken,
-    );
+    const { isAvailable, isChecking } = useNicknameCheck(draft.trim());
 
     const handleSave = async () => {
-        if (!accessToken || !isValid || isAvailable !== true) return;
+        if (!isValid || isAvailable !== true) return;
         setIsSubmitting(true);
         setSubmitError('');
         try {
-            const res = await fetch(`${API_URL}/users/me/nickname`, {
+            const res = await fetch('/api/users/me/nickname', {
                 method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${accessToken}`,
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ nickname: draft.trim() }),
             });
             if (res.status === 409) {
