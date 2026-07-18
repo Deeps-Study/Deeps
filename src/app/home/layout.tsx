@@ -1,22 +1,20 @@
 'use client';
 
+import { useCallback } from 'react';
 import MainHeader from '@/components/MainHeader';
 import {
     CreateStudyModalProvider,
     useOpenCreateModal,
 } from './CreateStudyModalContext';
-import { useAuth } from '@/components/AuthProvider';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { StudyRefreshProvider } from './StudyRefreshContext';
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
     const openModal = useOpenCreateModal();
-
-    const { accessToken } = useAuth();
-    const { currentUser } = useCurrentUser(accessToken);
+    const { currentUser } = useCurrentUser();
 
     const userProfileData = currentUser
         ? {
-              id: currentUser.id,
               nickname: currentUser.nickname ?? '닉네임 없음',
               image: currentUser.image ?? undefined,
           }
@@ -42,9 +40,19 @@ export default function HomeLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const fetchMyStudies = useCallback(async () => {
+        try {
+            window.location.reload();
+        } catch (error) {
+            console.error(error);
+        }
+    }, []);
+
     return (
-        <CreateStudyModalProvider>
-            <LayoutContent>{children}</LayoutContent>
-        </CreateStudyModalProvider>
+        <StudyRefreshProvider value={fetchMyStudies}>
+            <CreateStudyModalProvider>
+                <LayoutContent>{children}</LayoutContent>
+            </CreateStudyModalProvider>
+        </StudyRefreshProvider>
     );
 }
