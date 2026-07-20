@@ -269,7 +269,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                 {passwordEnabled ? (
                                     <Icon
                                         name="check"
-                                        className="h-3 w-3 stroke-white"
+                                        className="h-3 w-3 text-white"
                                     />
                                 ) : null}
                             </button>
