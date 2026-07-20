@@ -7,7 +7,8 @@ import Link from 'next/link';
 
 interface MainHeaderProps {
     type: 'login' | 'home' | 'detail';
-    onActionClick?: () => void;
+    onCreateStudyClick?: () => void;
+    onLeaveStudyClick?: () => void;
     userProfile?: UserProfileModel;
 }
 
@@ -43,7 +44,12 @@ function UserProfile({ image, nickname }: UserProfileModel) {
     );
 }
 
-function MainHeader({ type, onActionClick, userProfile }: MainHeaderProps) {
+function MainHeader({
+    type,
+    onCreateStudyClick,
+    onLeaveStudyClick,
+    userProfile,
+}: MainHeaderProps) {
     return (
         <header className="bg-white flex w-full px-8 py-3 items-center justify-between border-b border-gray-100">
             <div className="flex items-center w-full">
@@ -59,7 +65,7 @@ function MainHeader({ type, onActionClick, userProfile }: MainHeaderProps) {
             {type === 'home' && (
                 <div className="flex gap-4">
                     <button
-                        onClick={onActionClick}
+                        onClick={onCreateStudyClick}
                         className="flex whitespace-nowrap items-center gap-2 px-3 py-2 rounded-xl bg-main-10 border border-main-20 text-sm font-bold text-main-100 hover:bg-main-50 hover:border-main-30 hover:text-white hover:cursor-pointer hover:shadow-green"
                     >
                         <Icon name="plus" className="stroke-3" />
@@ -79,7 +85,7 @@ function MainHeader({ type, onActionClick, userProfile }: MainHeaderProps) {
             {type === 'detail' && (
                 <div className="flex gap-4">
                     <button
-                        onClick={onActionClick}
+                        onClick={onLeaveStudyClick}
                         className="flex whitespace-nowrap items-center gap-2 w-fit px-3 py-2 rounded-xl bg-white text-sm font-bold text-main-100 hover:text-main-60 hover:cursor-pointer"
                     >
                         <Icon name="out" className="w-4.5 h-4.5 stroke-3" />
