@@ -21,7 +21,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
     const [description, setDescription] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [participants, setParticipants] = useState(4);
+    const [participants, setParticipants] = useState(0);
     const [tagInput, setTagInput] = useState('');
     const [tags, setTags] = useState<string[]>([]);
     const [passwordEnabled, setPasswordEnabled] = useState(false);
@@ -242,7 +242,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                                 ),
                                             )
                                         }
-                                        className="text-sm py-1 px-3.5"
+                                        className="text-sm"
                                         disabled={isSubmitting}
                                     >
                                         {tag}
@@ -251,7 +251,6 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                             </div>
                         )}
                     </div>
-
                     {/* 6. 비밀번호 설정 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
                         <div className="flex items-center gap-2 pt-1">
