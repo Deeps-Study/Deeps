@@ -33,7 +33,7 @@ function StudyCard({ study, onCardClick, onEnterClick }: StudyCardProps) {
             onClick={onCardClick}
             className="w-60 h-96 flex flex-col justify-between rounded-[30px] shadow-mint bg-white border border-main-20 hover:cursor-pointer hover:shadow-green"
         >
-            <header className="w-full h-11 flex justify-between items-center px-6 pt-3">
+            <header className="w-full h-11 flex justify-between items-center px-6 pt-3 shrink-0">
                 {statusConfig[uiStatus].tagElement}
                 <div className="flex gap-2 text-xs font-medium text-main-200">
                     <Icon
@@ -43,35 +43,37 @@ function StudyCard({ study, onCardClick, onEnterClick }: StudyCardProps) {
                     {study.currentMemberCount}명 참여
                 </div>
             </header>
-            <main className="w-full h-full flex flex-col items-center justify-center px-6 py-6 ">
-                <span className="text-[50px]">
+
+            <main className="w-full flex-1 flex flex-col items-center justify-center px-6 pb-6 pt-2 overflow-hidden">
+                <span className="text-[50px] mb-2 shrink-0">
                     {statusConfig[uiStatus].icon}
                 </span>
-                <div className="flex flex-col gap-2 h-36.5 ">
-                    <div className="flex items-center h-20.5 w-full text-xl text-main-200 text-center font-bold">
+
+                <div className="w-full flex flex-col gap-3 items-center justify-center flex-1 min-h-0">
+                    <div className="w-full text-xl text-main-200 text-center font-bold line-clamp-2 leading-snug">
                         {study.title}
                     </div>
-                    <div className="flex flex-wrap px-2 py-1.5 gap-x-1.5 gap-y-1 justify-center bg-gray-50 rounded-[10px] max-h-20 overflow-y-auto no-scrollbar">
+
+                    <div className="w-full flex flex-wrap px-2 py-1.5 gap-x-1.5 gap-y-1 justify-center bg-gray-50 rounded-[10px] max-h-16 overflow-y-auto no-scrollbar break-all">
                         {study.tags.slice(0, 6).map((tag, i) => (
-                            <span
-                                key={i}
-                                className="text-[11px] text-main-200 whitespace-nowrap"
-                            >
+                            <span key={i} className="text-[11px] text-main-200">
                                 # {tag}
                             </span>
                         ))}
                     </div>
                 </div>
-                <div className="py-2.5"></div>
-                <RoundButton
-                    isFull
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onEnterClick();
-                    }}
-                >
-                    입장하기
-                </RoundButton>
+
+                <div className="w-full mt-4 shrink-0">
+                    <RoundButton
+                        isFull
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onEnterClick();
+                        }}
+                    >
+                        입장하기
+                    </RoundButton>
+                </div>
             </main>
         </div>
     );
