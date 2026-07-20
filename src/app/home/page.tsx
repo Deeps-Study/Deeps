@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import StudyCard from './components/StudyCard';
 import CreateCard from './components/CreateCard';
 import StudyDetailModal from './components/StudyDetailModal';
@@ -9,7 +10,7 @@ import { StudyResponse } from '@/types/study';
 
 function HomePage() {
     const openCreateModal = useOpenCreateModal();
-
+    const router = useRouter();
     const [studies, setStudies] = useState<StudyResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedStudyId, setSelectedStudyId] = useState<string | null>(null);
@@ -58,6 +59,12 @@ function HomePage() {
         };
     }, [fetchMyStudies]);
 
+    // Todo : 스터디 카드 클릭 시 해당 스터디 페이지로 이동
+    const handleEnterStudy = (studyId: string) => {
+        // router.push(`/study/${studyId}`);
+        console.log('스터디페이지로 이동');
+    };
+
     if (isLoading) {
         return (
             <div className="flex flex-1 items-center justify-center">
@@ -70,7 +77,7 @@ function HomePage() {
 
     return (
         <div className="flex flex-col w-full px-8">
-            <h1 className="my-6 text-center text-3xl font-bold text-gray-600">
+            <h1 className="mt-20 text-center text-3xl font-bold text-gray-600">
                 현재 진행중인 스터디를 확인하세요!
             </h1>
             <main className="flex h-full items-center justify-center gap-10 py-14">
@@ -79,7 +86,7 @@ function HomePage() {
                         key={study.id}
                         study={study}
                         onCardClick={() => setSelectedStudyId(study.id)}
-                        onEnterClick={() => console.log('딥스터디 입장')}
+                        onEnterClick={() => handleEnterStudy(study.id)}
                     />
                 ))}
 
@@ -92,8 +99,10 @@ function HomePage() {
                 studyId={selectedStudyId}
                 onClose={() => setSelectedStudyId(null)}
                 onEnter={() => {
-                    console.log('딥스터디 입장하기');
-                    setSelectedStudyId(null);
+                    if (selectedStudyId) {
+                        handleEnterStudy(selectedStudyId);
+                        setSelectedStudyId(null);
+                    }
                 }}
             />
         </div>
