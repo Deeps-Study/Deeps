@@ -3,19 +3,27 @@ import SquareButton from '@/components/SquareButton';
 import { TimeSelector } from './TimeSelector';
 
 interface RightPanelProps {
-    onTimeChange: (value: string | null) => void;
+    onTimeChange: (seconds: number | null) => void;
     hint: string;
     onHintChange: (value: string) => void;
+    onSolutionChange: (value: string) => void;
     isFormValid: boolean;
+    isSubmitting: boolean;
+    submitError: string;
     onCancel: () => void;
+    onSubmit: () => void;
 }
 
 export function RightPanel({
     onTimeChange,
     hint,
     onHintChange,
+    onSolutionChange,
     isFormValid,
+    isSubmitting,
+    submitError,
     onCancel,
+    onSubmit,
 }: RightPanelProps) {
     return (
         <div className="flex flex-col gap-9 w-143.75 pb-3 shrink-0 min-h-0">
@@ -40,14 +48,24 @@ export function RightPanel({
                     <MarkdownEditor
                         placeholder="딥스 해설을 작성해 주세요"
                         className="flex-1 min-h-0"
+                        onChange={onSolutionChange}
                     />
                 </div>
             </div>
+            {submitError && (
+                <p className="text-sm font-medium text-red-100">
+                    {submitError}
+                </p>
+            )}
             <div className="flex gap-2.5 shrink-0">
                 <SquareButton variant="cancel" onClick={onCancel}>
                     취소
                 </SquareButton>
-                <SquareButton variant="primary" disabled={!isFormValid}>
+                <SquareButton
+                    variant="primary"
+                    disabled={!isFormValid || isSubmitting}
+                    onClick={onSubmit}
+                >
                     확인
                 </SquareButton>
             </div>
