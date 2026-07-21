@@ -59,9 +59,8 @@ function HomePage() {
         };
     }, [fetchMyStudies]);
 
-    // Todo : 스터디 카드 클릭 시 해당 스터디 페이지로 이동
     const handleEnterStudy = (studyId: string) => {
-        // router.push(`/study/${studyId}`);
+        router.push(`/study/${studyId}`);
         console.log('스터디페이지로 이동');
     };
 
