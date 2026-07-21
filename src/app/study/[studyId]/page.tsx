@@ -98,7 +98,11 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
 
             <div className="grid grid-cols-12 gap-16 items-start">
                 <div className="col-span-7">
-                    <DeepsContainer deepsList={deepsList} studyId={studyId} />
+                    <DeepsContainer
+                        deepsList={deepsList}
+                        studyId={studyId}
+                        totalMemberCount={studyDetail.currentMemberCount}
+                    />
                 </div>
                 <div className="col-span-5 pl-10">
                     <DeepsRanking members={members} />

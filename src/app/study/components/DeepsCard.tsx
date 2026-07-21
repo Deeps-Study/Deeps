@@ -7,9 +7,10 @@ import { formatTime } from '@/utils/time';
 
 interface DeepsCardProps {
     deeps: DeepsItemResponse;
+    totalMemberCount: number;
 }
 
-export default function DeepsCard({ deeps }: DeepsCardProps) {
+export default function DeepsCard({ deeps, totalMemberCount }: DeepsCardProps) {
     const { title, creator, expiredAt, isSubmitted, submittedCount } = deeps;
 
     // 만료 일시(expiredAt) 기반으로 현재 남아있는 초 연산
@@ -65,7 +66,10 @@ export default function DeepsCard({ deeps }: DeepsCardProps) {
                                 className="h-full w-full object-cover"
                             />
                         ) : (
-                            <span>🐱</span>
+                            <Icon
+                                name="user"
+                                className="w-4 h-4 text-main-100 stroke-2 fill-current"
+                            />
                         )}
                     </div>
                     <div className="flex flex-1 flex-col gap-1 px-1.5">
@@ -102,7 +106,7 @@ export default function DeepsCard({ deeps }: DeepsCardProps) {
                             className="h-4 w-4 stroke-2 text-main-200"
                         />
                         <span className="text-xs font-medium text-gray-600">
-                            {submittedCount}명 제출
+                            {submittedCount} / {totalMemberCount}
                         </span>
                     </div>
                 </div>
