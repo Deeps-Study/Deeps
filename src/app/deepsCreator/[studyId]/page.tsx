@@ -1,11 +1,17 @@
 import { DeepsDetailHeader } from './components/DeepsDetailHeader';
 import { DeepsForm } from './components/DeepsForm';
 
-export default function DeepsDetailPage() {
+export default async function DeepsDetailPage({
+    params,
+}: {
+    params: Promise<{ studyId: string }>;
+}) {
+    const { studyId } = await params;
+
     return (
         <div className="flex flex-col h-screen bg-white">
             <DeepsDetailHeader />
-            <DeepsForm />
+            <DeepsForm studyId={studyId} />
         </div>
     );
 }
