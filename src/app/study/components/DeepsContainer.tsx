@@ -65,7 +65,7 @@ export default function DeepsContainer({
                                 : 'border-b-transparent text-gray-400 hover:text-gray-600'
                         }`}
                     >
-                        진행중 ({progressDeeps.length})
+                        진행중
                     </button>
                     <button
                         onClick={() => setActiveTab('completed')}
@@ -75,7 +75,7 @@ export default function DeepsContainer({
                                 : 'border-b-transparent text-gray-400 hover:text-gray-600'
                         }`}
                     >
-                        완료됨 ({completedDeeps.length})
+                        완료됨
                     </button>
                 </div>
 
