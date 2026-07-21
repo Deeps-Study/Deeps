@@ -4,13 +4,17 @@ import { useState } from 'react';
 import TagButton from '@/components/TagButton';
 import Input from '@/components/Input';
 
-const PRESET_TIMES = [
-    '1 시간',
-    '2 시간',
-    '6 시간',
-    '12 시간',
-    '24 시간',
-] as const;
+const PRESET_SECONDS: Record<string, number> = {
+    '1 시간': 60 * 60,
+    '2 시간': 60 * 60 * 2,
+    '6 시간': 60 * 60 * 6,
+    '12 시간': 60 * 60 * 12,
+    '24 시간': 60 * 60 * 24,
+};
+const PRESET_TIMES = Object.keys(PRESET_SECONDS);
+
+const MIN_DURATION_SECONDS = 60 * 60;
+const MAX_DURATION_SECONDS = 60 * 60 * 24 * 7;
 
 interface CustomTime {
     hours: string;
@@ -19,7 +23,7 @@ interface CustomTime {
 }
 
 interface TimeSelectorProps {
-    onChange: (value: string | null) => void;
+    onChange: (seconds: number | null) => void;
 }
 
 export function TimeSelector({ onChange }: TimeSelectorProps) {
@@ -38,15 +42,21 @@ export function TimeSelector({ onChange }: TimeSelectorProps) {
         if (next !== '직접 입력') {
             setCustom({ hours: '', minutes: '', seconds: '' });
         }
-        onChange(next === '직접 입력' ? null : next);
+        onChange(next && next !== '직접 입력' ? PRESET_SECONDS[next] : null);
     }
 
     function handleCustomChange(field: keyof CustomTime, value: string) {
         const next = { ...custom, [field]: value };
         setCustom(next);
+
+        const totalSeconds =
+            (Number(next.hours) || 0) * 60 * 60 +
+            (Number(next.minutes) || 0) * 60 +
+            (Number(next.seconds) || 0);
         const isValid =
-            next.hours !== '' || next.minutes !== '' || next.seconds !== '';
-        onChange(isValid ? '직접 입력' : null);
+            totalSeconds >= MIN_DURATION_SECONDS &&
+            totalSeconds <= MAX_DURATION_SECONDS;
+        onChange(isValid ? totalSeconds : null);
     }
 
     return (
