@@ -31,43 +31,26 @@ export interface StudyDetailResponse {
     tags: string[];
 }
 
-export interface Study {
-    id: string;
-    title: string;
-    startDate: string;
-    endDate: string;
-    currentParticipants: number;
-    maxParticipants: number;
-    tags: string[];
-    description: string;
-    password?: string;
+export interface ActivityLog {
+    date: string;
+    deepsCreatedCount: number;
+    answersSolvedCount: number;
 }
 
-export interface StudyDetailModel {
+export interface StudyMemberResponse {
     id: string;
-    title: string;
-    startDate: string;
-    endDate: string;
-    maxParticipants: number;
-    tags: string[];
-    description: string;
-    members: StudyMemberModel[];
+    nickname: string;
+    profileImageUrl: string;
+    totalLikesReceived: number;
+    activityLogs: ActivityLog[];
 }
 
-export interface StudyMemberModel extends UserProfileModel {
-    count: number;
-}
-
-export interface DeepsModel {
+export interface DeepsItemResponse {
     id: string;
-    studyId: string;
     title: string;
-    content: string;
     creator: UserProfileModel;
-    timeLimit: number;
     createdAt: string;
-    solvedCount: number;
-    totalCount: number;
-    isMyAnswered: boolean;
-    isTimeEnded: boolean;
+    expiredAt: string;
+    isSubmitted: boolean;
+    submittedCount: number;
 }
