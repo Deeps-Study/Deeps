@@ -4,9 +4,14 @@ import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 interface LeftPanelProps {
     title: string;
     onTitleChange: (value: string) => void;
+    onDescriptionChange: (value: string) => void;
 }
 
-export function LeftPanel({ title, onTitleChange }: LeftPanelProps) {
+export function LeftPanel({
+    title,
+    onTitleChange,
+    onDescriptionChange,
+}: LeftPanelProps) {
     return (
         <div className="flex flex-col flex-1 gap-9 pb-3 min-h-0">
             <div className="flex flex-col gap-2.5 shrink-0">
@@ -28,6 +33,7 @@ export function LeftPanel({ title, onTitleChange }: LeftPanelProps) {
                 <MarkdownEditor
                     placeholder="딥스에 대해서 설명해 주세요"
                     className="flex-1 min-h-0"
+                    onChange={onDescriptionChange}
                 />
             </div>
         </div>
