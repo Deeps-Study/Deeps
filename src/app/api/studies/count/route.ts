@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { api, backendErrorStatus } from '@/api';
 import { requireAccessToken } from '@/api/authSession';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     const accessToken = await requireAccessToken();
 
     if (!accessToken) {
