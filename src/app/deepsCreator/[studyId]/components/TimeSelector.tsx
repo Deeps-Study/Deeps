@@ -13,7 +13,7 @@ const PRESET_SECONDS: Record<string, number> = {
 };
 const PRESET_TIMES = Object.keys(PRESET_SECONDS);
 
-const MIN_DURATION_SECONDS = 60 * 60;
+const MIN_DURATION_SECONDS = 60;
 const MAX_DURATION_SECONDS = 60 * 60 * 24 * 7;
 
 interface CustomTime {
