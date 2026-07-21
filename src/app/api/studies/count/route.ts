@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { api, backendErrorStatus } from '@/api';
 import { requireAccessToken } from '@/api/authSession';
 
