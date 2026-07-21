@@ -8,10 +8,30 @@ interface DeepsRankingProps {
     members: StudyMemberResponse[];
 }
 
-export default function DeepsRanking({ members }: DeepsRankingProps) {
+export default function DeepsRanking({ members = [] }: DeepsRankingProps) {
+    // 1. 좋아요 수 내림차순 정렬
     const sortedMembers = [...members].sort(
-        (a, b) => b.totalLikesReceived - a.totalLikesReceived,
+        (a, b) => (b.totalLikesReceived ?? 0) - (a.totalLikesReceived ?? 0),
     );
+
+    // 2. 동순위 계산 (React Compiler 에러 없는 reduce 방식)
+    const rankedMembers = sortedMembers.reduce<
+        Array<StudyMemberResponse & { rank: number }>
+    >((acc, member, index) => {
+        const likes = member.totalLikesReceived ?? 0;
+
+        if (index === 0) {
+            acc.push({ ...member, rank: 1 });
+        } else {
+            const prev = acc[index - 1];
+            const prevLikes = prev.totalLikesReceived ?? 0;
+            // 이전 멤버와 좋아요 수가 같으면 동순위, 다르면 (index + 1)위
+            const rank = likes === prevLikes ? prev.rank : index + 1;
+            acc.push({ ...member, rank });
+        }
+
+        return acc;
+    }, []);
 
     return (
         <div className="flex flex-col gap-5">
@@ -21,8 +41,12 @@ export default function DeepsRanking({ members }: DeepsRankingProps) {
             <div className="h-px w-full bg-main-20 -mt-1" />
 
             <div className="flex flex-col gap-2.5 mt-2">
-                {sortedMembers.map((item, index) => {
-                    const rank = index + 1;
+                {rankedMembers.map((item, index) => {
+                    // 이전 멤버와 순위가 같으면 순위 텍스트를 숨김
+                    const isSameRankAsPrev =
+                        index > 0 &&
+                        rankedMembers[index - 1].rank === item.rank;
+
                     return (
                         <div
                             key={item.id}
@@ -31,13 +55,20 @@ export default function DeepsRanking({ members }: DeepsRankingProps) {
                             <div className="flex items-center gap-4">
                                 <span
                                     className={`text-sm font-semibold w-6 ${
-                                        rank <= 3
+                                        item.rank <= 3
                                             ? 'text-main-50'
                                             : 'text-gray-400'
                                     }`}
                                 >
-                                    {rank}
-                                    <span className="text-gray-600">위</span>
+                                    {/* 동순위일 때는 빈 문자열 처리하여 첫 번째 유저만 'N위' 표시 */}
+                                    {!isSameRankAsPrev && (
+                                        <>
+                                            {item.rank}
+                                            <span className="text-gray-600">
+                                                위
+                                            </span>
+                                        </>
+                                    )}
                                 </span>
 
                                 <div className="flex h-7 w-7 items-center justify-center rounded-full border border-main-20 bg-white text-sm overflow-hidden select-none">
@@ -63,7 +94,7 @@ export default function DeepsRanking({ members }: DeepsRankingProps) {
                             </div>
 
                             <span className="text-sm font-semibold text-main-50">
-                                {item.totalLikesReceived}{' '}
+                                {item.totalLikesReceived ?? 0}{' '}
                                 <span className="text-gray-400 font-semibold ml-0.5">
                                     Likes
                                 </span>
