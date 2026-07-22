@@ -7,7 +7,7 @@ import { TimeAlert } from './TimeAlert';
 interface DeepsDetailClientProps {
     title: string;
     timeLimitLabel: string;
-    remainSeconds: number;
+    expiredAtMs: number;
     hasSubmitted: boolean;
     isExpired: boolean;
     onExpire: () => void;
@@ -21,7 +21,7 @@ interface DeepsDetailClientProps {
 export function DeepsDetailClient({
     title,
     timeLimitLabel,
-    remainSeconds,
+    expiredAtMs,
     hasSubmitted,
     isExpired,
     onExpire,
@@ -34,9 +34,10 @@ export function DeepsDetailClient({
     return (
         <div className="flex flex-col bg-white">
             <DeepsDetailHeader
+                studyId={studyId}
                 title={title}
                 timeLimitLabel={timeLimitLabel}
-                remainSeconds={remainSeconds}
+                expiredAtMs={expiredAtMs}
                 onExpire={onExpire}
             />
             <main className="flex gap-12 px-16 py-8 items-start">
