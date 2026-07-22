@@ -1,9 +1,12 @@
-import { UserProfileModel } from './user';
+export interface MyAnswerModel {
+    answerId: string;
+    content: string;
+}
 
-export interface DeepsAnswerModel {
-    author: UserProfileModel;
-    deepsId: string;
-    deepStudyId: string;
+export interface OtherAnswerModel {
+    answerId: string;
+    author: { nickname: string; image: string };
     content: string;
     recommendCount: number;
+    recommended: boolean;
 }
