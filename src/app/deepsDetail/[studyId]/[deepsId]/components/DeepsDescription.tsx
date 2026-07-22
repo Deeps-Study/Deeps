@@ -40,7 +40,7 @@ export function DeepsDescription({
                 </p>
             </div>
             <div
-                className="min-h-50 max-h-107.5 overflow-y-auto bg-gray-50 border border-gray-200 rounded-lg px-6 py-5 text-sm font-medium text-gray-500 leading-relaxed prose prose-sm max-w-none"
+                className="min-h-50 max-h-107.5 overflow-y-auto bg-gray-50 border border-gray-200 rounded-lg px-4.5 py-3.5 text-sm font-medium text-gray-500 leading-relaxed prose prose-sm max-w-none"
                 dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
             />
         </section>

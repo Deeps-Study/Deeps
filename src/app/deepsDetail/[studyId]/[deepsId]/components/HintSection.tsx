@@ -19,7 +19,7 @@ export function HintSection({
     const isBlurred = !isExpired && !isVisible;
 
     const boxClassName = cn(
-        'min-h-30 max-h-50 overflow-y-auto border border-main-20 bg-main-10 rounded-lg px-6 py-5',
+        'min-h-30 max-h-50 overflow-y-auto border border-main-20 bg-main-10 rounded-lg px-4.5 py-3.5',
         'text-sm font-medium text-gray-500 leading-relaxed whitespace-pre-line',
         'transition-all duration-200 select-none',
         isBlurred && 'blur-[3px]',
