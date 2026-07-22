@@ -1,17 +1,25 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import Icon from '@/ui/Icon/Icon';
 import type { DeepsItemResponse } from '@/types/study';
 import { formatTime } from '@/utils/time';
 
 interface DeepsCardProps {
     deeps: DeepsItemResponse;
+    studyId: string;
     totalMemberCount: number;
 }
 
-export default function DeepsCard({ deeps, totalMemberCount }: DeepsCardProps) {
-    const { title, creator, expiredAt, isSubmitted, submittedCount } = deeps;
+export default function DeepsCard({
+    deeps,
+    studyId,
+    totalMemberCount,
+}: DeepsCardProps) {
+    const router = useRouter();
+    const { id, title, creator, expiredAt, isSubmitted, submittedCount } =
+        deeps;
 
     // 만료 일시(expiredAt) 기반으로 현재 남아있는 초 연산
     const getRemainingSeconds = () => {
@@ -52,7 +60,10 @@ export default function DeepsCard({ deeps, totalMemberCount }: DeepsCardProps) {
     };
 
     return (
-        <div className="flex flex-col gap-2 rounded-lg border border-main-20 bg-white px-3 py-2 shadow-sm hover:shadow-mint hover:cursor-pointer transition-all">
+        <div
+            onClick={() => router.push(`/deepsDetail/${studyId}/${id}`)}
+            className="flex flex-col gap-2 rounded-lg border border-main-20 bg-white px-3 py-2 shadow-sm hover:shadow-mint hover:cursor-pointer transition-all"
+        >
             <div className="border-b border-main-20 py-2">
                 <div className="flex items-start gap-2.5">
                     {/* 작성자 아바타 */}
