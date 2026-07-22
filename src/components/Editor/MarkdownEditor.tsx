@@ -24,7 +24,7 @@ interface MarkdownEditorProps {
 const lowlight = createLowlight(common);
 
 const WRITE_CLASSES = cn(
-    'flex-1 pt-3 px-6 pb-6 overflow-auto prose prose-sm max-w-none',
+    'flex-1 pt-3.5 px-4.5 pb-3.5 overflow-auto prose prose-sm max-w-none',
     '[&_.tiptap]:outline-none [&_.tiptap]:min-h-[120px]',
     '[&_.tiptap_p]:my-[0.3em]',
     '[&_.tiptap>:first-child]:mt-0 [&_.tiptap>:last-child]:mb-0',
@@ -32,7 +32,7 @@ const WRITE_CLASSES = cn(
 );
 
 const PREVIEW_CLASSES = cn(
-    'flex-1 pt-3 p-6 pb-6 overflow-auto prose prose-sm max-w-none',
+    'flex-1 pt-3.5 px-4.5 pb-3.5 overflow-auto prose prose-sm max-w-none',
     '[&_p]:my-[0.3em]',
     '[&>p:first-child]:mt-0 [&>p:last-child]:mb-0',
     '[&_img]:rounded-lg [&_img]:my-3 [&_img]:max-w-full [&_img]:block',
