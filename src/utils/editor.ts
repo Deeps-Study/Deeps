@@ -1,3 +1,5 @@
+import DOMPurify from 'isomorphic-dompurify';
+
 export function isHtmlEmpty(html: string) {
     return (
         html
@@ -5,4 +7,8 @@ export function isHtmlEmpty(html: string) {
             .replace(/&nbsp;/g, '')
             .trim().length === 0
     );
+}
+
+export function sanitizeHtml(html: string): string {
+    return DOMPurify.sanitize(html);
 }
