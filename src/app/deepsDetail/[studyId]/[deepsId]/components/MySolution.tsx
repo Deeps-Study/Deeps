@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import Icon from '@/ui/Icon/Icon';
 import { SolutionEditor } from './SolutionEditor';
 import { isHtmlEmpty, sanitizeHtml } from '@/utils/editor';
@@ -25,9 +25,21 @@ export const MySolution = memo(function MySolution({
     );
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
+    const draftRef = useRef(content);
 
     const showEditor = isEditing && !isExpired;
     const isEmpty = isHtmlEmpty(content);
+
+    useEffect(() => {
+        if (!isExpired || !isEditing) return;
+        const draft = draftRef.current;
+        if (isHtmlEmpty(draft)) {
+            setIsEditing(false);
+            return;
+        }
+        handleSubmit(draft);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isExpired]);
 
     async function handleSubmit(html: string) {
         if (isSubmitting) return;
@@ -82,6 +94,9 @@ export const MySolution = memo(function MySolution({
                     <SolutionEditor
                         initialContent={content}
                         onSubmit={handleSubmit}
+                        onContentChange={(html) => {
+                            draftRef.current = html;
+                        }}
                     />
                     {submitError && (
                         <p className="text-sm font-medium text-red-100">
@@ -90,7 +105,7 @@ export const MySolution = memo(function MySolution({
                     )}
                 </>
             ) : isEmpty ? (
-                <div className="min-h-107.5 max-h-107.5 border border-gray-300 rounded-lg px-6 py-5 flex items-center justify-center">
+                <div className="min-h-107.5 max-h-107.5 border border-gray-300 rounded-lg px-4.5 py-3.5 flex items-center justify-center">
                     <p className="text-sm font-medium text-gray-300 text-center">
                         문제를 풀지 못했어요 😢 <br />
                         다른 멤버는 어떻게 풀었는지 확인하고 같이 공부해 볼까요?
@@ -98,7 +113,7 @@ export const MySolution = memo(function MySolution({
                 </div>
             ) : (
                 <div
-                    className="min-h-107.5 max-h-107.5 overflow-y-auto border border-main-100 rounded-lg px-6 py-5 prose prose-sm max-w-none"
+                    className="min-h-107.5 max-h-107.5 overflow-y-auto border border-main-100 rounded-lg px-4.5 py-3.5 prose prose-sm max-w-none"
                     dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
                 />
             )}
