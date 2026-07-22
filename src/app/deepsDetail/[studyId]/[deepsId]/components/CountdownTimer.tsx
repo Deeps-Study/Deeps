@@ -5,14 +5,11 @@ import { formatTime } from '@/utils/time';
 import { useTimer } from '@/hooks/useTimer';
 
 interface CountdownTimerProps {
-    initialSeconds: number;
+    expiredAtMs: number;
     onExpire?: () => void;
 }
 
-export function CountdownTimer({
-    initialSeconds,
-    onExpire,
-}: CountdownTimerProps) {
-    const remaining = useTimer({ initialSeconds, onExpire });
+export function CountdownTimer({ expiredAtMs, onExpire }: CountdownTimerProps) {
+    const remaining = useTimer({ expiredAtMs, onExpire });
     return <Tag variant="red">{formatTime(remaining)}</Tag>;
 }
