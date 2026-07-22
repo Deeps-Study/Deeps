@@ -3,22 +3,24 @@ import BackButton from './BackButton';
 import { CountdownTimer } from './CountdownTimer';
 
 interface DeepsDetailHeaderProps {
+    studyId: string;
     title: string;
     timeLimitLabel: string;
-    remainSeconds: number;
+    expiredAtMs: number;
     onExpire?: () => void;
 }
 
 export function DeepsDetailHeader({
+    studyId,
     title,
     timeLimitLabel,
-    remainSeconds,
+    expiredAtMs,
     onExpire,
 }: DeepsDetailHeaderProps) {
     return (
         <header className="bg-white border-b border-gray-100 flex items-center gap-8 h-16.5 px-8 shrink-0">
             <div className="flex items-center gap-4 shrink-0">
-                <BackButton />
+                <BackButton studyId={studyId} />
                 <h1 className="text-2xl font-bold text-main-100">{title}</h1>
             </div>
             <div className="flex items-center gap-8 shrink-0">
@@ -33,7 +35,7 @@ export function DeepsDetailHeader({
                         남은 시간
                     </span>
                     <CountdownTimer
-                        initialSeconds={remainSeconds}
+                        expiredAtMs={expiredAtMs}
                         onExpire={onExpire}
                     />
                 </div>
