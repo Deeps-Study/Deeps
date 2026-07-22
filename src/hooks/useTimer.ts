@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface UseTimerOptions {
-    initialSeconds: number;
+    expiredAtMs: number;
     onExpire?: () => void;
 }
 
-export function useTimer({ initialSeconds, onExpire }: UseTimerOptions): number {
-    const [remaining, setRemaining] = useState(initialSeconds);
+function getRemaining(expiredAtMs: number): number {
+    return Math.max(0, Math.ceil((expiredAtMs - Date.now()) / 1000));
+}
+
+export function useTimer({ expiredAtMs, onExpire }: UseTimerOptions): number {
+    const [remaining, setRemaining] = useState(() => getRemaining(expiredAtMs));
     const onExpireRef = useRef(onExpire);
     const expiredRef = useRef(false);
 
@@ -15,24 +19,20 @@ export function useTimer({ initialSeconds, onExpire }: UseTimerOptions): number 
     }, [onExpire]);
 
     useEffect(() => {
-        if (initialSeconds <= 0) return;
-        const interval = setInterval(() => {
-            setRemaining((prev) => {
-                if (prev <= 1) {
-                    clearInterval(interval);
-                    expiredRef.current = true;
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-        return () => clearInterval(interval);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+        function tick() {
+            const next = getRemaining(expiredAtMs);
+            setRemaining(next);
+            if (next <= 0 && !expiredRef.current) {
+                expiredRef.current = true;
+                clearInterval(interval);
+                onExpireRef.current?.();
+            }
+        }
 
-    useEffect(() => {
-        if (remaining === 0 && expiredRef.current) onExpireRef.current?.();
-    }, [remaining]);
+        const interval = setInterval(tick, 1000);
+        tick();
+        return () => clearInterval(interval);
+    }, [expiredAtMs]);
 
     return remaining;
 }
