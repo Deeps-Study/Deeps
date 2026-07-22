@@ -100,6 +100,7 @@ export default function DeepsContainer({
                         <DeepsCard
                             key={deep.id}
                             deeps={deep}
+                            studyId={studyId ?? ''}
                             totalMemberCount={totalMemberCount}
                         />
                     ))}
