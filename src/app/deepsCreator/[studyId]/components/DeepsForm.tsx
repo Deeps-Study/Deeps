@@ -50,7 +50,7 @@ export function DeepsForm({ studyId }: DeepsFormProps) {
                 return;
             }
             const data: { id: string } = await res.json();
-            router.push(`/deepsDetail/${data.id}`);
+            router.replace(`/deepsDetail/${studyId}/${data.id}`);
         } finally {
             setIsSubmitting(false);
         }
