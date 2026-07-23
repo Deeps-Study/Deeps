@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import cn from 'classnames';
 import Icon from '@/ui/Icon/Icon';
 import { sanitizeHtml } from '@/utils/editor';
@@ -55,8 +56,21 @@ export function OtherAnswerCard({
         <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
                 <p className="flex items-center gap-2 text-sm font-medium text-gray-500">
-                    <span className="w-6 h-6 rounded-full border border-main-100 flex items-center justify-center text-base leading-none shrink-0">
-                        {image ?? '🐱'}
+                    <span className="relative w-6 h-6 rounded-full border border-main-100 flex items-center justify-center overflow-hidden shrink-0">
+                        {image ? (
+                            <Image
+                                src={image}
+                                alt={author}
+                                fill
+                                sizes="24px"
+                                className="object-cover"
+                            />
+                        ) : (
+                            <Icon
+                                name="user"
+                                className="w-4 h-4 text-main-100"
+                            />
+                        )}
                     </span>
                     {author}
                 </p>
