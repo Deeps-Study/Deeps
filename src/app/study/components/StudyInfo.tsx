@@ -1,17 +1,26 @@
 'use client';
 
+import { useState } from 'react';
 import Icon from '@/ui/Icon/Icon';
 import { StudyDetailResponse } from '@/types/study';
 import Tag from '@/components/Tag';
-
+import { CopyToast } from './CopyToast';
 interface StudyInfoProps {
     study: StudyDetailResponse;
 }
 
 export default function StudyInfo({ study }: StudyInfoProps) {
+    const [showToast, setShowToast] = useState(false);
+
     const handleCopyLink = () => {
-        navigator.clipboard.writeText(window.location.href);
-        alert('스터디 링크가 복사되었습니다.');
+        const inviteUrl = `${window.location.origin}/home?joinStudy=${study.id}`;
+        navigator.clipboard.writeText(inviteUrl);
+
+        setShowToast(true);
+
+        setTimeout(() => {
+            setShowToast(false);
+        }, 3000);
     };
 
     return (
@@ -48,6 +57,8 @@ export default function StudyInfo({ study }: StudyInfoProps) {
                 <Icon name="link" className="h-4.5 w-4.5 stroke-1" />
                 스터디 링크 복사
             </button>
+
+            <CopyToast show={showToast} />
         </div>
     );
 }
