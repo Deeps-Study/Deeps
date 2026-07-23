@@ -5,6 +5,7 @@ import Modal from '@/components/Modal';
 import SquareButton from '@/components/SquareButton';
 import Icon from '@/ui/Icon/Icon';
 import { StudyDetailResponse } from '@/types/study';
+import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 
 interface StudyDetailModalProps {
     studyId: string | null;
@@ -32,7 +33,7 @@ function StudyDetailModal({
                 const res = await fetch(`/api/studies/${studyId}`);
 
                 if (res.status === 401) {
-                    console.warn('인증 세션이 만료되었습니다.');
+                    triggerSessionExpired();
                     return;
                 }
 
