@@ -11,6 +11,7 @@ import StudyInfo from '../components/StudyInfo';
 import ActivityGrass from '../components/ActivityGrass';
 import DeepsContainer from '../components/DeepsContainer';
 import DeepsRanking from '../components/DeepsRanking';
+import StudyDetailSkeleton from '../components/StudyDetailSkeleton';
 import { useRouter } from 'next/navigation';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 
@@ -27,6 +28,7 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
     const [members, setMembers] = useState<StudyMemberResponse[]>([]);
     const [deepsList, setDeepsList] = useState<DeepsItemResponse[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [showSkeleton, setShowSkeleton] = useState<boolean>(false);
 
     const router = useRouter();
 
@@ -87,12 +89,20 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
         }
     }, [studyId, router]);
 
+    useEffect(() => {
+        if (!isLoading) return;
+
+        const timer = setTimeout(() => {
+            setShowSkeleton(true);
+        }, 200);
+
+        return () => clearTimeout(timer);
+    }, [isLoading]);
+
+    const isSkeletonVisible = isLoading && showSkeleton;
+
     if (isLoading) {
-        return (
-            <div className="flex h-96 w-full items-center justify-center text-gray-400">
-                스터디 정보를 불러오는 중입니다...
-            </div>
-        );
+        return isSkeletonVisible ? <StudyDetailSkeleton /> : null;
     }
 
     if (!studyDetail) {
