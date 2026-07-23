@@ -5,9 +5,10 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import StudyCard from './components/StudyCard';
 import CreateCard from './components/CreateCard';
 import StudyDetailModal from './components/StudyDetailModal';
+import StudyCardSkeleton from './components/StudyCardSkeleton';
+import StudyJoinModal from '@/components/StudyJoinModal';
 import { useOpenCreateModal } from './CreateStudyModalContext';
 import { StudyResponse, StudyDetailResponse } from '@/types/study';
-import StudyJoinModal from '@/components/StudyJoinModal';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 
 function HomePageContent() {
@@ -18,6 +19,8 @@ function HomePageContent() {
 
     const [studies, setStudies] = useState<StudyResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showSkeleton, setShowSkeleton] = useState(false);
+
     const [selectedStudyId, setSelectedStudyId] = useState<string | null>(null);
 
     const joinStudyId = searchParams.get('joinStudy');
@@ -106,15 +109,17 @@ function HomePageContent() {
         router.push(`/study/${studyId}`);
     };
 
-    if (isLoading) {
-        return (
-            <div className="flex flex-1 items-center justify-center">
-                <p className="text-gray-500 font-medium">
-                    스터디 목록을 불러오는 중입니다...
-                </p>
-            </div>
-        );
-    }
+    useEffect(() => {
+        if (!isLoading) return;
+
+        const timer = setTimeout(() => {
+            setShowSkeleton(true);
+        }, 200);
+
+        return () => clearTimeout(timer);
+    }, [isLoading]);
+
+    const isSkeletonVisible = isLoading && showSkeleton;
 
     return (
         <div className="flex flex-col w-full px-8">
@@ -122,20 +127,33 @@ function HomePageContent() {
                 현재 진행중인 스터디를 확인하세요!
             </h1>
             <main className="flex h-full items-center justify-center gap-10 py-14">
-                {studies.map((study) => (
-                    <StudyCard
-                        key={study.id}
-                        study={study}
-                        onCardClick={() => setSelectedStudyId(study.id)}
-                        onEnterClick={() => handleEnterStudy(study.id)}
-                    />
-                ))}
+                {isLoading ? (
+                    // 로딩 중 : 200ms 지나면 스켈레톤 노출 (그 전엔 빈 공간)
+                    isSkeletonVisible && (
+                        <>
+                            <StudyCardSkeleton />
+                            <StudyCardSkeleton />
+                            <StudyCardSkeleton />
+                        </>
+                    )
+                ) : (
+                    // 로딩 후: 실제 데이터 및 스터디 만들기 카드 노출
+                    <>
+                        {studies.map((study) => (
+                            <StudyCard
+                                key={study.id}
+                                study={study}
+                                onCardClick={() => setSelectedStudyId(study.id)}
+                                onEnterClick={() => handleEnterStudy(study.id)}
+                            />
+                        ))}
 
-                {studies.length < maxStudyCount && (
-                    <CreateCard onCreateClick={openCreateModal} />
+                        {studies.length < maxStudyCount && (
+                            <CreateCard onCreateClick={openCreateModal} />
+                        )}
+                    </>
                 )}
             </main>
-
             <StudyDetailModal
                 isOpen={!!selectedStudyId}
                 studyId={selectedStudyId}
