@@ -54,33 +54,39 @@ function HomePageContent() {
         router.replace(pathname, { scroll: false });
     };
 
-    const fetchMyStudies = useCallback(async (isStale = false) => {
-        try {
-            if (!isStale) setIsLoading(true);
+    const fetchMyStudies = useCallback(
+        async (isStale = false) => {
+            try {
+                if (!isStale) setIsLoading(true);
 
-            const res = await fetch('/api/studies/me');
-            if (res.status === 401) {
-                console.warn('인증 세션이 만료되었습니다.');
-                return;
-            }
+                const res = await fetch('/api/studies/me');
+                if (res.status === 401) {
+                    console.warn('인증 세션이 만료되었습니다.');
+                    if (!joinStudyId) {
+                        router.push('/login');
+                    }
+                    return;
+                }
 
-            if (!res.ok) return;
+                if (!res.ok) return;
 
-            const data: StudyResponse[] = await res.json();
-            if (!isStale) {
-                setStudies(data);
+                const data: StudyResponse[] = await res.json();
+                if (!isStale) {
+                    setStudies(data);
+                }
+            } catch (error) {
+                console.error(
+                    '스터디 목록을 불러오는 중 오류가 발생했습니다:',
+                    error,
+                );
+            } finally {
+                if (!isStale) {
+                    setIsLoading(false);
+                }
             }
-        } catch (error) {
-            console.error(
-                '스터디 목록을 불러오는 중 오류가 발생했습니다:',
-                error,
-            );
-        } finally {
-            if (!isStale) {
-                setIsLoading(false);
-            }
-        }
-    }, []);
+        },
+        [joinStudyId, router],
+    );
 
     useEffect(() => {
         let isStale = false;
