@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { LeftPanel } from './LeftPanel';
 import { RightPanel } from './RightPanel';
 
@@ -41,6 +42,10 @@ export function DeepsForm({ studyId }: DeepsFormProps) {
                     solution,
                 }),
             });
+            if (res.status === 401) {
+                triggerSessionExpired();
+                return;
+            }
             if (!res.ok) {
                 const data = await res.json().catch(() => null);
                 setSubmitError(

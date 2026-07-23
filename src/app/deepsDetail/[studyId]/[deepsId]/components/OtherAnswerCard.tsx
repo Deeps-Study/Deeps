@@ -4,6 +4,7 @@ import { useState } from 'react';
 import cn from 'classnames';
 import Icon from '@/ui/Icon/Icon';
 import { sanitizeHtml } from '@/utils/editor';
+import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 
 export interface OtherAnswerCardProps {
     studyId: string;
@@ -42,6 +43,11 @@ export function OtherAnswerCard({
             `/api/studies/${studyId}/deeps/${deepsId}/answers/${answerId}/like`,
             { method: 'POST' },
         );
+        if (res.status === 401) {
+            setState(previous);
+            triggerSessionExpired();
+            return;
+        }
         if (!res.ok) setState(previous);
     }
 

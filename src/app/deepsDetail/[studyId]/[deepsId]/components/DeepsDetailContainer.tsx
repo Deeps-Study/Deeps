@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { DeepsDetailClient } from './DeepsDetailClient';
 import { DeepsDescription } from './DeepsDescription';
 import { HintSection } from './HintSection';
@@ -9,6 +8,7 @@ import { OtherAnswerCard } from './OtherAnswerCard';
 import { formatDurationLabel } from '@/utils/time';
 import type { DeepsDetailModel } from '@/types/deeps';
 import type { MyAnswerModel, OtherAnswerModel } from '@/types/deepsAnswerModel';
+import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 
 interface DeepsDetailContainerProps {
     studyId: string;
@@ -21,7 +21,6 @@ export function DeepsDetailContainer({
     studyId,
     deepsId,
 }: DeepsDetailContainerProps) {
-    const router = useRouter();
     const [deeps, setDeeps] = useState<DeepsDetailModel | null>(null);
     const [initialAnswer, setInitialAnswer] = useState<string | null>(null);
     const [isExpired, setIsExpired] = useState(false);
@@ -37,7 +36,7 @@ export function DeepsDetailContainer({
                     `/api/studies/${studyId}/deeps/${deepsId}`,
                 );
                 if (res.status === 401) {
-                    router.replace('/login');
+                    triggerSessionExpired();
                     return;
                 }
                 if (!res.ok) return;
@@ -64,7 +63,7 @@ export function DeepsDetailContainer({
         return () => {
             isStale = true;
         };
-    }, [deepsId, studyId, router]);
+    }, [deepsId, studyId]);
 
     useEffect(() => {
         if (!deeps) return;

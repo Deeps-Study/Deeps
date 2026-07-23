@@ -4,6 +4,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import Icon from '@/ui/Icon/Icon';
 import { SolutionEditor } from './SolutionEditor';
 import { isHtmlEmpty, sanitizeHtml } from '@/utils/editor';
+import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 
 interface MySolutionProps {
     isExpired: boolean;
@@ -54,6 +55,10 @@ export const MySolution = memo(function MySolution({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: html }),
             });
+            if (res.status === 401) {
+                triggerSessionExpired();
+                return;
+            }
             if (!res.ok) {
                 const data = await res.json().catch(() => null);
                 setSubmitError(
