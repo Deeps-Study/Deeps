@@ -38,7 +38,12 @@ export function NicknameForm() {
             return;
         }
 
-        router.push('/home');
+        const match = document.cookie.match(/(?:^|; )auth_redirect=([^;]*)/);
+        const redirectUrl = match ? decodeURIComponent(match[1]) : '/home';
+
+        document.cookie = 'auth_redirect=; path=/; max-age=0;';
+
+        router.push(redirectUrl);
     };
 
     return (
