@@ -1,21 +1,58 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import StudyCard from './components/StudyCard';
 import CreateCard from './components/CreateCard';
 import StudyDetailModal from './components/StudyDetailModal';
 import { useOpenCreateModal } from './CreateStudyModalContext';
-import { StudyResponse } from '@/types/study';
+import { StudyResponse, StudyDetailResponse } from '@/types/study'; // 💡 import 합침
+import StudyJoinModal from '@/components/StudyJoinModal';
 
-function HomePage() {
+function HomePageContent() {
     const openCreateModal = useOpenCreateModal();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+
     const [studies, setStudies] = useState<StudyResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedStudyId, setSelectedStudyId] = useState<string | null>(null);
 
+    const joinStudyId = searchParams.get('joinStudy');
+    const [previewStudy, setPreviewStudy] =
+        useState<StudyDetailResponse | null>(null);
+
     const maxStudyCount = 3;
+
+    // 초대 스터디 정보 불러오기
+    useEffect(() => {
+        if (!joinStudyId) {
+            return;
+        }
+
+        let isMounted = true;
+
+        fetch(`/api/studies/${joinStudyId}`)
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+                if (isMounted && data) {
+                    setPreviewStudy(data);
+                }
+            })
+            .catch((err) => {
+                console.error('초대 스터디 정보를 불러오는 중 오류:', err);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [joinStudyId]);
+
+    const handleCloseModal = () => {
+        setPreviewStudy(null);
+        router.replace(pathname, { scroll: false });
+    };
 
     const fetchMyStudies = useCallback(async (isStale = false) => {
         try {
@@ -61,7 +98,6 @@ function HomePage() {
 
     const handleEnterStudy = (studyId: string) => {
         router.push(`/study/${studyId}`);
-        console.log('스터디페이지로 이동');
     };
 
     if (isLoading) {
@@ -93,6 +129,7 @@ function HomePage() {
                     <CreateCard onCreateClick={openCreateModal} />
                 )}
             </main>
+
             <StudyDetailModal
                 isOpen={!!selectedStudyId}
                 studyId={selectedStudyId}
@@ -104,8 +141,28 @@ function HomePage() {
                     }
                 }}
             />
+
+            {previewStudy && (
+                <StudyJoinModal
+                    study={previewStudy}
+                    isOpen={!!joinStudyId}
+                    onClose={handleCloseModal}
+                />
+            )}
         </div>
     );
 }
 
-export default HomePage;
+export default function HomePage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="flex flex-1 items-center justify-center">
+                    <p className="text-gray-500 font-medium">로딩 중...</p>
+                </div>
+            }
+        >
+            <HomePageContent />
+        </Suspense>
+    );
+}
