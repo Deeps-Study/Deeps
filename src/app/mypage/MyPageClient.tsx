@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { useAccountActions } from './useAccountActions';
 import { AccountInfo } from './components/AccountInfo';
 import { AccountManagement } from './components/AccountManagement';
@@ -11,14 +11,13 @@ import { ProfileCard } from './components/ProfileCard';
 import { WeeklyAttendance } from './components/WeeklyAttendance';
 
 export function MyPageClient() {
-    const router = useRouter();
     const { currentUser, isLoading, isUnauthorized, refetch } =
         useCurrentUser();
     const { isProcessing, logout, deleteAccount } = useAccountActions();
 
     useEffect(() => {
-        if (isUnauthorized) router.replace('/login');
-    }, [isUnauthorized, router]);
+        if (isUnauthorized) triggerSessionExpired();
+    }, [isUnauthorized]);
 
     if (isLoading || !currentUser) return null;
 
