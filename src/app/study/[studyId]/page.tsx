@@ -12,6 +12,7 @@ import ActivityGrass from '../components/ActivityGrass';
 import DeepsContainer from '../components/DeepsContainer';
 import DeepsRanking from '../components/DeepsRanking';
 import { useRouter } from 'next/navigation';
+import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 
 interface DeepStudyPageProps {
     params: Promise<{ studyId: string }>;
@@ -40,6 +41,15 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
                     fetch(`/api/studies/${studyId}/deeps`),
                 ]);
 
+                if (
+                    detailRes.status === 401 ||
+                    membersRes.status === 401 ||
+                    deepsRes.status === 401
+                ) {
+                    triggerSessionExpired();
+                    return;
+                }
+
                 if (detailRes.ok) {
                     const detailData: StudyDetailResponse =
                         await detailRes.json();
@@ -59,7 +69,7 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
                 }
 
                 if (!detailRes.ok) {
-                    if (detailRes.status === 403 || detailRes.status === 401) {
+                    if (detailRes.status === 403) {
                         alert('해당 스터디의 멤버만 접근할 수 있습니다.');
                         router.replace('/home');
                         return;
@@ -75,7 +85,7 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
         if (studyId) {
             fetchStudyData();
         }
-    }, [studyId]);
+    }, [studyId, router]);
 
     if (isLoading) {
         return (
