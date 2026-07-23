@@ -7,10 +7,7 @@ interface RouteParams {
     params: Promise<{ studyId: string }>;
 }
 
-export async function POST(
-    request: NextRequest,
-    { params }: { params: Promise<{ studyId: string }> },
-) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
     const accessToken = await requireAccessToken();
     if (!accessToken) {
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
