@@ -6,10 +6,12 @@ import type {
     StudyMemberResponse,
     DeepsItemResponse,
 } from '@/types/study';
+
 import StudyInfo from '../components/StudyInfo';
 import ActivityGrass from '../components/ActivityGrass';
 import DeepsContainer from '../components/DeepsContainer';
 import DeepsRanking from '../components/DeepsRanking';
+import { useRouter } from 'next/navigation';
 
 interface DeepStudyPageProps {
     params: Promise<{ studyId: string }>;
@@ -24,6 +26,8 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
     const [members, setMembers] = useState<StudyMemberResponse[]>([]);
     const [deepsList, setDeepsList] = useState<DeepsItemResponse[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
+
+    const router = useRouter();
 
     useEffect(() => {
         const fetchStudyData = async () => {
@@ -52,6 +56,14 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
                     const deepsData: DeepsItemResponse[] =
                         await deepsRes.json();
                     setDeepsList(deepsData);
+                }
+
+                if (!detailRes.ok) {
+                    if (detailRes.status === 403 || detailRes.status === 401) {
+                        alert('해당 스터디의 멤버만 접근할 수 있습니다.');
+                        router.replace('/home');
+                        return;
+                    }
                 }
             } catch (error) {
                 console.error('스터디 데이터를 불러오는 중 오류 발생:', error);
