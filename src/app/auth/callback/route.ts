@@ -24,8 +24,22 @@ export async function GET(request: NextRequest) {
         });
         cacheAccessToken(data.refreshToken, data.accessToken);
         await setSessionCookie(data.refreshToken);
-        const redirectPath = data.nickname ? '/home' : '/nickname';
-        return NextResponse.redirect(new URL(redirectPath, request.url));
+        const savedRedirect = request.cookies.get('auth_redirect')?.value;
+
+        if (data.nickname) {
+            const targetRedirect = savedRedirect
+                ? decodeURIComponent(savedRedirect)
+                : '/home';
+            const response = NextResponse.redirect(
+                new URL(targetRedirect, request.nextUrl.origin),
+            );
+            response.cookies.delete('auth_redirect');
+            return response;
+        }
+
+        return NextResponse.redirect(
+            new URL('/nickname', request.nextUrl.origin),
+        );
     } catch {
         return NextResponse.redirect(
             new URL('/login?error=oauth_failed', request.url),

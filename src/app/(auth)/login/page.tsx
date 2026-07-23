@@ -8,6 +8,12 @@ function LoginCard() {
     const isLoginFailed = searchParams.get('error') === 'oauth_failed';
 
     const handleLoginButtonClick = () => {
+        const redirectParam = searchParams.get('redirect');
+
+        if (redirectParam) {
+            console.log(searchParams.get('redirect'));
+            document.cookie = `auth_redirect=${encodeURIComponent(redirectParam)}; path=/; max-age=300; SameSite=Lax`;
+        }
         window.location.href = '/api/auth/google';
     };
 
