@@ -29,6 +29,7 @@ export interface StudyDetailResponse {
     currentMemberCount: number;
     maxMemberCount: number;
     tags: string[];
+    hasPassword: boolean;
 }
 
 export interface ActivityLog {
