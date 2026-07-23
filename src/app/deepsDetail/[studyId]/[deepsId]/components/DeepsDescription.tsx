@@ -36,7 +36,8 @@ export function DeepsDescription({
                             />
                         )}
                     </span>
-                    {author}님이 출제했습니다.
+                    <span className="text-main-100">{author}</span>님이
+                    출제했습니다.
                 </p>
             </div>
             <div
