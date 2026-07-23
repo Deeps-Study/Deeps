@@ -7,6 +7,7 @@ import {
     useOpenCreateModal,
 } from './CreateStudyModalContext';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { StudyRefreshProvider } from './StudyRefreshContext';
 import { StudyLimitAlert } from './components/StudyLimitAlert';
 
@@ -21,10 +22,16 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 
         fetch('/api/studies/count')
             .then((res) => {
+                if (res.status === 401) {
+                    triggerSessionExpired();
+                    return null;
+                }
                 if (!res.ok) throw new Error();
                 return res.json();
             })
-            .then((data) => setStudyCount(data.count))
+            .then((data) => {
+                if (data) setStudyCount(data.count);
+            })
             .catch((error) => console.error('스터디 개수 조회 실패:', error));
     }, [currentUser]);
 

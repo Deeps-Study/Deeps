@@ -6,8 +6,9 @@ import StudyCard from './components/StudyCard';
 import CreateCard from './components/CreateCard';
 import StudyDetailModal from './components/StudyDetailModal';
 import { useOpenCreateModal } from './CreateStudyModalContext';
-import { StudyResponse, StudyDetailResponse } from '@/types/study'; // 💡 import 합침
+import { StudyResponse, StudyDetailResponse } from '@/types/study';
 import StudyJoinModal from '@/components/StudyJoinModal';
+import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 
 function HomePageContent() {
     const openCreateModal = useOpenCreateModal();
@@ -61,9 +62,8 @@ function HomePageContent() {
 
                 const res = await fetch('/api/studies/me');
                 if (res.status === 401) {
-                    console.warn('인증 세션이 만료되었습니다.');
                     if (!joinStudyId) {
-                        router.push('/login');
+                        triggerSessionExpired();
                     }
                     return;
                 }
@@ -85,7 +85,7 @@ function HomePageContent() {
                 }
             }
         },
-        [joinStudyId, router],
+        [joinStudyId],
     );
 
     useEffect(() => {

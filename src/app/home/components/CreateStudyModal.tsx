@@ -8,6 +8,7 @@ import Icon from '@/ui/Icon/Icon';
 import TagButton from '@/components/TagButton';
 import Calendar from './Calendar';
 import { useStudyRefresh } from '../StudyRefreshContext';
+import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 
 interface CreateStudyModalProps {
     isOpen: boolean;
@@ -83,7 +84,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
             });
 
             if (res.status === 401) {
-                alert('인증 세션이 만료되었습니다. 다시 로그인해 주세요.');
+                triggerSessionExpired();
                 return;
             }
 
