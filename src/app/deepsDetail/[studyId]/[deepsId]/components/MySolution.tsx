@@ -5,6 +5,7 @@ import Icon from '@/ui/Icon/Icon';
 import { SolutionEditor } from './SolutionEditor';
 import { isHtmlEmpty, sanitizeHtml } from '@/utils/editor';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
+import { ExpandableBox } from './ExpandableBox';
 
 interface MySolutionProps {
     isExpired: boolean;
@@ -97,6 +98,7 @@ export const MySolution = memo(function MySolution({
             {showEditor ? (
                 <>
                     <SolutionEditor
+                        studyId={studyId}
                         initialContent={content}
                         onSubmit={handleSubmit}
                         onContentChange={(html) => {
@@ -110,17 +112,18 @@ export const MySolution = memo(function MySolution({
                     )}
                 </>
             ) : isEmpty ? (
-                <div className="min-h-107.5 max-h-107.5 border border-gray-300 rounded-lg px-4.5 py-3.5 flex items-center justify-center">
-                    <p className="text-sm font-medium text-gray-300 text-center">
-                        문제를 풀지 못했어요 😢 <br />
-                        다른 멤버는 어떻게 풀었는지 확인하고 같이 공부해 볼까요?
-                    </p>
-                </div>
+                <div className="min-h-107.5 max-h-107.5 border border-gray-300 rounded-lg p-4.5 flex items-center justify-center"></div>
             ) : (
-                <div
-                    className="min-h-107.5 max-h-107.5 overflow-y-auto border border-main-100 rounded-lg px-4.5 py-3.5 prose prose-sm max-w-none"
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
-                />
+                <ExpandableBox
+                    heightClassName="min-h-107.5 max-h-107.5"
+                    className="border border-main-100 rounded-lg pt-3 px-4.5 pb-4.5 prose prose-sm max-w-none [&>div>:first-child]:mt-0 [&>div>:last-child]:mb-0"
+                >
+                    <div
+                        dangerouslySetInnerHTML={{
+                            __html: sanitizeHtml(content),
+                        }}
+                    />
+                </ExpandableBox>
             )}
         </section>
     );

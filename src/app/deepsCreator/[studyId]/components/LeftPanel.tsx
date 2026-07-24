@@ -2,12 +2,14 @@ import Input from '@/components/Input';
 import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 
 interface LeftPanelProps {
+    studyId: string;
     title: string;
     onTitleChange: (value: string) => void;
     onDescriptionChange: (value: string) => void;
 }
 
 export function LeftPanel({
+    studyId,
     title,
     onTitleChange,
     onDescriptionChange,
@@ -31,6 +33,7 @@ export function LeftPanel({
                     딥스 설명 <span className="text-red-100">*</span>
                 </span>
                 <MarkdownEditor
+                    studyId={studyId}
                     placeholder="딥스에 대해서 설명해 주세요"
                     className="flex-1 min-h-0"
                     onChange={onDescriptionChange}
