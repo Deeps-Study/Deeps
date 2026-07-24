@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Icon from '@/ui/Icon/Icon';
 import { sanitizeHtml } from '@/utils/editor';
+import { ExpandableBox } from './ExpandableBox';
 
 interface DeepsDescriptionProps {
     author: string;
@@ -40,10 +41,16 @@ export function DeepsDescription({
                     출제했습니다.
                 </p>
             </div>
-            <div
-                className="min-h-50 max-h-107.5 overflow-y-auto bg-gray-50 border border-gray-200 rounded-lg px-4.5 py-3.5 text-sm font-medium text-gray-500 leading-relaxed prose prose-sm max-w-none"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(description) }}
-            />
+            <ExpandableBox
+                heightClassName="min-h-50 max-h-107.5"
+                className="bg-gray-50 border border-gray-200 rounded-lg pt-3 px-4.5 pb-4.5 text-sm font-medium text-gray-500 leading-relaxed prose prose-sm max-w-none [&>div>:first-child]:mt-0 [&>div>:last-child]:mb-0"
+            >
+                <div
+                    dangerouslySetInnerHTML={{
+                        __html: sanitizeHtml(description),
+                    }}
+                />
+            </ExpandableBox>
         </section>
     );
 }
