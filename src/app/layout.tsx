@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import SessionExpiredModal from '@/components/SessionExpiredModal';
+import AlertModal from '@/components/AlertModal';
 import './globals.css';
 
 const pretendard = localFont({
@@ -24,7 +24,7 @@ export default function RootLayout({
         <html lang="ko" className={pretendard.variable}>
             <body className="font-sans bg-white">
                 {children}
-                <SessionExpiredModal />
+                <AlertModal />
             </body>
         </html>
     );
