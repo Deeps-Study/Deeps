@@ -10,6 +10,7 @@ import StudyJoinModal from '@/components/StudyJoinModal';
 import { useOpenCreateModal } from './CreateStudyModalContext';
 import { StudyResponse, StudyDetailResponse } from '@/types/study';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
+import { triggerAlertModal } from '@/utils/alertModalStore';
 
 function HomePageContent() {
     const openCreateModal = useOpenCreateModal();
@@ -29,7 +30,7 @@ function HomePageContent() {
 
     const maxStudyCount = 3;
 
-    // 초대 스터디 정보 불러오기
+    // 1. 초대 스터디 정보 불러오기 (상태 코드 및 백엔드 메시지 분기)
     useEffect(() => {
         if (!joinStudyId) {
             return;
@@ -38,14 +39,42 @@ function HomePageContent() {
         let isMounted = true;
 
         fetch(`/api/studies/${joinStudyId}/preview`)
-            .then((res) => (res.ok ? res.json() : null))
+            .then(async (res) => {
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => null);
+                    const backendMessage = errorData?.message;
+                    console.error(backendMessage);
+                    if (res.status === 404) {
+                        triggerAlertModal({
+                            title: '초대 링크 오류',
+                            message:
+                                '존재하지 않거나 삭제된 스터디의 초대 링크입니다.',
+                        });
+                    } else {
+                        triggerAlertModal({
+                            title: '초대 정보 오류',
+                            message: '초대 스터디 정보를 불러올 수 없습니다.',
+                        });
+                    }
+                    return null;
+                }
+                return res.json();
+            })
             .then((data) => {
                 if (isMounted && data) {
                     setPreviewStudy(data);
                 }
             })
             .catch((err) => {
-                console.error('초대 스터디 정보를 불러오는 중 오류:', err);
+                console.error(
+                    '초대 스터디 정보를 불러오는 중 네트워크 오류:',
+                    err,
+                );
+                triggerAlertModal({
+                    title: '네트워크 오류',
+                    message:
+                        '초대 스터디 정보를 가져오는 중 네트워크 연결 오류가 발생했습니다.',
+                });
             });
 
         return () => {
@@ -58,12 +87,14 @@ function HomePageContent() {
         router.replace(pathname, { scroll: false });
     };
 
+    // 2. 내 스터디 목록 불러오기 (상태 코드 및 백엔드 메시지 분기)
     const fetchMyStudies = useCallback(
         async (isStale = false) => {
             try {
                 if (!isStale) setIsLoading(true);
 
                 const res = await fetch('/api/studies/me');
+
                 if (res.status === 401) {
                     if (!joinStudyId) {
                         triggerSessionExpired();
@@ -71,7 +102,43 @@ function HomePageContent() {
                     return;
                 }
 
-                if (!res.ok) return;
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => null);
+                    const backendMessage = errorData?.message;
+                    console.error(backendMessage);
+
+                    switch (res.status) {
+                        case 403:
+                            triggerAlertModal({
+                                title: '접근 권한 없음',
+                                message:
+                                    '스터디 목록을 조회할 권한이 없습니다.',
+                            });
+                            break;
+                        case 404:
+                            triggerAlertModal({
+                                title: '조회 실패',
+                                message:
+                                    '요청하신 스터디 정보를 찾을 수 없습니다.',
+                            });
+                            break;
+                        case 500:
+                            triggerAlertModal({
+                                title: '서버 오류',
+                                message:
+                                    '서버 내부 문제로 스터디 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
+                            });
+                            break;
+                        default:
+                            triggerAlertModal({
+                                title: '오류 발생',
+                                message:
+                                    '스터디 목록을 불러오는 중 문제가 발생했습니다.',
+                            });
+                            break;
+                    }
+                    return;
+                }
 
                 const data: StudyResponse[] = await res.json();
                 if (!isStale) {
@@ -79,9 +146,14 @@ function HomePageContent() {
                 }
             } catch (error) {
                 console.error(
-                    '스터디 목록을 불러오는 중 오류가 발생했습니다:',
+                    '스터디 목록을 불러오는 중 네트워크 오류가 발생했습니다:',
                     error,
                 );
+                triggerAlertModal({
+                    title: '네트워크 연결 오류',
+                    message:
+                        '서버와 통신할 수 없습니다. 인터넷 연결을 확인해 주세요.',
+                });
             } finally {
                 if (!isStale) {
                     setIsLoading(false);
@@ -128,7 +200,6 @@ function HomePageContent() {
             </h1>
             <main className="flex h-full items-center justify-center gap-10 py-14">
                 {isLoading ? (
-                    // 로딩 중 : 200ms 지나면 스켈레톤 노출 (그 전엔 빈 공간)
                     isSkeletonVisible && (
                         <>
                             <StudyCardSkeleton />
@@ -137,7 +208,6 @@ function HomePageContent() {
                         </>
                     )
                 ) : (
-                    // 로딩 후: 실제 데이터 및 스터디 만들기 카드 노출
                     <>
                         {studies.map((study) => (
                             <StudyCard
