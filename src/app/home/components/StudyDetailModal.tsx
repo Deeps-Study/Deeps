@@ -39,6 +39,7 @@ function StudyDetailModal({
             setShowSkeleton(false);
         };
     }, [isLoading]);
+
     const isSkeletonVisible = isLoading && showSkeleton;
 
     useEffect(() => {
@@ -81,33 +82,17 @@ function StudyDetailModal({
         };
     }, [isOpen, studyId]);
 
-    // 💡 2. 로딩 중 처리 (isSkeletonVisible 일 때만 스켈레톤 모달 노출)
     if (isLoading) {
-        return isSkeletonVisible ? (
-            <StudyDetailModalSkeleton isOpen={isOpen} onClose={onClose} />
-        ) : null;
+        if (isSkeletonVisible) {
+            return (
+                <StudyDetailModalSkeleton isOpen={isOpen} onClose={onClose} />
+            );
+        }
+        return null;
     }
 
     if (!detail) {
-        return (
-            <Modal
-                isOpen={isOpen}
-                onClose={onClose}
-                className="max-w-100 w-full"
-            >
-                <Modal.Header title="스터디 정보" />
-                <Modal.Body>
-                    <div className="py-14 text-center text-sm text-gray-400">
-                        스터디 데이터를 불러올 수 없습니다. 다시 시도해 주세요.
-                    </div>
-                </Modal.Body>
-                <Modal.Footer>
-                    <SquareButton variant="cancel" onClick={onClose}>
-                        닫기
-                    </SquareButton>
-                </Modal.Footer>
-            </Modal>
-        );
+        return null;
     }
 
     return (
