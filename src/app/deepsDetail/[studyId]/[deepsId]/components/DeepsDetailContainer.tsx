@@ -9,6 +9,7 @@ import { formatDurationLabel } from '@/utils/time';
 import type { DeepsDetailModel } from '@/types/deeps';
 import type { MyAnswerModel, OtherAnswerModel } from '@/types/deepsAnswerModel';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
+import { DeepsDetailSkeleton } from './DeepsDetailSkeleton';
 
 interface DeepsDetailContainerProps {
     studyId: string;
@@ -26,6 +27,22 @@ export function DeepsDetailContainer({
     const [isExpired, setIsExpired] = useState(false);
     const [otherAnswers, setOtherAnswers] = useState<OtherAnswerModel[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showSkeleton, setShowSkeleton] = useState(false);
+
+    useEffect(() => {
+        if (!isLoading) return;
+
+        const timer = setTimeout(() => {
+            setShowSkeleton(true);
+        }, 200);
+
+        return () => {
+            clearTimeout(timer);
+            setShowSkeleton(false);
+        };
+    }, [isLoading]);
+
+    const isSkeletonVisible = isLoading && showSkeleton;
 
     useEffect(() => {
         let isStale = false;
@@ -102,11 +119,10 @@ export function DeepsDetailContainer({
     }
 
     if (isLoading || !deeps) {
-        return (
-            <div className="flex h-96 w-full items-center justify-center text-gray-400">
-                딥스 정보를 불러오는 중입니다...
-            </div>
-        );
+        if (isSkeletonVisible) {
+            return <DeepsDetailSkeleton />;
+        }
+        return null; // 200ms 미만의 빠른 응답 시 아무것도 그리지 않고 대기 (깜빡임 완벽 방지)
     }
 
     return (
