@@ -10,10 +10,18 @@ declare module '@tiptap/core' {
     }
 }
 
-export const ImageUploadExtension = Node.create({
+interface ImageUploadOptions {
+    studyId: string;
+}
+
+export const ImageUploadExtension = Node.create<ImageUploadOptions>({
     name: 'imageUpload',
     group: 'block',
     atom: true,
+
+    addOptions() {
+        return { studyId: '' };
+    },
 
     parseHTML() {
         return [{ tag: 'div[data-type="image-upload"]' }];
