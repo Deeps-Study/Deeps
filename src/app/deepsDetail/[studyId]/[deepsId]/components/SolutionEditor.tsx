@@ -7,12 +7,14 @@ import Icon from '@/ui/Icon/Icon';
 import { isHtmlEmpty } from '@/utils/editor';
 
 interface SolutionEditorProps {
+    studyId: string;
     initialContent?: string;
     onSubmit: (content: string) => void;
     onContentChange?: (html: string) => void;
 }
 
 export function SolutionEditor({
+    studyId,
     initialContent,
     onSubmit,
     onContentChange,
@@ -29,6 +31,7 @@ export function SolutionEditor({
     return (
         <div className="flex flex-col gap-3">
             <MarkdownEditor
+                studyId={studyId}
                 placeholder="딥스 풀이를 작성해 주세요"
                 className="h-107.5"
                 initialContent={initialContent}

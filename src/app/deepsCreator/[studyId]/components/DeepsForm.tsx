@@ -64,11 +64,13 @@ export function DeepsForm({ studyId }: DeepsFormProps) {
     return (
         <div className="flex flex-1 gap-12 px-19 py-3 overflow-hidden">
             <LeftPanel
+                studyId={studyId}
                 title={title}
                 onTitleChange={setTitle}
                 onDescriptionChange={setDescription}
             />
             <RightPanel
+                studyId={studyId}
                 onTimeChange={setDurationSeconds}
                 hint={hint}
                 onHintChange={setHint}

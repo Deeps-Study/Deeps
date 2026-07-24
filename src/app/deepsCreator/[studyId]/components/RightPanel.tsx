@@ -3,6 +3,7 @@ import SquareButton from '@/components/SquareButton';
 import { TimeSelector } from './TimeSelector';
 
 interface RightPanelProps {
+    studyId: string;
     onTimeChange: (seconds: number | null) => void;
     hint: string;
     onHintChange: (value: string) => void;
@@ -15,6 +16,7 @@ interface RightPanelProps {
 }
 
 export function RightPanel({
+    studyId,
     onTimeChange,
     hint,
     onHintChange,
@@ -46,6 +48,7 @@ export function RightPanel({
                         딥스 해설 <span className="text-red-100">*</span>
                     </span>
                     <MarkdownEditor
+                        studyId={studyId}
                         placeholder="딥스 해설을 작성해 주세요"
                         className="flex-1 min-h-0"
                         onChange={onSolutionChange}
