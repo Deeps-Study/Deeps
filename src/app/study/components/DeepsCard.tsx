@@ -18,8 +18,15 @@ export default function DeepsCard({
     totalMemberCount,
 }: DeepsCardProps) {
     const router = useRouter();
-    const { id, title, creator, expiredAt, isSubmitted, submittedCount } =
-        deeps;
+    const {
+        id,
+        title,
+        creator,
+        expiredAt,
+        isSubmitted,
+        isCreator,
+        submittedCount,
+    } = deeps;
 
     // 만료 일시(expiredAt) 기반으로 현재 남아있는 초 연산
     const getRemainingSeconds = () => {
@@ -31,10 +38,11 @@ export default function DeepsCard({
 
     const remaining = getRemainingSeconds();
     const currentIsTimeEnded = remaining <= 0;
+    const targetMemberCount = totalMemberCount - 1;
 
     // 답변 상태 배지
     const renderAnswerStatus = () => {
-        if (currentIsTimeEnded) return null;
+        if (isCreator || currentIsTimeEnded) return null;
 
         if (isSubmitted) {
             return (
@@ -114,7 +122,7 @@ export default function DeepsCard({
                             className="h-4 w-4 stroke-2 text-main-200"
                         />
                         <span className="text-xs font-medium text-gray-600">
-                            {submittedCount} / {totalMemberCount}
+                            {submittedCount} / {targetMemberCount}
                         </span>
                     </div>
                 </div>
