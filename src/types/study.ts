@@ -53,5 +53,6 @@ export interface DeepsItemResponse {
     createdAt: string;
     expiredAt: string;
     isSubmitted: boolean;
+    isCreator: boolean;
     submittedCount: number;
 }

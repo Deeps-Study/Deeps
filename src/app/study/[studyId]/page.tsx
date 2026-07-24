@@ -14,6 +14,7 @@ import DeepsRanking from '../components/DeepsRanking';
 import StudyDetailSkeleton from '../components/StudyDetailSkeleton';
 import { useRouter } from 'next/navigation';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
+import { triggerAlertModal } from '@/utils/alertModalStore';
 
 interface DeepStudyPageProps {
     params: Promise<{ studyId: string }>;
@@ -56,29 +57,78 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
                     const detailData: StudyDetailResponse =
                         await detailRes.json();
                     setStudyDetail(detailData);
+                } else {
+                    const errorData = await detailRes.json().catch(() => null);
+                    const backendMessage = errorData?.message;
+                    console.error(
+                        '스터디 상세 정보 로딩 에러:',
+                        backendMessage,
+                    );
+
+                    if (detailRes.status === 403) {
+                        triggerAlertModal({
+                            title: '접근 제한',
+                            message: '해당 스터디의 멤버만 접근할 수 있습니다.',
+                            onConfirm: () => {
+                                router.replace('/home');
+                            },
+                        });
+                        return;
+                    }
+
+                    if (detailRes.status === 404) {
+                        triggerAlertModal({
+                            title: '조회 실패',
+                            message: '존재하지 않거나 삭제된 스터디입니다.',
+                            onConfirm: () => {
+                                router.replace('/home');
+                            },
+                        });
+                        return;
+                    }
+
+                    triggerAlertModal({
+                        title: '오류 발생',
+                        message:
+                            '스터디 정보를 불러오는 중 문제가 발생했습니다.',
+                        onConfirm: () => {
+                            router.replace('/home');
+                        },
+                    });
+                    return;
                 }
 
                 if (membersRes.ok) {
                     const membersData: StudyMemberResponse[] =
                         await membersRes.json();
                     setMembers(membersData);
+                } else {
+                    const errorData = await membersRes.json().catch(() => null);
+                    console.error(
+                        '스터디 멤버 목록 로딩 에러:',
+                        errorData?.message,
+                    );
                 }
 
+                // 4. 딥스 목록 데이터 처리
                 if (deepsRes.ok) {
                     const deepsData: DeepsItemResponse[] =
                         await deepsRes.json();
                     setDeepsList(deepsData);
-                }
-
-                if (!detailRes.ok) {
-                    if (detailRes.status === 403) {
-                        alert('해당 스터디의 멤버만 접근할 수 있습니다.');
-                        router.replace('/home');
-                        return;
-                    }
+                } else {
+                    const errorData = await deepsRes.json().catch(() => null);
+                    console.error('딥스 목록 로딩 에러:', errorData?.message);
                 }
             } catch (error) {
-                console.error('스터디 데이터를 불러오는 중 오류 발생:', error);
+                console.error(
+                    '스터디 데이터를 불러오는 중 네트워크 오류 발생:',
+                    error,
+                );
+                triggerAlertModal({
+                    title: '네트워크 연결 오류',
+                    message:
+                        '서버와 통신할 수 없습니다. 인터넷 연결 상태를 확인 후 다시 시도해 주세요.',
+                });
             } finally {
                 setIsLoading(false);
             }

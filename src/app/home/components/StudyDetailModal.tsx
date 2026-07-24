@@ -6,6 +6,7 @@ import SquareButton from '@/components/SquareButton';
 import Icon from '@/ui/Icon/Icon';
 import { StudyDetailResponse } from '@/types/study';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
+import { triggerAlertModal } from '@/utils/alertModalStore';
 import StudyDetailModalSkeleton from './StudyDetailModalSkeleton';
 
 interface StudyDetailModalProps {
@@ -56,7 +57,42 @@ function StudyDetailModal({
                     return;
                 }
 
-                if (!res.ok) return;
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => null);
+                    const backendMessage = errorData?.message;
+                    console.error(backendMessage);
+
+                    switch (res.status) {
+                        case 403:
+                            triggerAlertModal({
+                                title: '접근 권한 없음',
+                                message:
+                                    '스터디 상세 정보를 조회할 권한이 없습니다.',
+                            });
+                            break;
+                        case 404:
+                            triggerAlertModal({
+                                title: '조회 실패',
+                                message: '존재하지 않거나 삭제된 스터디입니다.',
+                            });
+                            break;
+                        case 500:
+                            triggerAlertModal({
+                                title: '서버 오류',
+                                message:
+                                    '서버 내부 문제로 스터디 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.',
+                            });
+                            break;
+                        default:
+                            triggerAlertModal({
+                                title: '오류 발생',
+                                message:
+                                    '스터디 정보를 불러오는 중 문제가 발생했습니다.',
+                            });
+                            break;
+                    }
+                    return;
+                }
 
                 const data: StudyDetailResponse = await res.json();
                 if (!isStale) {
@@ -67,6 +103,11 @@ function StudyDetailModal({
                     '스터디 상세 데이터를 가져오는 데 실패했습니다:',
                     error,
                 );
+                triggerAlertModal({
+                    title: '네트워크 연결 오류',
+                    message:
+                        '서버와 통신할 수 없습니다. 인터넷 연결 상태를 확인 후 다시 시도해 주세요.',
+                });
             } finally {
                 if (!isStale) {
                     setIsLoading(false);

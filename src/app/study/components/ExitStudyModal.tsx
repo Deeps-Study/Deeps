@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Modal from '@/components/Modal';
 import SquareButton from '@/components/SquareButton';
+import { triggerAlertModal } from '@/utils/alertModalStore';
 
 interface ExitStudyModalProps {
     isOpen: boolean;
@@ -19,6 +20,11 @@ function ExitStudyModal({ isOpen, onClose, onConfirm }: ExitStudyModalProps) {
             await onConfirm();
         } catch (error) {
             console.error('스터디 나가기 중 오류가 발생했습니다:', error);
+            triggerAlertModal({
+                title: '처리 실패',
+                message:
+                    '스터디를 나가는 도중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.',
+            });
         } finally {
             setIsLeaving(false);
         }

@@ -9,6 +9,7 @@ import TagButton from '@/components/TagButton';
 import Calendar from './Calendar';
 import { useStudyRefresh } from '../StudyRefreshContext';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
+import { triggerAlertModal } from '@/utils/alertModalStore';
 
 interface CreateStudyModalProps {
     isOpen: boolean;
@@ -89,7 +90,46 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
             }
 
             if (!res.ok) {
-                throw new Error('스터디 생성 실패');
+                const errorData = await res.json().catch(() => null);
+                const backendMessage = errorData?.message;
+                console.error(backendMessage);
+
+                switch (res.status) {
+                    case 400:
+                        triggerAlertModal({
+                            title: '입력값 오류',
+                            message:
+                                '입력하신 스터디 정보를 다시 확인해 주세요.',
+                        });
+                        break;
+                    case 403:
+                        triggerAlertModal({
+                            title: '권한 없음',
+                            message: '스터디를 생성할 권한이 없습니다.',
+                        });
+                        break;
+                    case 409:
+                        triggerAlertModal({
+                            title: '생성 중복',
+                            message: '이미 동일한 스터디가 존재합니다.',
+                        });
+                        break;
+                    case 500:
+                        triggerAlertModal({
+                            title: '서버 오류',
+                            message:
+                                '서버 내부 문제로 스터디를 생성하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+                        });
+                        break;
+                    default:
+                        triggerAlertModal({
+                            title: '생성 실패',
+                            message:
+                                '스터디를 만드는 도중 오류가 발생했습니다. 다시 시도해 주세요.',
+                        });
+                        break;
+                }
+                return;
             }
 
             setTitle('');
@@ -104,9 +144,11 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
             onClose?.();
         } catch (error) {
             console.error('스터디 생성 중 오류 발생:', error);
-            alert(
-                '스터디를 만드는 도중 오류가 발생했습니다. 다시 시도해 주세요.',
-            );
+            triggerAlertModal({
+                title: '네트워크 연결 오류',
+                message:
+                    '서버와 통신할 수 없습니다. 인터넷 연결 상태를 확인 후 다시 시도해 주세요.',
+            });
         } finally {
             setIsSubmitting(false);
         }
