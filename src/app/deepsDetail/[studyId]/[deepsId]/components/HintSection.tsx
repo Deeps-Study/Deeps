@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import cn from 'classnames';
 import { sanitizeHtml } from '@/utils/editor';
+import { ExpandableBox } from './ExpandableBox';
 
 interface HintSectionProps {
     isExpired: boolean;
@@ -19,9 +20,10 @@ export function HintSection({
     const isBlurred = !isExpired && !isVisible;
 
     const boxClassName = cn(
-        'min-h-30 max-h-50 overflow-y-auto border border-main-20 bg-main-10 rounded-lg px-4.5 py-3.5',
+        'border border-main-20 bg-main-10 rounded-lg pt-3 px-4.5 pb-4.5',
         'text-sm font-medium text-gray-500 leading-relaxed whitespace-pre-line',
         'transition-all duration-200 select-none',
+        '[&>div>:first-child]:mt-0 [&>div>:last-child]:mb-0',
         isBlurred && 'blur-[3px]',
     );
 
@@ -42,14 +44,23 @@ export function HintSection({
                 )}
             </div>
             {isExpired ? (
-                <div
+                <ExpandableBox
+                    heightClassName="min-h-30 max-h-50"
                     className={boxClassName}
-                    dangerouslySetInnerHTML={{
-                        __html: sanitizeHtml(explanation ?? ''),
-                    }}
-                />
+                >
+                    <div
+                        dangerouslySetInnerHTML={{
+                            __html: sanitizeHtml(explanation ?? ''),
+                        }}
+                    />
+                </ExpandableBox>
             ) : (
-                <div className={boxClassName}>{hint}</div>
+                <ExpandableBox
+                    heightClassName="min-h-30 max-h-50"
+                    className={boxClassName}
+                >
+                    {hint}
+                </ExpandableBox>
             )}
         </section>
     );

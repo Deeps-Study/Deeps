@@ -6,6 +6,7 @@ import cn from 'classnames';
 import Icon from '@/ui/Icon/Icon';
 import { sanitizeHtml } from '@/utils/editor';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
+import { ExpandableBox } from './ExpandableBox';
 
 export interface OtherAnswerCardProps {
     studyId: string;
@@ -86,10 +87,14 @@ export function OtherAnswerCard({
                     {count}
                 </button>
             </div>
-            <div
-                className="min-h-40 max-h-70 overflow-y-auto bg-gray-50 border border-gray-200 rounded-lg px-6 py-5 text-sm font-medium text-gray-500 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
-            />
+            <ExpandableBox
+                heightClassName="min-h-40 max-h-70"
+                className="bg-gray-50 border border-gray-200 rounded-lg px-6 py-5 text-sm font-medium text-gray-500 leading-relaxed"
+            >
+                <div
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
+                />
+            </ExpandableBox>
         </div>
     );
 }
