@@ -1,5 +1,6 @@
 import calendar from '@/assets/calendar.svg';
 import check from '@/assets/check.svg';
+import chevronDown from '@/assets/chevronDown.svg';
 import circleAlert from '@/assets/circleAlert.svg';
 import clock from '@/assets/clock.svg';
 import code from '@/assets/code.svg';
@@ -30,6 +31,7 @@ import imageFile from '@/assets/imageFile.svg';
 const icons = {
     calendar,
     check,
+    chevronDown,
     circleAlert,
     clock,
     code,
