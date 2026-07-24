@@ -13,8 +13,14 @@ import cn from 'classnames';
 import { EditorToolbar } from './EditorToolbar';
 import { ImageUploadExtension } from './ImageUploadExtension';
 import { hastToHtml, type HastNode } from './hastToHtml';
+import {
+    uploadDeepsImage,
+    DEEPS_IMAGE_UPLOAD_GUIDE,
+} from '@/utils/uploadDeepsImage';
+import { triggerAlertModal } from '@/utils/alertModalStore';
 
 interface MarkdownEditorProps {
+    studyId: string;
     placeholder?: string;
     className?: string;
     initialContent?: string;
@@ -27,6 +33,8 @@ const WRITE_CLASSES = cn(
     'flex-1 pt-3.5 px-4.5 pb-3.5 overflow-auto prose prose-sm max-w-none',
     '[&_.tiptap]:outline-none [&_.tiptap]:min-h-[120px]',
     '[&_.tiptap_p]:my-[0.3em]',
+    '[&_.tiptap_h1]:my-[0.4em] [&_.tiptap_h2]:my-[0.4em] [&_.tiptap_h3]:my-[0.4em]',
+    '[&_.tiptap_h4]:my-[0.4em] [&_.tiptap_h5]:my-[0.4em] [&_.tiptap_h6]:my-[0.4em]',
     '[&_.tiptap>:first-child]:mt-0 [&_.tiptap>:last-child]:mb-0',
     '[&_.tiptap_img]:rounded-lg [&_.tiptap_img]:my-3 [&_.tiptap_img]:max-w-full [&_.tiptap_img]:block',
 );
@@ -34,11 +42,14 @@ const WRITE_CLASSES = cn(
 const PREVIEW_CLASSES = cn(
     'flex-1 pt-3.5 px-4.5 pb-3.5 overflow-auto prose prose-sm max-w-none',
     '[&_p]:my-[0.3em]',
-    '[&>p:first-child]:mt-0 [&>p:last-child]:mb-0',
+    '[&_h1]:my-[0.4em] [&_h2]:my-[0.4em] [&_h3]:my-[0.4em]',
+    '[&_h4]:my-[0.4em] [&_h5]:my-[0.4em] [&_h6]:my-[0.4em]',
+    '[&>:first-child]:mt-0 [&>:last-child]:mb-0',
     '[&_img]:rounded-lg [&_img]:my-3 [&_img]:max-w-full [&_img]:block',
 );
 
 function MarkdownEditor({
+    studyId,
     placeholder,
     className,
     initialContent,
@@ -71,14 +82,19 @@ function MarkdownEditor({
                             top: event.clientY,
                         })?.pos ?? view.state.doc.content.size;
 
-                    const reader = new FileReader();
-                    reader.addEventListener('load', () => {
-                        const node = view.state.schema.nodes.image.create({
-                            src: reader.result as string,
+                    uploadDeepsImage(studyId, imageFile)
+                        .then((url) => {
+                            const node = view.state.schema.nodes.image.create({
+                                src: url,
+                            });
+                            view.dispatch(view.state.tr.insert(dropPos, node));
+                        })
+                        .catch(() => {
+                            triggerAlertModal({
+                                title: '이미지 업로드에 실패했어요',
+                                message: DEEPS_IMAGE_UPLOAD_GUIDE,
+                            });
                         });
-                        view.dispatch(view.state.tr.insert(dropPos, node));
-                    });
-                    reader.readAsDataURL(imageFile);
                     return true;
                 },
             },
@@ -92,8 +108,8 @@ function MarkdownEditor({
             Placeholder.configure({ placeholder: placeholder ?? '' }),
             TaskList,
             TaskItem.configure({ nested: true }),
-            Image.configure({ allowBase64: true }),
-            ImageUploadExtension,
+            Image,
+            ImageUploadExtension.configure({ studyId }),
         ],
         onUpdate: ({ editor }) => {
             onChange?.(editor.getHTML());
