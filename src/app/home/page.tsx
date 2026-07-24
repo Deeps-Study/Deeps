@@ -37,7 +37,7 @@ function HomePageContent() {
 
         let isMounted = true;
 
-        fetch(`/api/studies/${joinStudyId}`)
+        fetch(`/api/studies/${joinStudyId}/preview`)
             .then((res) => (res.ok ? res.json() : null))
             .then((data) => {
                 if (isMounted && data) {
