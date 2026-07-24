@@ -10,15 +10,22 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
     const accessToken = await requireAccessToken();
 
+    if (!accessToken) {
+        return NextResponse.json(
+            { message: '인증이 필요합니다.' },
+            { status: 401 },
+        );
+    }
+
     const { studyId } = await params;
 
     try {
         const { data } = await api.get<StudyDetailResponse>(
             `/studies/${studyId}`,
             {
-                headers: accessToken
-                    ? { Authorization: `Bearer ${accessToken}` }
-                    : {},
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
             },
         );
 
