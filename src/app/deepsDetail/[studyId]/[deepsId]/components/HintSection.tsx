@@ -19,12 +19,13 @@ export function HintSection({
     explanation,
 }: HintSectionProps) {
     const [isVisible, setIsVisible] = useState(false);
+    const hasHint = Boolean(hint);
     const showExplanation = isExpired || isCreatedByMe;
-    const isBlurred = !showExplanation && !isVisible;
+    const isBlurred = !showExplanation && !isVisible && hasHint;
 
     const boxClassName = cn(
         'border border-main-20 bg-main-10 rounded-lg pt-3 px-4.5 pb-4.5',
-        'text-sm font-medium text-gray-500 leading-relaxed whitespace-pre-line',
+        'text-sm font-medium text-gray-600 leading-relaxed whitespace-pre-line',
         'transition-all duration-200 select-none',
         '[&>div>:first-child]:mt-0 [&>div>:last-child]:mb-0',
         isBlurred && 'blur-[3px]',
@@ -36,7 +37,7 @@ export function HintSection({
                 <h2 className="text-base font-semibold text-gray-600">
                     {showExplanation ? '출제자 설명' : '힌트'}
                 </h2>
-                {!showExplanation && (
+                {!showExplanation && hasHint && (
                     <button
                         type="button"
                         onClick={() => setIsVisible((prev) => !prev)}
@@ -62,7 +63,7 @@ export function HintSection({
                     heightClassName="min-h-30 max-h-50"
                     className={boxClassName}
                 >
-                    {hint}
+                    {hasHint ? hint : <p>힌트가 없습니다 😢</p>}
                 </ExpandableBox>
             )}
         </section>
