@@ -30,7 +30,7 @@ const Input = ({
     return (
         <input
             className={cn(
-                'py-2 px-3 text-sm font-medium transition-colors rounded-lg bg-white border border-main-20 focus:outline-none',
+                'py-2 px-3 text-sm font-medium text-gray-600 transition-colors rounded-lg bg-white border border-main-20 focus:outline-none',
                 isFull && 'w-full',
                 className,
             )}

@@ -36,7 +36,7 @@ export function RightPanel({
                         힌트
                     </span>
                     <textarea
-                        className="py-2 px-3 text-sm font-medium rounded-lg bg-white border border-main-20 focus:outline-none resize-none h-18 placeholder:text-gray-300"
+                        className="py-2 px-3 text-sm font-medium rounded-lg bg-white border border-main-20 focus:outline-none resize-none h-18 placeholder:text-gray-300 text-gray-600"
                         name="hint"
                         placeholder="힌트를 입력해 주세요"
                         value={hint}

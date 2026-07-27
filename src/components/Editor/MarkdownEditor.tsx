@@ -38,6 +38,7 @@ const WRITE_CLASSES = cn(
     '[&_.tiptap_h4]:my-[0.4em] [&_.tiptap_h5]:my-[0.4em] [&_.tiptap_h6]:my-[0.4em]',
     '[&_.tiptap>:first-child]:mt-0 [&_.tiptap>:last-child]:mb-0',
     '[&_.tiptap_img]:rounded-lg [&_.tiptap_img]:my-3 [&_.tiptap_img]:max-w-full [&_.tiptap_img]:block',
+    '[--tw-prose-body:var(--color-gray-600)]',
 );
 
 const PREVIEW_CLASSES = cn(
@@ -47,6 +48,7 @@ const PREVIEW_CLASSES = cn(
     '[&_h4]:my-[0.4em] [&_h5]:my-[0.4em] [&_h6]:my-[0.4em]',
     '[&>:first-child]:mt-0 [&>:last-child]:mb-0',
     '[&_img]:rounded-lg [&_img]:my-3 [&_img]:max-w-full [&_img]:block',
+    '[--tw-prose-body:var(--color-gray-600)]',
 );
 
 function MarkdownEditor({
