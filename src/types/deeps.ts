@@ -7,6 +7,7 @@ export interface DeepsDetailModel {
     expiredAt: string;
     hint: string | null;
     myAnswerStatus: 'SUBMITTED' | 'NOT_SUBMITTED';
+    isCreatedByMe: boolean;
     creator: { nickname: string; profileImageUrl: string } | null;
     explanation: string | null;
 }
