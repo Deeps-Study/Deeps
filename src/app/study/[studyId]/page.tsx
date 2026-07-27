@@ -15,7 +15,6 @@ import StudyDetailSkeleton from '../components/StudyDetailSkeleton';
 import { useRouter } from 'next/navigation';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { triggerAlertModal } from '@/utils/alertModalStore';
-
 interface DeepStudyPageProps {
     params: Promise<{ studyId: string }>;
 }
@@ -44,6 +43,7 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
                     fetch(`/api/studies/${studyId}/deeps`),
                 ]);
 
+                // 1. 세션 만료 처리 (401)
                 if (
                     detailRes.status === 401 ||
                     membersRes.status === 401 ||
@@ -53,6 +53,7 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
                     return;
                 }
 
+                // 2. 스터디 상세 데이터 처리 및 권한/에러 분기
                 if (detailRes.ok) {
                     const detailData: StudyDetailResponse =
                         await detailRes.json();
@@ -66,6 +67,7 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
                     );
 
                     if (detailRes.status === 403) {
+                        // 모달 확인 클릭 시 /home으로 리다이렉트
                         triggerAlertModal({
                             title: '접근 제한',
                             message: '해당 스터디의 멤버만 접근할 수 있습니다.',
@@ -91,13 +93,11 @@ export default function DeepStudyPage({ params }: DeepStudyPageProps) {
                         title: '오류 발생',
                         message:
                             '스터디 정보를 불러오는 중 문제가 발생했습니다.',
-                        onConfirm: () => {
-                            router.replace('/home');
-                        },
                     });
                     return;
                 }
 
+                // 3. 스터디 멤버 데이터 처리
                 if (membersRes.ok) {
                     const membersData: StudyMemberResponse[] =
                         await membersRes.json();
