@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Icon from '@/ui/Icon/Icon';
 import SquareButton from '@/components/SquareButton';
 import DeepsCard from './DeepsCard';
-import type { DeepsItemResponse } from '@/types/study';
+import type { DeepsItemResponse } from '@/types/deeps';
 
 interface DeepsContainerProps {
     deepsList: DeepsItemResponse[];

@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Icon from '@/ui/Icon/Icon';
-import type { DeepsItemResponse } from '@/types/study';
+import type { DeepsItemResponse } from '@/types/deeps';
 import { formatTime } from '@/utils/time';
 
 interface DeepsCardProps {
