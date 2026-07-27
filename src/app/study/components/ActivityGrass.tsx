@@ -88,7 +88,7 @@ export default function ActivityGrass({
             <div className="w-full rounded-2xl border border-main-20 p-5 bg-white shadow-mint flex flex-col gap-2 overflow-hidden">
                 <div
                     ref={scrollContainerRef}
-                    className="w-full overflow-x-auto scroll-smooth pb-2 thin-scrollbar-on-hover"
+                    className="w-full overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden scrollbar-none"
                 >
                     <div className="flex flex-col gap-2 min-w-max">
                         {members.map((member) => (
