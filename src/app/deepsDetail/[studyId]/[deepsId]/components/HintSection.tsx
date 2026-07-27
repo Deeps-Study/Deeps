@@ -7,17 +7,20 @@ import { ExpandableBox } from './ExpandableBox';
 
 interface HintSectionProps {
     isExpired: boolean;
+    isCreatedByMe: boolean;
     hint: string | null;
     explanation: string | null;
 }
 
 export function HintSection({
     isExpired,
+    isCreatedByMe,
     hint,
     explanation,
 }: HintSectionProps) {
     const [isVisible, setIsVisible] = useState(false);
-    const isBlurred = !isExpired && !isVisible;
+    const showExplanation = isExpired || isCreatedByMe;
+    const isBlurred = !showExplanation && !isVisible;
 
     const boxClassName = cn(
         'border border-main-20 bg-main-10 rounded-lg pt-3 px-4.5 pb-4.5',
@@ -31,9 +34,9 @@ export function HintSection({
         <section className="flex flex-col gap-3">
             <div className="flex items-center gap-3">
                 <h2 className="text-base font-semibold text-gray-600">
-                    {isExpired ? '출제자 설명' : '힌트'}
+                    {showExplanation ? '출제자 설명' : '힌트'}
                 </h2>
-                {!isExpired && (
+                {!showExplanation && (
                     <button
                         type="button"
                         onClick={() => setIsVisible((prev) => !prev)}
@@ -43,7 +46,7 @@ export function HintSection({
                     </button>
                 )}
             </div>
-            {isExpired ? (
+            {showExplanation ? (
                 <ExpandableBox
                     heightClassName="min-h-30 max-h-50"
                     className={boxClassName}
