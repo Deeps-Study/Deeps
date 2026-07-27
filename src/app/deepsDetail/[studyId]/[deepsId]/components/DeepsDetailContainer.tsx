@@ -162,6 +162,7 @@ export function DeepsDetailContainer({
                     studyId={studyId}
                     deepsId={deepsId}
                     answer={answer}
+                    isExpired={isExpired}
                 />
             ))}
         </>

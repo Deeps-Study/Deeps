@@ -3,7 +3,7 @@ const NICKNAME_MIN_LENGTH = 2;
 const NICKNAME_MAX_LENGTH = 10;
 
 export const NICKNAME_GUIDE =
-    '닉네임은 2~10자, 한글/영문/숫자만 입력 가능합니다.';
+    '닉네임은 공백을 제외한 2~10자, 한글/영문/숫자만 입력 가능합니다.';
 
 export function isValidNickname(nickname: string): boolean {
     return (
