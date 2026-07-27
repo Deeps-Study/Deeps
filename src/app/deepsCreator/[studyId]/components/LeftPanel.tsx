@@ -24,9 +24,18 @@ export function LeftPanel({
                     isFull
                     name="title"
                     placeholder="딥스 제목을 입력해주세요"
+                    maxLength={40}
                     value={title}
-                    onChange={(e) => onTitleChange(e.target.value)}
+                    onChange={(e) => {
+                        const target = e.target.value.slice(0, 40);
+                        onTitleChange(target);
+                    }}
                 />
+                <div className="flex justify-end">
+                    <span className="text-xs font-medium text-gray-400">
+                        {title.length}/40
+                    </span>
+                </div>
             </div>
             <div className="flex flex-col flex-1 gap-2.5 min-h-0">
                 <span className="text-base font-semibold text-gray-600">
