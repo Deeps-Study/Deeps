@@ -7,28 +7,26 @@ import Icon from '@/ui/Icon/Icon';
 import { sanitizeHtml } from '@/utils/editor';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { ExpandableBox } from './ExpandableBox';
+import type { OtherAnswerModel } from '@/types/deepsAnswerModel';
 
 export interface OtherAnswerCardProps {
     studyId: string;
     deepsId: string;
-    answerId: string;
-    author: string;
-    image?: string;
-    content: string;
-    recommendCount: number;
-    recommended: boolean;
+    answer: OtherAnswerModel;
 }
 
 export function OtherAnswerCard({
     studyId,
     deepsId,
-    answerId,
-    author,
-    image,
-    content,
-    recommendCount,
-    recommended: initialRecommended,
+    answer,
 }: OtherAnswerCardProps) {
+    const {
+        answerId,
+        author,
+        content,
+        recommendCount,
+        recommended: initialRecommended,
+    } = answer;
     const [{ recommended, count }, setState] = useState({
         recommended: initialRecommended,
         count: recommendCount,
@@ -58,10 +56,10 @@ export function OtherAnswerCard({
             <div className="flex items-center justify-between">
                 <p className="flex items-center gap-2 text-sm font-medium text-gray-500">
                     <span className="relative w-6 h-6 rounded-full border border-main-100 flex items-center justify-center overflow-hidden shrink-0">
-                        {image ? (
+                        {author.image ? (
                             <Image
-                                src={image}
-                                alt={author}
+                                src={author.image}
+                                alt={author.nickname}
                                 fill
                                 sizes="24px"
                                 className="object-cover"
@@ -73,7 +71,7 @@ export function OtherAnswerCard({
                             />
                         )}
                     </span>
-                    {author}
+                    {author.nickname}
                 </p>
                 <button
                     type="button"
@@ -89,7 +87,7 @@ export function OtherAnswerCard({
             </div>
             <ExpandableBox
                 heightClassName="min-h-40 max-h-70"
-                className="bg-gray-50 border border-gray-200 rounded-lg px-6 py-5 text-sm font-medium text-gray-500 leading-relaxed"
+                className="bg-gray-50 border border-gray-200 rounded-lg pt-3 px-4.5 pb-4.5 text-sm font-medium text-gray-500 leading-relaxed"
             >
                 <div
                     dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
