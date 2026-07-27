@@ -1,6 +1,6 @@
 export interface UserProfileModel {
     nickname: string;
-    image?: string;
+    profileImageUrl?: string;
 }
 
 export interface LinkedAccount {
