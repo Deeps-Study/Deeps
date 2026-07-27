@@ -252,7 +252,7 @@ export default function HomePage() {
         <Suspense
             fallback={
                 <div className="flex flex-1 items-center justify-center">
-                    <p className="text-gray-500 font-medium">로딩 중...</p>
+                    <p className="text-gray-600 font-medium">로딩 중...</p>
                 </div>
             }
         >
