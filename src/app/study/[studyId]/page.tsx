@@ -1,11 +1,8 @@
 'use client';
 
 import { useEffect, useState, use } from 'react';
-import type {
-    StudyDetailResponse,
-    StudyMemberResponse,
-    DeepsItemResponse,
-} from '@/types/study';
+import type { StudyDetailResponse, StudyMemberResponse } from '@/types/study';
+import type { DeepsItemResponse } from '@/types/deeps';
 
 import StudyInfo from '../components/StudyInfo';
 import ActivityGrass from '../components/ActivityGrass';
