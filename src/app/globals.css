@@ -135,29 +135,3 @@
 .hljs-deletion {
     color: #ff5555;
 }
-
-@utility thin-scrollbar-on-hover {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-
-    &::-webkit-scrollbar {
-        height: 6px;
-    }
-    &::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    &::-webkit-scrollbar-thumb {
-        background: transparent;
-        border-radius: 9999px;
-    }
-
-    &:hover {
-        @media (hover: hover) {
-            scrollbar-color: var(--color-gray-300) transparent;
-        }
-
-        &::-webkit-scrollbar-thumb {
-            background: var(--color-gray-300);
-        }
-    }
-}
