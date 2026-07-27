@@ -17,14 +17,9 @@ function LoginCard() {
     };
 
     return (
-        <div className="w-85 min-h-118 pt-14 pb-10 px-10 border border-main-10 shadow-mint rounded-[40px]">
+        <div className="w-85 min-h-85 pt-14 pb-10 px-10 border border-main-10 shadow-mint rounded-[40px]">
             <div className="flex flex-col items-center">
-                <span className="text-xl font-bold text-gray-600">
-                    소셜 로그인
-                </span>
-                <div className="mt-3.5">
-                    <span className="text-[50px]">🐱</span>
-                </div>
+                <span className="text-5xl font-bold text-main-100">Deeps</span>
                 <p className="mt-3.5 text-base text-center text-gray-600">
                     소셜 로그인으로
                     <br /> 빠르게 시작해 보세요!
@@ -33,7 +28,7 @@ function LoginCard() {
 
             <div className="flex flex-col items-center">
                 <button
-                    className="flex items-center gap-2.5 h-10 bg-[#FFFFFF] border border-[#747775] rounded-xl pl-3 pr-3 mt-14 cursor-pointer"
+                    className="flex items-center gap-2.5 h-10 bg-[#FFFFFF] border border-[#747775] rounded-xl pl-3 pr-3 mt-16 cursor-pointer"
                     onClick={handleLoginButtonClick}
                 >
                     <div className="flex items-center justify-center w-5 h-5">
