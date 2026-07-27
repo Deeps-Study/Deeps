@@ -22,7 +22,19 @@ export function ExpandableBox({
     useEffect(() => {
         const box = boxRef.current;
         if (!box) return;
-        setCanExpand(box.scrollHeight > box.clientHeight);
+
+        const measure = () => {
+            setCanExpand(box.scrollHeight > box.clientHeight);
+        };
+
+        measure();
+
+        const observer = new ResizeObserver(measure);
+        observer.observe(box);
+
+        return () => {
+            observer.disconnect();
+        };
     }, [children]);
 
     return (
