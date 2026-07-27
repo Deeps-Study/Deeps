@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { DeepsDetailClient } from './DeepsDetailClient';
+import { CreatorDeepsDetail } from './CreatorDeepsDetail';
+import { SolverDeepsDetail } from './SolverDeepsDetail';
 import { DeepsDescription } from './DeepsDescription';
 import { HintSection } from './HintSection';
 import { OtherAnswerCard } from './OtherAnswerCard';
-import { formatDurationLabel } from '@/utils/time';
 import type { DeepsDetailModel } from '@/types/deeps';
 import type { MyAnswerModel, OtherAnswerModel } from '@/types/deepsAnswerModel';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
@@ -83,7 +83,20 @@ export function DeepsDetailContainer({
     }, [deepsId, studyId]);
 
     useEffect(() => {
-        if (!deeps) return;
+        if (!deeps?.isCreatedByMe) return;
+        let isStale = false;
+        fetch(`/api/studies/${studyId}/deeps/${deepsId}/answers`)
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data: OtherAnswerModel[] | null) => {
+                if (!isStale && data) setOtherAnswers(data);
+            });
+        return () => {
+            isStale = true;
+        };
+    }, [deeps?.isCreatedByMe, studyId, deepsId]);
+
+    useEffect(() => {
+        if (!deeps || deeps.isCreatedByMe) return;
         let isStale = false;
         const expiredAtMs = new Date(deeps.expiredAt).getTime();
         const delay = Math.max(0, expiredAtMs - REVEAL_LEAD_MS - Date.now());
@@ -125,48 +138,53 @@ export function DeepsDetailContainer({
         return null; // 200ms 미만의 빠른 응답 시 아무것도 그리지 않고 대기 (깜빡임 완벽 방지)
     }
 
-    return (
-        <DeepsDetailClient
-            title={deeps.title}
-            timeLimitLabel={formatDurationLabel(deeps.durationSeconds)}
-            expiredAtMs={new Date(deeps.expiredAt).getTime()}
-            hasSubmitted={deeps.myAnswerStatus === 'SUBMITTED'}
+    const leftContent = (
+        <>
+            <DeepsDescription
+                author={deeps.creator?.nickname ?? '알 수 없음'}
+                image={deeps.creator?.profileImageUrl}
+                description={deeps.description}
+            />
+            <HintSection
+                isExpired={isExpired}
+                isCreatedByMe={deeps.isCreatedByMe}
+                hint={deeps.hint}
+                explanation={deeps.explanation}
+            />
+        </>
+    );
+
+    const otherAnswerCards = (
+        <>
+            {otherAnswers.map((answer) => (
+                <OtherAnswerCard
+                    key={answer.answerId}
+                    studyId={studyId}
+                    deepsId={deepsId}
+                    answer={answer}
+                />
+            ))}
+        </>
+    );
+
+    return deeps.isCreatedByMe ? (
+        <CreatorDeepsDetail
+            deeps={deeps}
+            onExpire={handleExpire}
+            studyId={studyId}
+            leftContent={leftContent}
+            otherAnswerCards={otherAnswerCards}
+        />
+    ) : (
+        <SolverDeepsDetail
+            deeps={deeps}
             isExpired={isExpired}
             onExpire={handleExpire}
             studyId={studyId}
             deepsId={deepsId}
             initialAnswer={initialAnswer}
-            leftContent={
-                <>
-                    <DeepsDescription
-                        author={deeps.creator?.nickname ?? '알 수 없음'}
-                        image={deeps.creator?.profileImageUrl}
-                        description={deeps.description}
-                    />
-                    <HintSection
-                        isExpired={isExpired}
-                        hint={deeps.hint}
-                        explanation={deeps.explanation}
-                    />
-                </>
-            }
-            otherAnswerCards={
-                <>
-                    {otherAnswers.map((answer) => (
-                        <OtherAnswerCard
-                            key={answer.answerId}
-                            studyId={studyId}
-                            deepsId={deepsId}
-                            answerId={answer.answerId}
-                            author={answer.author.nickname}
-                            image={answer.author.image}
-                            content={answer.content}
-                            recommendCount={answer.recommendCount}
-                            recommended={answer.recommended}
-                        />
-                    ))}
-                </>
-            }
+            leftContent={leftContent}
+            otherAnswerCards={otherAnswerCards}
         />
     );
 }
