@@ -81,6 +81,7 @@ export function NicknameEditForm({
                 isChecking={isChecking}
                 isAvailable={isAvailable}
                 submitError={submitError}
+                nickname={draft}
             />
         </div>
     );
