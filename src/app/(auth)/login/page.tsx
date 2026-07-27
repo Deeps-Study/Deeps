@@ -33,14 +33,14 @@ function LoginCard() {
 
             <div className="flex flex-col items-center">
                 <button
-                    className="flex items-center gap-3 h-10 bg-[#FFFFFF] border border-[#747775] rounded-xl pl-3 pr-3 mt-14 cursor-pointer"
+                    className="flex items-center gap-2.5 h-10 bg-[#FFFFFF] border border-[#747775] rounded-xl pl-3 pr-3 mt-14 cursor-pointer"
                     onClick={handleLoginButtonClick}
                 >
                     <div className="flex items-center justify-center w-5 h-5">
                         <Icon name="googleLogo" className="w-5 h-5" />
                     </div>
                     <span className="text-[#1F1F1F] text-sm text-left leading-5 font-medium">
-                        Sign in with Google
+                        Google 계정으로 로그인
                     </span>
                 </button>
                 {isLoginFailed && (
