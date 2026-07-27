@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { api, backendErrorMessage, backendErrorStatus } from '@/api';
 import { requireAccessToken } from '@/api/authSession';
-import type { DeepsItemResponse } from '@/types/study';
+import type { DeepsItemResponse } from '@/types/deeps';
 
 interface RouteParams {
     params: Promise<{ studyId: string }>;
