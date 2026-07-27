@@ -78,6 +78,7 @@ export function NicknameForm() {
                             isChecking={isChecking}
                             isAvailable={isAvailable}
                             submitError={submitError}
+                            nickname={nickname}
                         />
                     </div>
 

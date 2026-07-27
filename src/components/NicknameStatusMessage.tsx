@@ -1,8 +1,11 @@
+import { NICKNAME_GUIDE } from '@/utils/validateNickname';
+
 interface NicknameStatusMessageProps {
     isValid: boolean;
     isChecking: boolean;
     isAvailable: boolean | null;
     submitError: string;
+    nickname: string;
 }
 
 export function NicknameStatusMessage({
@@ -10,10 +13,16 @@ export function NicknameStatusMessage({
     isChecking,
     isAvailable,
     submitError,
+    nickname,
 }: NicknameStatusMessageProps) {
     if (submitError) {
         return (
             <p className="text-sm font-medium text-red-100">{submitError}</p>
+        );
+    }
+    if (nickname !== '' && !isValid) {
+        return (
+            <p className="text-sm font-medium text-red-100">{NICKNAME_GUIDE}</p>
         );
     }
     if (!isValid || isChecking || isAvailable === null) return null;
