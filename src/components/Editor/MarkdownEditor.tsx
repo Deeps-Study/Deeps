@@ -18,6 +18,7 @@ import {
     DEEPS_IMAGE_UPLOAD_GUIDE,
 } from '@/utils/uploadDeepsImage';
 import { triggerAlertModal } from '@/utils/alertModalStore';
+import { sanitizeHtml } from '@/utils/editor';
 
 interface MarkdownEditorProps {
     studyId: string;
@@ -179,7 +180,7 @@ function MarkdownEditor({
                     ref={previewRef}
                     className={PREVIEW_CLASSES}
                     dangerouslySetInnerHTML={{
-                        __html: editor?.getHTML() ?? '',
+                        __html: sanitizeHtml(editor?.getHTML() ?? ''),
                     }}
                 />
             )}
