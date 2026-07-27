@@ -3,12 +3,11 @@
 import { DeepsDetailHeader } from './DeepsDetailHeader';
 import { MySolution } from './MySolution';
 import { TimeAlert } from './TimeAlert';
+import { formatDurationLabel } from '@/utils/time';
+import type { DeepsDetailModel } from '@/types/deeps';
 
-interface DeepsDetailClientProps {
-    title: string;
-    timeLimitLabel: string;
-    expiredAtMs: number;
-    hasSubmitted: boolean;
+interface SolverDeepsDetailProps {
+    deeps: DeepsDetailModel;
     isExpired: boolean;
     onExpire: () => void;
     studyId: string;
@@ -18,11 +17,8 @@ interface DeepsDetailClientProps {
     otherAnswerCards: React.ReactNode;
 }
 
-export function DeepsDetailClient({
-    title,
-    timeLimitLabel,
-    expiredAtMs,
-    hasSubmitted,
+export function SolverDeepsDetail({
+    deeps,
     isExpired,
     onExpire,
     studyId,
@@ -30,7 +26,12 @@ export function DeepsDetailClient({
     initialAnswer,
     leftContent,
     otherAnswerCards,
-}: DeepsDetailClientProps) {
+}: SolverDeepsDetailProps) {
+    const { title, durationSeconds, expiredAt, myAnswerStatus } = deeps;
+    const timeLimitLabel = formatDurationLabel(durationSeconds);
+    const expiredAtMs = new Date(expiredAt).getTime();
+    const hasSubmitted = myAnswerStatus === 'SUBMITTED';
+
     return (
         <div className="flex flex-col bg-white">
             <DeepsDetailHeader
