@@ -34,11 +34,47 @@ export default function ActivityGrass({
 
     // 컴포넌트 마운트 시 스크롤을 가장 오른쪽(오늘/최신 날짜)으로 이동
     useEffect(() => {
-        if (scrollContainerRef.current) {
-            scrollContainerRef.current.scrollLeft =
-                scrollContainerRef.current.scrollWidth;
+        if (!scrollContainerRef.current) return;
+
+        const container = scrollContainerRef.current;
+        const todayStr = new Date().toISOString().split('T')[0];
+        const todayIndex = dates.indexOf(todayStr);
+
+        // 스터디 기간 내에 오늘 날짜가 포함된 경우
+        if (todayIndex !== -1) {
+            // 셀 1개의 너비 (w-5 = 20px) + gap-1.5 (6px) = 26px
+            const CELL_WIDTH = 20;
+            const GAP = 6;
+            const CELL_TOTAL_WIDTH = CELL_WIDTH + GAP;
+
+            // 프로필 고정 영역의 너비 (w-5(20px) + pr-3(12px) + gap-4(16px) ≈ 약 48px)
+            // 정확한 프로필 sticky 레이아웃 offset을 반영합니다.
+            const PROFILE_OFFSET = 48;
+
+            // 오늘 날짜 셀의 X축 시작 지점
+            const todayCellLeft =
+                PROFILE_OFFSET + todayIndex * CELL_TOTAL_WIDTH;
+
+            // 컨테이너 중앙 위치 계산
+            const containerWidth = container.clientWidth;
+            const targetScrollLeft =
+                todayCellLeft - containerWidth / 2 + CELL_WIDTH / 2;
+
+            container.scrollLeft = Math.max(0, targetScrollLeft);
+        } else {
+            // 스터디가 이미 종료되었거나 아직 시작 전인 경우 예외 처리
+            const firstDate = dates[0];
+            const lastDate = dates[dates.length - 1];
+
+            if (todayStr > lastDate) {
+                // 이미 끝난 스터디면 맨 오른쪽(종료일)으로 스크롤
+                container.scrollLeft = container.scrollWidth;
+            } else if (todayStr < firstDate) {
+                // 시작 예정인 스터디면 맨 왼쪽(시작일)으로 스크롤
+                container.scrollLeft = 0;
+            }
         }
-    }, [startDate, endDate]);
+    }, [startDate, endDate, dates]);
 
     const getGrassColorClass = (score: number): string => {
         if (score === 0) return 'bg-gray-100';
@@ -50,10 +86,9 @@ export default function ActivityGrass({
     return (
         <div className="flex flex-col w-full">
             <div className="w-full rounded-2xl border border-main-20 p-5 bg-white shadow-mint flex flex-col gap-2 overflow-hidden">
-                {/* 💡 가로 스크롤 영역 (스크롤바 숨김 처리 및 오늘날짜 우선 노출) */}
                 <div
                     ref={scrollContainerRef}
-                    className="w-full overflow-x-auto scroll-smooth [&::-webkit-scrollbar]:hidden scrollbar-none"
+                    className="w-full overflow-x-auto scroll-smooth pb-2 thin-scrollbar-on-hover"
                 >
                     <div className="flex flex-col gap-2 min-w-max">
                         {members.map((member) => (
