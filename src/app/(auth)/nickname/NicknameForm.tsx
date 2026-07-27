@@ -57,31 +57,33 @@ export function NicknameForm() {
                         안녕하세요! 닉네임을 알려주세요
                     </span>
 
-                    <div className="flex flex-col gap-2">
-                        <p className="text-gray-600 text-base font-bold text-left">
-                            닉네임 입력
-                        </p>
+                    <div className="flex flex-col gap-3">
+                        <div className="flex flex-col gap-3">
+                            <p className="text-gray-600 text-base font-bold text-left">
+                                닉네임 입력
+                            </p>
+                            <Input
+                                {...inputConfig}
+                                maxLength={10}
+                                className={`transition-all duration-100 ${isValid ? `shadow-mint` : `shadow-none`}`}
+                                value={nickname}
+                                onChange={(e) => {
+                                    setNickname(e.target.value);
+                                    setSubmitError('');
+                                }}
+                            />
+                        </div>
 
-                        <Input
-                            {...inputConfig}
-                            maxLength={10}
-                            className={`transition-all duration-100 ${isValid ? `shadow-mint` : `shadow-none`}`}
-                            value={nickname}
-                            onChange={(e) => {
-                                setNickname(e.target.value);
-                                setSubmitError('');
-                            }}
-                        ></Input>
-
-                        <NicknameStatusMessage
-                            isValid={isValid}
-                            isChecking={isChecking}
-                            isAvailable={isAvailable}
-                            submitError={submitError}
-                            nickname={nickname}
-                        />
+                        <div className="h-3">
+                            <NicknameStatusMessage
+                                isValid={isValid}
+                                isChecking={isChecking}
+                                isAvailable={isAvailable}
+                                submitError={submitError}
+                                nickname={nickname}
+                            />
+                        </div>
                     </div>
-
                     <RoundButton
                         variant="complete"
                         isFull
