@@ -56,7 +56,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     const userProfileData = currentUser
         ? {
               nickname: currentUser.nickname ?? '닉네임 없음',
-              image: currentUser.image ?? undefined,
+              profileImageUrl: currentUser.image ?? undefined,
           }
         : undefined;
 

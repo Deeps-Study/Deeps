@@ -2,13 +2,13 @@ import Image from 'next/image';
 import { UserProfileModel } from '@/types/user';
 import Icon from '@/ui/Icon/Icon';
 
-export function ProfileCard({ nickname, image }: UserProfileModel) {
+export function ProfileCard({ nickname, profileImageUrl }: UserProfileModel) {
     return (
         <div className="border border-main-20 rounded-2xl h-53 flex flex-col items-center justify-center gap-4 py-5">
             <div className="flex items-center justify-center size-25 rounded-full border border-main-30 overflow-hidden text-3xl">
-                {image ? (
+                {profileImageUrl ? (
                     <Image
-                        src={image}
+                        src={profileImageUrl}
                         alt={nickname}
                         width={100}
                         height={100}

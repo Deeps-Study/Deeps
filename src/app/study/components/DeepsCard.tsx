@@ -75,9 +75,9 @@ export default function DeepsCard({
             <div className="flex items-center gap-2.5 border-b border-main-20 pb-3">
                 {/* 작성자 프로필사진 */}
                 <div className="flex h-10 w-10 items-center justify-center rounded-full border border-main-20 bg-white text-base font-bold overflow-hidden select-none">
-                    {creator?.image ? (
+                    {creator?.profileImageUrl ? (
                         <Image
-                            src={creator.image}
+                            src={creator.profileImageUrl}
                             alt={creator.nickname ?? '작성자 프로필'}
                             width={36}
                             height={36}

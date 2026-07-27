@@ -12,16 +12,16 @@ interface MainHeaderProps {
     userProfile?: UserProfileModel;
 }
 
-function UserProfile({ image, nickname }: UserProfileModel) {
+function UserProfile({ profileImageUrl, nickname }: UserProfileModel) {
     return (
         <Link
             href="/mypage"
             className="flex flex-row whitespace-nowrap items-center px-2 py-2 h-10 rounded-xl gap-2.5 bg-white border border-main-20 hover:border-main-60 hover:shadow-green"
         >
             <div className="relative flex items-center justify-center w-6 h-6 rounded-full overflow-hidden shrink-0">
-                {image ? (
+                {profileImageUrl ? (
                     <Image
-                        src={image}
+                        src={profileImageUrl}
                         alt="프로필"
                         fill
                         sizes="24px"
@@ -74,7 +74,7 @@ function MainHeader({
 
                     {userProfile && (
                         <UserProfile
-                            image={userProfile.image}
+                            profileImageUrl={userProfile.profileImageUrl}
                             nickname={userProfile.nickname}
                         />
                     )}
@@ -94,7 +94,7 @@ function MainHeader({
 
                     {userProfile && (
                         <UserProfile
-                            image={userProfile.image}
+                            profileImageUrl={userProfile.profileImageUrl}
                             nickname={userProfile.nickname}
                         />
                     )}

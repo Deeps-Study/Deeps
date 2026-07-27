@@ -28,7 +28,7 @@ export function MyPageClient() {
                 <div className="flex flex-col gap-9 w-105 shrink-0">
                     <ProfileCard
                         nickname={currentUser.nickname ?? ''}
-                        image={currentUser.image ?? undefined}
+                        profileImageUrl={currentUser.image ?? undefined}
                     />
                     <WeeklyAttendance attendance={currentUser.attendance} />
                     <AccountManagement
