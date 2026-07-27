@@ -39,10 +39,18 @@
 }
 
 @keyframes toast-fade {
-    0% { opacity: 0; }
-    8% { opacity: 1; }
-    80% { opacity: 1; }
-    100% { opacity: 0; }
+    0% {
+        opacity: 0;
+    }
+    8% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
 }
 
 /* content: attr()는 런타임 CSS 함수라 Tailwind 유틸리티로 표현 불가 */
@@ -126,4 +134,30 @@
 }
 .hljs-deletion {
     color: #ff5555;
+}
+
+@utility thin-scrollbar-on-hover {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+
+    &::-webkit-scrollbar {
+        height: 6px;
+    }
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: transparent;
+        border-radius: 9999px;
+    }
+
+    &:hover {
+        @media (hover: hover) {
+            scrollbar-color: var(--color-gray-300) transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: var(--color-gray-300);
+        }
+    }
 }
