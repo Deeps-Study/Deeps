@@ -1,5 +1,3 @@
-import { UserProfileModel } from './user';
-
 export interface StudyResponse {
     id: string;
     title: string;
@@ -44,15 +42,4 @@ export interface StudyMemberResponse {
     profileImageUrl: string;
     totalLikesReceived: number;
     activityLogs: ActivityLog[];
-}
-
-export interface DeepsItemResponse {
-    id: string;
-    title: string;
-    creator: UserProfileModel;
-    createdAt: string;
-    expiredAt: string;
-    isSubmitted: boolean;
-    isCreator: boolean;
-    submittedCount: number;
 }
