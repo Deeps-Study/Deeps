@@ -320,17 +320,23 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                         </div>
 
                         {passwordEnabled && (
-                            <Input
-                                value={password}
-                                onChange={(event) =>
-                                    setPassword(event.target.value)
-                                }
-                                type="text"
-                                placeholder="비밀번호를 입력해주세요"
-                                isFull
-                                className="placeholder-gray-300"
-                                disabled={isSubmitting}
-                            />
+                            <div>
+                                <Input
+                                    value={password}
+                                    onChange={(event) =>
+                                        setPassword(event.target.value)
+                                    }
+                                    type="text"
+                                    placeholder="비밀번호를 입력해주세요"
+                                    isFull
+                                    className="placeholder-gray-300"
+                                    disabled={isSubmitting}
+                                />
+                                <p className="text-xs font-normal text-red-100 pl-0.5">
+                                    * 생성된 비밀번호는 추후 수정/재확인이
+                                    어려우니 반드시 기억해 주세요.
+                                </p>
+                            </div>
                         )}
                     </div>
                 </div>
