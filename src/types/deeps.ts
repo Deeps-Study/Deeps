@@ -10,6 +10,7 @@ export interface DeepsDetailModel {
     hint: string | null;
     myAnswerStatus: 'SUBMITTED' | 'NOT_SUBMITTED';
     isCreatedByMe: boolean;
+    hasAnswers: boolean;
     creator: UserProfileModel | null;
     explanation: string | null;
 }
