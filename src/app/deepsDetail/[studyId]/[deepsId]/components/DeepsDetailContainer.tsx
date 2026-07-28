@@ -171,8 +171,10 @@ export function DeepsDetailContainer({
     return deeps.isCreatedByMe ? (
         <CreatorDeepsDetail
             deeps={deeps}
+            isExpired={isExpired}
             onExpire={handleExpire}
             studyId={studyId}
+            deepsId={deepsId}
             leftContent={leftContent}
             otherAnswerCards={otherAnswerCards}
         />
