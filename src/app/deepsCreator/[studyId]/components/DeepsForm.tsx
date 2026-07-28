@@ -45,16 +45,20 @@ export function DeepsForm({ studyId, deepsId }: DeepsFormProps) {
             }
             if (!res.ok) return;
             const data: DeepsDetailModel = await res.json();
-            if (!data.isCreatedByMe) {
+            if (isStale) return;
+            const isExpired = Date.now() >= new Date(data.expiredAt).getTime();
+            if (!data.isCreatedByMe || data.hasAnswers || isExpired) {
                 triggerAlertModal({
                     title: '접근 불가',
-                    message: '딥스 출제자만 수정할 수 있습니다.',
+                    message: !data.isCreatedByMe
+                        ? '딥스 출제자만 수정할 수 있습니다.'
+                        : '답변이 제출됐거나 제한 시간이 종료된 딥스는 수정할 수 없습니다.',
                     onConfirm: () => {
                         router.replace(`/study/${studyId}`);
                     },
                 });
+                return;
             }
-            if (isStale) return;
             setTitle(data.title);
             setDescription(data.description);
             setInitialDescription(data.description);
@@ -69,7 +73,7 @@ export function DeepsForm({ studyId, deepsId }: DeepsFormProps) {
         return () => {
             isStale = true;
         };
-    }, [isEditMode, studyId, deepsId]);
+    }, [isEditMode, studyId, deepsId, router]);
 
     const isFormValid =
         title.trim().length > 0 &&
