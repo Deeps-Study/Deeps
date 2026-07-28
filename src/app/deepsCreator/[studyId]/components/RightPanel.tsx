@@ -5,9 +5,11 @@ import { TimeSelector } from './TimeSelector';
 interface RightPanelProps {
     studyId: string;
     onTimeChange: (seconds: number | null) => void;
+    initialSeconds?: number;
     hint: string;
     onHintChange: (value: string) => void;
     onSolutionChange: (value: string) => void;
+    initialSolution?: string;
     isFormValid: boolean;
     isSubmitting: boolean;
     submitError: string;
@@ -18,9 +20,11 @@ interface RightPanelProps {
 export function RightPanel({
     studyId,
     onTimeChange,
+    initialSeconds,
     hint,
     onHintChange,
     onSolutionChange,
+    initialSolution,
     isFormValid,
     isSubmitting,
     submitError,
@@ -30,7 +34,10 @@ export function RightPanel({
     return (
         <div className="flex flex-col gap-9 w-143.75 pb-3 shrink-0 min-h-0">
             <div className="flex flex-col flex-1 gap-9 min-h-0">
-                <TimeSelector onChange={onTimeChange} />
+                <TimeSelector
+                    onChange={onTimeChange}
+                    initialSeconds={initialSeconds}
+                />
                 <div className="flex flex-col gap-2.5 shrink-0">
                     <span className="text-base font-medium text-gray-600">
                         힌트
@@ -51,6 +58,7 @@ export function RightPanel({
                         studyId={studyId}
                         placeholder="딥스 해설을 작성해 주세요"
                         className="flex-1 min-h-0"
+                        initialContent={initialSolution}
                         onChange={onSolutionChange}
                     />
                 </div>

@@ -6,6 +6,7 @@ interface LeftPanelProps {
     title: string;
     onTitleChange: (value: string) => void;
     onDescriptionChange: (value: string) => void;
+    initialDescription?: string;
 }
 
 export function LeftPanel({
@@ -13,6 +14,7 @@ export function LeftPanel({
     title,
     onTitleChange,
     onDescriptionChange,
+    initialDescription,
 }: LeftPanelProps) {
     return (
         <div className="flex flex-col flex-1 gap-9 pb-3 min-h-0">
@@ -45,6 +47,7 @@ export function LeftPanel({
                     studyId={studyId}
                     placeholder="딥스에 대해서 설명해 주세요"
                     className="flex-1 min-h-0"
+                    initialContent={initialDescription}
                     onChange={onDescriptionChange}
                 />
             </div>

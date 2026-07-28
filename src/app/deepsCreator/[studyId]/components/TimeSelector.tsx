@@ -24,14 +24,36 @@ interface CustomTime {
 
 interface TimeSelectorProps {
     onChange: (seconds: number | null) => void;
+    initialSeconds?: number;
 }
 
-export function TimeSelector({ onChange }: TimeSelectorProps) {
-    const [selectedTime, setSelectedTime] = useState<string | null>(null);
-    const [custom, setCustom] = useState<CustomTime>({
-        hours: '',
-        minutes: '',
-        seconds: '',
+function findPreset(seconds: number): string | null {
+    return (
+        PRESET_TIMES.find((time) => PRESET_SECONDS[time] === seconds) ?? null
+    );
+}
+
+function toCustomTime(seconds: number): CustomTime {
+    return {
+        hours: String(Math.floor(seconds / 3600)),
+        minutes: String(Math.floor((seconds % 3600) / 60)),
+        seconds: String(seconds % 60),
+    };
+}
+
+export function TimeSelector({ onChange, initialSeconds }: TimeSelectorProps) {
+    const initialPreset =
+        initialSeconds !== undefined ? findPreset(initialSeconds) : null;
+
+    const [selectedTime, setSelectedTime] = useState<string | null>(() => {
+        if (initialSeconds === undefined) return null;
+        return initialPreset ?? '직접 입력';
+    });
+    const [custom, setCustom] = useState<CustomTime>(() => {
+        if (initialSeconds === undefined || initialPreset) {
+            return { hours: '', minutes: '', seconds: '' };
+        }
+        return toCustomTime(initialSeconds);
     });
 
     const isCustom = selectedTime === '직접 입력';
