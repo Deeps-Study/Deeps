@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes } from 'react';
 import cn from 'classnames';
 
 interface SquareButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'cancel' | 'leave';
+    variant?: 'primary' | 'cancel' | 'leave' | 'edit';
 }
 
 const variantStyles = {
@@ -15,6 +15,10 @@ const variantStyles = {
         'hover:border-main-50 hover:text-main-50',
     ].join(' '),
     leave: ['text-red-200', 'hover:text-red-200'].join(' '),
+    edit: [
+        'bg-white text-main-30 border border-main-20',
+        'hover:border-main-50 hover:text-main-50',
+    ].join(' '),
 };
 
 const SquareButton = ({
