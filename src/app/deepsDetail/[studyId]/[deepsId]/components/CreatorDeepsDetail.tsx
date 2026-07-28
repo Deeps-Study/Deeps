@@ -54,7 +54,7 @@ export function CreatorDeepsDetail({
                             >
                                 <Icon
                                     name="pencil"
-                                    className="w-4 h-4 stroke-2 stroke-main-30"
+                                    className="w-4 h-4 stroke-2 stroke-main-100"
                                 />
                                 수정하기
                             </SquareButton>

@@ -16,8 +16,8 @@ const variantStyles = {
     ].join(' '),
     leave: ['text-red-200', 'hover:text-red-200'].join(' '),
     edit: [
-        'bg-white text-main-30 border border-main-20',
-        'hover:border-main-50 hover:text-main-50',
+        'bg-white text-main-100 border border-main-100',
+        'hover:bg-main-10',
     ].join(' '),
 };
 
