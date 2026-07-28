@@ -1,0 +1,137 @@
+@import 'tailwindcss';
+
+@plugin '@tailwindcss/typography';
+
+@theme {
+    --font-sans: var(--font-pretendard), sans-serif;
+
+    /* 커스텀 컬러 */
+    --color-white: #fcfcfc;
+    --color-gray-50: #f7f7f7;
+    --color-gray-100: #f0f0f0;
+    --color-gray-200: #d2d2d2;
+    --color-gray-300: #b4b4b4;
+    --color-gray-400: #828282;
+    --color-gray-500: #3c3c3c;
+    --color-gray-600: #1e1e1e;
+
+    --color-main-10: #f0fbf5;
+    --color-main-20: #cceedd;
+    --color-main-30: #66dda3;
+    --color-main-40: #93e7a2;
+    --color-main-50: #00d169;
+    --color-main-60: #55ae83;
+    --color-main-100: #149f37;
+    --color-main-200: #006300;
+
+    --color-red-10: #fef6f3;
+    --color-red-20: #fad8cc;
+    --color-red-50: #ff7974;
+    --color-red-100: #ed4742;
+    --color-red-200: #c83535;
+
+    /* 커스텀 이펙트 */
+    --shadow-mint: 0 0 10px 0 #cceedd;
+    --shadow-green: 0 0 10px 0 #55ae8399;
+
+    /* 토스트 애니메이션 */
+    --animate-toast: toast-fade 4s ease forwards;
+}
+
+@keyframes toast-fade {
+    0% {
+        opacity: 0;
+    }
+    8% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+/* content: attr()는 런타임 CSS 함수라 Tailwind 유틸리티로 표현 불가 */
+.tiptap p.is-editor-empty:first-child::before {
+    color: var(--color-gray-300);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
+
+/* code block: prose 기본 스타일을 다크 테마로 강제 오버라이드 */
+.prose pre,
+.tiptap pre {
+    background-color: var(--color-gray-600) !important;
+    color: var(--color-gray-50) !important;
+}
+
+.prose pre code,
+.tiptap pre code {
+    background-color: transparent !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    color: inherit !important;
+    font-size: inherit !important;
+}
+
+/* hljs 다크 테마 syntax 색상 (Dracula 기반) */
+.hljs {
+    color: var(--color-gray-50);
+}
+
+.hljs-keyword,
+.hljs-operator,
+.hljs-selector-tag,
+.hljs-selector-pseudo {
+    color: #ff79c6;
+}
+.hljs-string,
+.hljs-addition,
+.hljs-meta-string,
+.hljs-regexp,
+.hljs-template-variable {
+    color: #f1fa8c;
+}
+.hljs-comment,
+.hljs-quote {
+    color: #6272a4;
+    font-style: italic;
+}
+.hljs-number,
+.hljs-literal,
+.hljs-symbol,
+.hljs-bullet {
+    color: #bd93f9;
+}
+.hljs-title,
+.hljs-name,
+.hljs-built_in,
+.hljs-function,
+.hljs-class .hljs-title {
+    color: #50fa7b;
+}
+.hljs-type,
+.hljs-attr,
+.hljs-variable,
+.hljs-template-tag,
+.hljs-selector-attr {
+    color: #ffb86c;
+}
+.hljs-tag {
+    color: #ff5555;
+}
+.hljs-meta,
+.hljs-meta .hljs-keyword {
+    color: #8be9fd;
+}
+.hljs-property,
+.hljs-params {
+    color: #f8f8f2;
+}
+.hljs-deletion {
+    color: #ff5555;
+}

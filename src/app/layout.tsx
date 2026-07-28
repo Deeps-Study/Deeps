@@ -1,0 +1,31 @@
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import AlertModal from '@/components/AlertModal';
+import './globals.css';
+
+const pretendard = localFont({
+    src: '../fonts/PretendardVariable.woff2',
+    display: 'swap',
+    variable: '--font-pretendard',
+    weight: '45 920',
+});
+
+export const metadata: Metadata = {
+    title: 'deeps',
+    description: 'Deep Study',
+};
+
+export default function RootLayout({
+    children,
+}: Readonly<{
+    children: React.ReactNode;
+}>) {
+    return (
+        <html lang="ko" className={pretendard.variable}>
+            <body className="font-sans bg-white">
+                {children}
+                <AlertModal />
+            </body>
+        </html>
+    );
+}
