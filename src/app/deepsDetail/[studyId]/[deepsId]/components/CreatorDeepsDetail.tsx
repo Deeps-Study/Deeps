@@ -1,27 +1,36 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import Icon from '@/ui/Icon/Icon';
+import SquareButton from '@/components/SquareButton';
 import { DeepsDetailHeader } from './DeepsDetailHeader';
 import { formatDurationLabel } from '@/utils/time';
 import type { DeepsDetailModel } from '@/types/deeps';
 
 interface CreatorDeepsDetailProps {
     deeps: DeepsDetailModel;
+    isExpired: boolean;
     onExpire: () => void;
     studyId: string;
+    deepsId: string;
     leftContent: React.ReactNode;
     otherAnswerCards: React.ReactNode;
 }
 
 export function CreatorDeepsDetail({
     deeps,
+    isExpired,
     onExpire,
     studyId,
+    deepsId,
     leftContent,
     otherAnswerCards,
 }: CreatorDeepsDetailProps) {
-    const { title, durationSeconds, expiredAt } = deeps;
+    const router = useRouter();
+    const { title, durationSeconds, expiredAt, hasAnswers } = deeps;
     const timeLimitLabel = formatDurationLabel(durationSeconds);
     const expiredAtMs = new Date(expiredAt).getTime();
+    const canEdit = !isExpired && !hasAnswers;
 
     return (
         <div className="flex flex-col bg-white">
@@ -31,6 +40,27 @@ export function CreatorDeepsDetail({
                 timeLimitLabel={timeLimitLabel}
                 expiredAtMs={expiredAtMs}
                 onExpire={onExpire}
+                action={
+                    canEdit && (
+                        <div className="w-fit shrink-0">
+                            <SquareButton
+                                variant="edit"
+                                className="!px-3 !py-1.5 !gap-1 !text-sm !font-medium"
+                                onClick={() =>
+                                    router.push(
+                                        `/deepsCreator/${studyId}/${deepsId}`,
+                                    )
+                                }
+                            >
+                                <Icon
+                                    name="pencil"
+                                    className="w-4 h-4 stroke-2 stroke-main-30"
+                                />
+                                수정하기
+                            </SquareButton>
+                        </div>
+                    )
+                }
             />
             <main className="flex gap-12 px-16 py-8 items-start">
                 <div className="flex flex-col gap-12 flex-1 min-w-0">
