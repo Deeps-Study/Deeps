@@ -6,6 +6,7 @@ import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { LeftPanel } from './LeftPanel';
 import { RightPanel } from './RightPanel';
 import type { DeepsDetailModel } from '@/types/deeps';
+import { triggerAlertModal } from '@/utils/alertModalStore';
 
 interface DeepsFormProps {
     studyId: string;
@@ -44,6 +45,15 @@ export function DeepsForm({ studyId, deepsId }: DeepsFormProps) {
             }
             if (!res.ok) return;
             const data: DeepsDetailModel = await res.json();
+            if (!data.isCreatedByMe) {
+                triggerAlertModal({
+                    title: '접근 불가',
+                    message: '딥스 출제자만 수정할 수 있습니다.',
+                    onConfirm: () => {
+                        router.replace(`/study/${studyId}`);
+                    },
+                });
+            }
             if (isStale) return;
             setTitle(data.title);
             setDescription(data.description);
