@@ -6,6 +6,7 @@ import Modal from '@/components/Modal';
 import SquareButton from '@/components/SquareButton';
 import Icon from '@/ui/Icon/Icon';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { triggerAlertModal } from '@/utils/alertModalStore';
 import type { StudyDetailResponse } from '@/types/study';
 
 interface StudyJoinModalProps {
@@ -24,7 +25,6 @@ export default function StudyJoinModal({
     const { currentUser } = useCurrentUser();
 
     const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // 1. 비로그인 시 로그인 페이지로 이동 (돌아왔을 때 초대 팝업이 다시 뜨도록 returnUrl 설정)
@@ -37,7 +37,6 @@ export default function StudyJoinModal({
 
     // 스터디 입장 API 호출
     const handleJoinStudy = async () => {
-        setErrorMessage(null);
         setIsSubmitting(true);
 
         try {
@@ -48,37 +47,51 @@ export default function StudyJoinModal({
             });
 
             if (res.ok) {
-                // 201 Created: 성공 시 모달 닫고 페이지 갱신
+                // 201 Created: 성공 시 모달 닫고 해당 스터디 페이지로 이동
                 onClose();
                 router.push(`/study/${study.id}`);
                 return;
             }
 
-            const errorData = await res.json();
+            const errorData = await res.json().catch(() => null);
+            const backendMessage = errorData?.message;
 
-            // 백엔드 NestJS Exception 처리
+            // 백엔드 상태 코드별 triggerAlertModal 분기 처리
             if (res.status === 403) {
                 // ForbiddenException: 비밀번호 불일치
-                setErrorMessage(
-                    errorData.message || '비밀번호가 일치하지 않습니다.',
-                );
+                triggerAlertModal({
+                    title: '비밀번호 오류',
+                    message:
+                        backendMessage ||
+                        '스터디 비밀번호가 일치하지 않습니다. 다시 확인해 주세요.',
+                });
             } else if (res.status === 400) {
-                // BadRequestException: 정원 초과
-                setErrorMessage(
-                    errorData.message || '스터디 정원이 초과되었습니다.',
-                );
+                // BadRequestException: 정원 초과 / 최대 개수 초과
+                triggerAlertModal({
+                    title: '참여 불가',
+                    message:
+                        backendMessage ||
+                        '스터디에 참여할 수 없습니다. 참여 조건이나 정원을 확인해 주세요.',
+                });
             } else if (res.status === 409) {
                 // ConflictException: 이미 가입된 멤버 -> 바로 입장 처리
                 onClose();
                 router.refresh();
             } else {
-                setErrorMessage(
-                    errorData.message || '참여 신청 중 오류가 발생했습니다.',
-                );
+                triggerAlertModal({
+                    title: '참여 실패',
+                    message:
+                        backendMessage ||
+                        '스터디 참여 신청 중 오류가 발생했습니다.',
+                });
             }
         } catch (error) {
             console.error('스터디 참여 요청 오류:', error);
-            setErrorMessage('네트워크 오류가 발생했습니다.');
+            triggerAlertModal({
+                title: '네트워크 오류',
+                message:
+                    '서버와의 통신이 원활하지 않습니다. 네트워크 연결을 확인해 주세요.',
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -160,23 +173,12 @@ export default function StudyJoinModal({
                                 <input
                                     type="password"
                                     value={password}
-                                    onChange={(e) => {
-                                        setPassword(e.target.value);
-                                        if (errorMessage) setErrorMessage(null); // 입력 시 에러 리셋
-                                    }}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
                                     placeholder="비밀번호를 입력해 주세요"
-                                    className={`w-full rounded-lg border px-3 py-2 text-sm outline-none transition-all ${
-                                        errorMessage
-                                            ? 'border-red-400 focus:border-red-500'
-                                            : 'border-main-20 focus:border-main-100'
-                                    }`}
+                                    className="w-full rounded-lg border border-main-20 px-3 py-2 text-sm outline-none transition-all focus:border-main-100"
                                 />
-                                {/* 백엔드 에러 메시지(비밀번호 틀림 등) 노출 */}
-                                {errorMessage && (
-                                    <span className="text-xs font-semibold text-red-500 pl-0.5">
-                                        {errorMessage}
-                                    </span>
-                                )}
                             </div>
                         )}
                     </div>
