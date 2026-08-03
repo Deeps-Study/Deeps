@@ -4,18 +4,22 @@ import { useCallback, useState, useEffect } from 'react';
 import MainHeader from '@/components/MainHeader';
 import {
     CreateStudyModalProvider,
-    useOpenCreateModal,
+    useCreateStudyModal,
 } from './CreateStudyModalContext';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { StudyRefreshProvider } from './StudyRefreshContext';
 import { StudyLimitAlert } from './components/StudyLimitAlert';
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
-    const openModal = useOpenCreateModal();
+    const { openModal, studyCount } = useCreateStudyModal();
     const { currentUser } = useCurrentUser();
     const [showAlert, setShowAlert] = useState<boolean>(false);
 
     const handleCreateStudyClick = () => {
+        if (studyCount >= 3) {
+            setShowAlert(true); // 3개 이상이면 차단 알림 바 노출
+            return;
+        }
         openModal();
     };
 
