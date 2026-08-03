@@ -3,7 +3,16 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
-import { common, createLowlight } from 'lowlight';
+import javascript from 'highlight.js/lib/languages/javascript';
+import typescript from 'highlight.js/lib/languages/typescript';
+import python from 'highlight.js/lib/languages/python';
+import java from 'highlight.js/lib/languages/java';
+import c from 'highlight.js/lib/languages/c';
+import cpp from 'highlight.js/lib/languages/cpp';
+import swift from 'highlight.js/lib/languages/swift';
+import kotlin from 'highlight.js/lib/languages/kotlin';
+
+import { createLowlight } from 'lowlight';
 import Placeholder from '@tiptap/extension-placeholder';
 import Image from '@tiptap/extension-image';
 import TaskList from '@tiptap/extension-task-list';
@@ -28,7 +37,17 @@ interface MarkdownEditorProps {
     onChange?: (html: string) => void;
 }
 
-const lowlight = createLowlight(common);
+const lowlight = createLowlight();
+lowlight.register({
+    javascript,
+    typescript,
+    python,
+    java,
+    c,
+    cpp,
+    swift,
+    kotlin,
+});
 
 const WRITE_CLASSES = cn(
     'flex-1 pt-3.5 px-4.5 pb-3.5 overflow-auto prose prose-sm max-w-none',
