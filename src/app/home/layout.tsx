@@ -7,39 +7,15 @@ import {
     useOpenCreateModal,
 } from './CreateStudyModalContext';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
-import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { StudyRefreshProvider } from './StudyRefreshContext';
 import { StudyLimitAlert } from './components/StudyLimitAlert';
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
     const openModal = useOpenCreateModal();
     const { currentUser } = useCurrentUser();
-    const [studyCount, setStudyCount] = useState<number>(0);
     const [showAlert, setShowAlert] = useState<boolean>(false);
 
-    useEffect(() => {
-        if (!currentUser) return;
-
-        fetch('/api/studies/count')
-            .then((res) => {
-                if (res.status === 401) {
-                    triggerSessionExpired();
-                    return null;
-                }
-                if (!res.ok) throw new Error();
-                return res.json();
-            })
-            .then((data) => {
-                if (data) setStudyCount(data.count);
-            })
-            .catch((error) => console.error('스터디 개수 조회 실패:', error));
-    }, [currentUser]);
-
     const handleCreateStudyClick = () => {
-        if (studyCount >= 3) {
-            setShowAlert(true);
-            return;
-        }
         openModal();
     };
 
