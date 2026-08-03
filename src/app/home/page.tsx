@@ -7,13 +7,17 @@ import CreateCard from './components/CreateCard';
 import StudyDetailModal from './components/StudyDetailModal';
 import StudyCardSkeleton from './components/StudyCardSkeleton';
 import StudyJoinModal from '@/components/StudyJoinModal';
-import { useOpenCreateModal } from './CreateStudyModalContext';
+import {
+    useOpenCreateModal,
+    useCreateStudyModal,
+} from './CreateStudyModalContext';
 import { StudyResponse, StudyDetailResponse } from '@/types/study';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { triggerAlertModal } from '@/utils/alertModalStore';
 
 function HomePageContent() {
     const openCreateModal = useOpenCreateModal();
+    const { setStudyCount } = useCreateStudyModal();
     const router = useRouter();
     const searchParams = useSearchParams();
     const pathname = usePathname();
@@ -143,6 +147,7 @@ function HomePageContent() {
                 const data: StudyResponse[] = await res.json();
                 if (!isStale) {
                     setStudies(data);
+                    setStudyCount(data.length);
                 }
             } catch (error) {
                 console.error(
@@ -160,7 +165,7 @@ function HomePageContent() {
                 }
             }
         },
-        [joinStudyId],
+        [joinStudyId, setStudyCount],
     );
 
     useEffect(() => {
