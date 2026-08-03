@@ -1,6 +1,6 @@
-import MarkdownEditor from '@/components/Editor/MarkdownEditor';
 import SquareButton from '@/components/SquareButton';
 import { TimeSelector } from './TimeSelector';
+import dynamic from 'next/dynamic';
 
 interface RightPanelProps {
     studyId: string;
@@ -16,6 +16,11 @@ interface RightPanelProps {
     onCancel: () => void;
     onSubmit: () => void;
 }
+
+const MarkdownEditor = dynamic(
+    () => import('@/components/Editor/MarkdownEditor'),
+    { ssr: false },
+);
 
 export function RightPanel({
     studyId,
