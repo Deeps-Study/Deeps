@@ -1,5 +1,5 @@
 import Input from '@/components/Input';
-import MarkdownEditor from '@/components/Editor/MarkdownEditor';
+import dynamic from 'next/dynamic';
 
 interface LeftPanelProps {
     studyId: string;
@@ -8,6 +8,11 @@ interface LeftPanelProps {
     onDescriptionChange: (value: string) => void;
     initialDescription?: string;
 }
+
+const MarkdownEditor = dynamic(
+    () => import('@/components/Editor/MarkdownEditor'),
+    { ssr: false },
+);
 
 export function LeftPanel({
     studyId,
