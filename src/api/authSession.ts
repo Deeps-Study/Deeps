@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { clearSession, getAccessToken } from './session';
 
@@ -11,7 +12,7 @@ const cookieOptions = {
     maxAge: REFRESH_MAX_AGE,
 };
 
-export async function requireAccessToken(): Promise<string | null> {
+export const requireAccessToken = cache(async (): Promise<string | null> => {
     console.log('🔑 [Token Log] 백엔드 토큰 검증 API 실행!');
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get(REFRESH_COOKIE)?.value;
@@ -26,7 +27,7 @@ export async function requireAccessToken(): Promise<string | null> {
         cookieStore.set(REFRESH_COOKIE, result.refreshToken, cookieOptions);
     }
     return result.accessToken;
-}
+});
 
 export async function setSessionCookie(refreshToken: string): Promise<void> {
     const cookieStore = await cookies();
