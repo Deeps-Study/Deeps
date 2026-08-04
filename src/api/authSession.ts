@@ -13,7 +13,6 @@ const cookieOptions = {
 };
 
 export const requireAccessToken = cache(async (): Promise<string | null> => {
-    console.log('🔑 [Token Log] 백엔드 토큰 검증 API 실행!');
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get(REFRESH_COOKIE)?.value;
     if (!refreshToken) return null;
