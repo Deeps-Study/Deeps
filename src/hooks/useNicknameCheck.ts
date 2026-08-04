@@ -11,7 +11,7 @@ export function useNicknameCheck(nickname: string): NicknameCheckResult {
     const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
     const [isChecking, setIsChecking] = useState(false);
     const isValid = isValidNickname(nickname);
-    const debouncedNickname = useDebounce(nickname, 600);
+    const debouncedNickname = useDebounce(nickname, 300);
 
     useEffect(() => {
         if (!isValid) return;
