@@ -47,53 +47,42 @@ export function NicknameForm() {
     };
 
     return (
-        <>
-            <div className="w-125 min-h-78.5 pt-11 pb-14 px-12 border border-main-10 shadow-mint rounded-[40px] bg-white">
-                <form
-                    className="flex flex-col h-full justify-between gap-6"
-                    onSubmit={handleSubmit}
-                >
-                    <span className="text-main-100 text-xl font-bold text-center">
-                        안녕하세요! 닉네임을 알려주세요
-                    </span>
+        <form className="flex flex-col gap-5" onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
+                    <p className="text-gray-600 text-base font-bold text-left">
+                        닉네임 입력
+                    </p>
+                    <Input
+                        {...inputConfig}
+                        maxLength={10}
+                        className={`transition-all duration-100 ${isValid ? `shadow-mint` : `shadow-none`}`}
+                        value={nickname}
+                        onChange={(e) => {
+                            setNickname(e.target.value);
+                            setSubmitError('');
+                        }}
+                    />
+                </div>
 
-                    <div className="flex flex-col gap-3">
-                        <div className="flex flex-col gap-3">
-                            <p className="text-gray-600 text-base font-bold text-left">
-                                닉네임 입력
-                            </p>
-                            <Input
-                                {...inputConfig}
-                                maxLength={10}
-                                className={`transition-all duration-100 ${isValid ? `shadow-mint` : `shadow-none`}`}
-                                value={nickname}
-                                onChange={(e) => {
-                                    setNickname(e.target.value);
-                                    setSubmitError('');
-                                }}
-                            />
-                        </div>
-
-                        <div className="h-3">
-                            <NicknameStatusMessage
-                                isValid={isValid}
-                                isChecking={isChecking}
-                                isAvailable={isAvailable}
-                                submitError={submitError}
-                                nickname={nickname}
-                            />
-                        </div>
-                    </div>
-                    <RoundButton
-                        variant="complete"
-                        isFull
-                        type="submit"
-                        disabled={!isValid || isAvailable !== true}
-                    >
-                        완료
-                    </RoundButton>
-                </form>
+                <div className="h-3">
+                    <NicknameStatusMessage
+                        isValid={isValid}
+                        isChecking={isChecking}
+                        isAvailable={isAvailable}
+                        submitError={submitError}
+                        nickname={nickname}
+                    />
+                </div>
             </div>
-        </>
+            <RoundButton
+                variant="complete"
+                isFull
+                type="submit"
+                disabled={!isValid || isAvailable !== true}
+            >
+                완료
+            </RoundButton>
+        </form>
     );
 }
