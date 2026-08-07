@@ -34,12 +34,20 @@ export function ImageUploadView({
             const studyId = extension.options.studyId as string;
             const url = await uploadDeepsImage(studyId, file);
             const pos = getPos();
+
+            const bitmap = await createImageBitmap(file);
+            const width = bitmap.width;
+            const height = bitmap.height;
+            bitmap.close();
             if (typeof pos !== 'number') return;
             editor
                 .chain()
                 .focus()
                 .deleteRange({ from: pos, to: pos + 1 })
-                .insertContentAt(pos, { type: 'image', attrs: { src: url } })
+                .insertContentAt(pos, {
+                    type: 'image',
+                    attrs: { src: url, width, height },
+                })
                 .run();
         } catch {
             triggerAlertModal({
