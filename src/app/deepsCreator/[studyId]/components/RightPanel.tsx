@@ -19,7 +19,6 @@ interface RightPanelProps {
 
 const MarkdownEditor = dynamic(
     () => import('@/components/Editor/MarkdownEditor'),
-    { ssr: false },
 );
 
 export function RightPanel({
