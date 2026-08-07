@@ -11,7 +11,6 @@ interface LeftPanelProps {
 
 const MarkdownEditor = dynamic(
     () => import('@/components/Editor/MarkdownEditor'),
-    { ssr: false },
 );
 
 export function LeftPanel({
