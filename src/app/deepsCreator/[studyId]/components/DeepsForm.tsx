@@ -143,7 +143,13 @@ export function DeepsForm({ studyId, deepsId }: DeepsFormProps) {
                 isFormValid={isFormValid}
                 isSubmitting={isSubmitting}
                 submitError={submitError}
-                onCancel={() => router.back()}
+                onCancel={() =>
+                    router.push(
+                        isEditMode
+                            ? `/deepsDetail/${studyId}/${deepsId}`
+                            : `/study/${studyId}`,
+                    )
+                }
                 onSubmit={handleSubmit}
             />
         </div>

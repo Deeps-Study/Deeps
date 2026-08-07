@@ -14,7 +14,7 @@ import kotlin from 'highlight.js/lib/languages/kotlin';
 
 import { createLowlight } from 'lowlight';
 import Placeholder from '@tiptap/extension-placeholder';
-import Image from '@tiptap/extension-image';
+import { ImageWithSize } from './ImageWithSize';
 import TaskList from '@tiptap/extension-task-list';
 import TaskItem from '@tiptap/extension-task-item';
 import { useState, useRef, useEffect, memo } from 'react';
@@ -104,11 +104,17 @@ function MarkdownEditor({
                             top: event.clientY,
                         })?.pos ?? view.state.doc.content.size;
 
-                    uploadDeepsImage(studyId, imageFile)
-                        .then((url) => {
+                    Promise.all([
+                        uploadDeepsImage(studyId, imageFile),
+                        createImageBitmap(imageFile),
+                    ])
+                        .then(([url, bitmap]) => {
                             const node = view.state.schema.nodes.image.create({
                                 src: url,
+                                width: bitmap.width,
+                                height: bitmap.height,
                             });
+                            bitmap.close();
                             view.dispatch(view.state.tr.insert(dropPos, node));
                         })
                         .catch(() => {
@@ -130,7 +136,7 @@ function MarkdownEditor({
             Placeholder.configure({ placeholder: placeholder ?? '' }),
             TaskList,
             TaskItem.configure({ nested: true }),
-            Image,
+            ImageWithSize,
             ImageUploadExtension.configure({ studyId }),
         ],
         onUpdate: ({ editor }) => {
