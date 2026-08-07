@@ -142,7 +142,7 @@ function MarkdownEditor({
         onUpdate: ({ editor }) => {
             onChange?.(editor.getHTML());
         },
-        immediatelyRender: true,
+        immediatelyRender: false,
         shouldRerenderOnTransaction: false,
     });
 
