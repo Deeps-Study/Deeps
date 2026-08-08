@@ -7,6 +7,7 @@ import { LeftPanel } from './LeftPanel';
 import { RightPanel } from './RightPanel';
 import type { DeepsDetailModel } from '@/types/deeps';
 import { triggerAlertModal } from '@/utils/alertModalStore';
+import { preload } from 'react-dom';
 
 interface DeepsFormProps {
     studyId: string;
@@ -37,6 +38,7 @@ export function DeepsForm({ studyId, deepsId }: DeepsFormProps) {
     useEffect(() => {
         if (!isEditMode) return;
         let isStale = false;
+
         async function fetchDeeps() {
             const res = await fetch(`/api/studies/${studyId}/deeps/${deepsId}`);
             if (res.status === 401) {
@@ -46,6 +48,14 @@ export function DeepsForm({ studyId, deepsId }: DeepsFormProps) {
             if (!res.ok) return;
             const data: DeepsDetailModel = await res.json();
             if (isStale) return;
+
+            const imageUrl =
+                data.explanation?.match(/<img[^>]+src="([^"]+)"/)?.[1] ??
+                data.description.match(/<img[^>]+src="([^"]+)"/)?.[1];
+            if (imageUrl) {
+                preload(imageUrl, { as: 'image', fetchPriority: 'high' });
+            }
+
             const isExpired = Date.now() >= new Date(data.expiredAt).getTime();
             if (!data.isCreatedByMe || data.hasAnswers || isExpired) {
                 triggerAlertModal({
