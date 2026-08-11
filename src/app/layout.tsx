@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { preconnect } from 'react-dom';
 import localFont from 'next/font/local';
 import AlertModal from '@/components/AlertModal';
 import './globals.css';
@@ -20,6 +21,7 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    preconnect('https://qeghxlyglnoazhdqcfof.supabase.co');
     return (
         <html lang="ko" className={pretendard.variable}>
             <body className="font-sans bg-white">
