@@ -3,7 +3,9 @@
 @plugin '@tailwindcss/typography';
 
 @theme {
-    --font-sans: var(--font-pretendard), sans-serif;
+    --font-sans:
+        'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui,
+        Roboto, sans-serif;
 
     /* 커스텀 컬러 */
     --color-white: #fcfcfc;
