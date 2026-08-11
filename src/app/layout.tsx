@@ -1,7 +1,15 @@
 import type { Metadata } from 'next';
 import { preconnect } from 'react-dom';
 import AlertModal from '@/components/AlertModal';
+import localFont from 'next/font/local';
 import './globals.css';
+
+const pretendard = localFont({
+    src: '../fonts/PretendardVariable-final.woff2',
+    display: 'swap',
+    variable: '--font-pretendard',
+    weight: '400 700',
+});
 
 export const metadata: Metadata = {
     title: 'deeps',
@@ -15,15 +23,7 @@ export default function RootLayout({
 }>) {
     preconnect('https://qeghxlyglnoazhdqcfof.supabase.co');
     return (
-        <html lang="ko">
-            <head>
-                <link
-                    rel="stylesheet"
-                    as="style"
-                    crossOrigin="anonymous"
-                    href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-                />
-            </head>
+        <html lang="ko" className={pretendard.variable}>
             <body className="font-sans bg-white">
                 {children}
                 <AlertModal />
