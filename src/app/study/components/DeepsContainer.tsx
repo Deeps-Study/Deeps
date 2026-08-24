@@ -27,7 +27,6 @@ export default function DeepsContainer({
     const [now, setNow] = useState<number>(() => Date.now());
 
     useEffect(() => {
-        // 1초마다 now 상태를 갱신하여 타이머 만료 시 자동으로 리렌더링을 유발
         const timer = setInterval(() => {
             setNow(Date.now());
         }, 1000);
@@ -41,7 +40,7 @@ export default function DeepsContainer({
         }
     };
 
-    // now가 1초마다 바뀌므로 progress / completed 목록이 자동으로 재계산
+    // 만료 여부로 필터링
     const progressDeeps = deepsList.filter(
         (deep) => new Date(deep.expiredAt).getTime() > now,
     );
@@ -54,12 +53,11 @@ export default function DeepsContainer({
 
     return (
         <div className="flex flex-col gap-5">
-            {/* 탭 헤더 영역 */}
-            <div className="flex items-center justify-between border-b border-main-20 pb-3">
-                <div className="flex gap-4 text-base font-bold">
+            <div className="flex items-center justify-between border-b border-main-20">
+                <div className="flex gap-6 text-base font-bold">
                     <button
                         onClick={() => setActiveTab('progress')}
-                        className={`pb-3 -mb-3.25 border-b-2 cursor-pointer transition-all ${
+                        className={`pb-3 border-b-2 cursor-pointer transition-all -mb-[1px] ${
                             activeTab === 'progress'
                                 ? 'border-b-main-100 text-main-100'
                                 : 'border-b-transparent text-gray-400 hover:text-gray-600'
@@ -69,7 +67,7 @@ export default function DeepsContainer({
                     </button>
                     <button
                         onClick={() => setActiveTab('completed')}
-                        className={`pb-3 -mb-3.25 border-b-2 cursor-pointer transition-all ${
+                        className={`pb-3 border-b-2 cursor-pointer transition-all -mb-[1px] ${
                             activeTab === 'completed'
                                 ? 'border-b-main-100 text-main-100'
                                 : 'border-b-transparent text-gray-400 hover:text-gray-600'
@@ -81,19 +79,27 @@ export default function DeepsContainer({
 
                 <button
                     onClick={handleCreateDeeps}
-                    className="flex items-center gap-1.5 rounded-lg border border-main-20 bg-white px-3 py-1.5 text-xs font-bold text-main-100 hover:bg-main-10 transition-colors cursor-pointer"
+                    className="mb-2 flex items-center gap-1.5 rounded-lg border border-main-20 bg-white px-3 py-1.5 text-xs font-bold text-main-100 hover:bg-main-10 transition-colors cursor-pointer"
                 >
                     <Icon name="plus" className="h-3.5 w-3.5 stroke-3" />
                     딥스 만들기
                 </button>
             </div>
 
-            {/* 목록 카드 노출 */}
+            {/* 목록 영역: 빈 상태 및 카드 목록 렌더링 분기 */}
             {displayDeeps.length === 0 ? (
-                <SquareButton onClick={handleCreateDeeps}>
-                    <Icon name="plus" className="h-3.5 w-3.5 stroke-3" />
-                    딥스 만들기
-                </SquareButton>
+                activeTab === 'progress' ? (
+                    // 진행 중 딥스가 없을 때: 만들기 유도 버튼 표시
+                    <SquareButton onClick={handleCreateDeeps}>
+                        <Icon name="plus" className="h-3.5 w-3.5 stroke-3" />
+                        딥스 만들기
+                    </SquareButton>
+                ) : (
+                    // 완료된 딥스가 없을 때: 회색 안내 문구 표시
+                    <div className="flex h-40 w-full items-center justify-center rounded-2xl bg-gray-50 text-sm font-medium text-gray-400">
+                        완료된 딥스가 없습니다.
+                    </div>
+                )
             ) : (
                 <div className="flex flex-col gap-3.5">
                     {displayDeeps.map((deep) => (
