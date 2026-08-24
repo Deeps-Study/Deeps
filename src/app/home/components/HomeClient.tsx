@@ -51,6 +51,12 @@ export default function HomeClient({
                     message: '스터디 목록을 조회할 권한이 없습니다.',
                 });
                 break;
+            case 401:
+                triggerAlertModal({
+                    title: '토큰 없음',
+                    message: '스터디 목록을 조회할 권한이 없습니다.',
+                });
+                break;
             case 404:
                 triggerAlertModal({
                     title: '조회 실패',
