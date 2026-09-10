@@ -22,6 +22,7 @@ export interface StudyDetailResponse {
     id: string;
     title: string;
     description: string;
+    status: 'BEFORE_START' | 'IN_PROGRESS' | 'ENDED';
     startDate: string;
     endDate: string;
     currentMemberCount: number;
