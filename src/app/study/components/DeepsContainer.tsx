@@ -6,17 +6,20 @@ import Icon from '@/ui/Icon/Icon';
 import SquareButton from '@/components/SquareButton';
 import DeepsCard from './DeepsCard';
 import type { DeepsItemResponse } from '@/types/deeps';
+import { triggerAlertModal } from '@/utils/alertModalStore';
 
 interface DeepsContainerProps {
     deepsList: DeepsItemResponse[];
     studyId?: string;
     totalMemberCount: number;
+    studyStatus: 'BEFORE_START' | 'IN_PROGRESS' | 'ENDED';
 }
 
 export default function DeepsContainer({
     deepsList = [],
     studyId,
     totalMemberCount,
+    studyStatus,
 }: DeepsContainerProps) {
     const router = useRouter();
     const [activeTab, setActiveTab] = useState<'progress' | 'completed'>(
@@ -34,7 +37,19 @@ export default function DeepsContainer({
         return () => clearInterval(timer);
     }, []);
 
+    const isStudyInProgress = studyStatus === 'IN_PROGRESS';
+
     const handleCreateDeeps = () => {
+        if (!isStudyInProgress) {
+            triggerAlertModal({
+                title: '딥스 생성 불가',
+                message:
+                    studyStatus === 'BEFORE_START'
+                        ? '스터디 시작 전에는 딥스를 생성할 수 없습니다.'
+                        : '종료된 스터디에서는 딥스를 생성할 수 없습니다.',
+            });
+            return;
+        }
         if (studyId) {
             router.push(`/deepsCreator/${studyId}`);
         }
@@ -79,7 +94,12 @@ export default function DeepsContainer({
 
                 <button
                     onClick={handleCreateDeeps}
-                    className="mb-2 flex items-center gap-1.5 rounded-lg border border-main-20 bg-white px-3 py-1.5 text-xs font-bold text-main-100 hover:bg-main-10 transition-colors cursor-pointer"
+                    disabled={!isStudyInProgress}
+                    className={`mb-2 flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-bold transition-colors ${
+                        isStudyInProgress
+                            ? ' border-main-20 bg-white  text-main-100 hover:bg-main-10 cursor-pointer'
+                            : 'border-gray-200 bg-gray-100 text-gray-400 '
+                    }`}
                 >
                     <Icon name="plus" className="h-3.5 w-3.5 stroke-3" />
                     딥스 만들기
@@ -90,10 +110,21 @@ export default function DeepsContainer({
             {displayDeeps.length === 0 ? (
                 activeTab === 'progress' ? (
                     // 진행 중 딥스가 없을 때: 만들기 유도 버튼 표시
-                    <SquareButton onClick={handleCreateDeeps}>
-                        <Icon name="plus" className="h-3.5 w-3.5 stroke-3" />
-                        딥스 만들기
-                    </SquareButton>
+                    isStudyInProgress ? (
+                        <SquareButton onClick={handleCreateDeeps}>
+                            <Icon
+                                name="plus"
+                                className="h-3.5 w-3.5 stroke-3"
+                            />
+                            딥스 만들기
+                        </SquareButton>
+                    ) : (
+                        <div className="flex h-40 w-full items-center justify-center rounded-2xl bg-gray-50 text-sm font-medium text-gray-400">
+                            {studyStatus === 'BEFORE_START'
+                                ? '스터디 시작 전에는 딥스를 생성할 수 없습니다.'
+                                : '진행 중인 딥스가 없습니다.'}
+                        </div>
+                    )
                 ) : (
                     // 완료된 딥스가 없을 때: 회색 안내 문구 표시
                     <div className="flex h-40 w-full items-center justify-center rounded-2xl bg-gray-50 text-sm font-medium text-gray-400">
