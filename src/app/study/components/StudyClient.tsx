@@ -95,6 +95,7 @@ export default function StudyClient({
                         deepsList={deepsList}
                         studyId={studyId}
                         totalMemberCount={studyDetail.currentMemberCount}
+                        studyStatus={studyDetail.status}
                     />
                 </div>
                 <div className="col-span-5 pl-10">
