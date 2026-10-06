@@ -9,6 +9,7 @@ import {
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { StudyRefreshProvider } from './StudyRefreshContext';
 import { StudyLimitAlert } from './components/StudyLimitAlert';
+import { useRouter } from 'next/navigation';
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
     const { openModal, studyCount } = useCreateStudyModal();
@@ -62,13 +63,10 @@ export default function HomeLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const router = useRouter();
     const fetchMyStudies = useCallback(async () => {
-        try {
-            window.location.reload();
-        } catch (error) {
-            console.error(error);
-        }
-    }, []);
+        router.refresh();
+    }, [router]);
 
     return (
         <StudyRefreshProvider value={fetchMyStudies}>
