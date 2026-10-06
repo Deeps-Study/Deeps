@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { api, backendErrorStatus } from '@/api';
 import { requireAccessToken } from '@/api/authSession';
-import type { StudyDetailResponse } from '@/types/study';
+import type { StudyResponse } from '@/types/study';
 
 interface RouteParams {
     params: Promise<{ studyId: string }>;
@@ -20,14 +20,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { studyId } = await params;
 
     try {
-        const { data } = await api.get<StudyDetailResponse>(
-            `/studies/${studyId}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
+        const { data } = await api.get<StudyResponse>(`/studies/${studyId}`, {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
             },
-        );
+        });
 
         return NextResponse.json(data);
     } catch (error) {
