@@ -1,17 +1,20 @@
 'use client';
 
 import { useState } from 'react';
+import { start } from 'repl';
 
 interface CalendarProps {
     startDate: string;
     endDate: string;
     onDateSelect: (startDate: string, endDate: string) => void;
+    onClose?: () => void;
 }
 
 export default function Calendar({
     startDate,
     endDate,
     onDateSelect,
+    onClose,
 }: CalendarProps) {
     const today = new Date();
     const [calendarMonth, setCalendarMonth] = useState(new Date());
@@ -113,8 +116,9 @@ export default function Calendar({
                 // 시작 날짜를 선택했지만, 그 전 날짜를 다시 선택한 경우 => 시작 날짜를 선택 날짜로
                 onDateSelect(clickedDateStr, '');
             } else {
-                // 선택한 시작 날짜보다 그 이후 날짜를 선택한 경우 => 종료 날짜를 선택 날짜로
+                // 선택한 시작 날짜보다 그 이후 날짜를 선택한 경우 => 종료 날짜를 선택 날짜로)
                 onDateSelect(startDate, clickedDateStr);
+                onClose?.();
             }
         }
     };
