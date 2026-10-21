@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import Icon from '@/ui/Icon/Icon';
-import { StudyDetailResponse } from '@/types/study';
+import { StudyResponse } from '@/types/study';
 import Tag from '@/components/Tag';
 import { CopyToast } from './CopyToast';
 interface StudyInfoProps {
-    study: StudyDetailResponse;
+    study: StudyResponse;
 }
 
 export default function StudyInfo({ study }: StudyInfoProps) {

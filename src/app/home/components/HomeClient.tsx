@@ -10,13 +10,13 @@ import {
     useOpenCreateModal,
     useCreateStudyModal,
 } from '../CreateStudyModalContext';
-import { StudyResponse, StudyDetailResponse } from '@/types/study';
+import { StudyResponse } from '@/types/study';
 import { triggerAlertModal } from '@/utils/alertModalStore';
 
 interface HomeClientProps {
     initialStudies: StudyResponse[];
     studiesStatus: number;
-    initialPreviewStudy: StudyDetailResponse | null;
+    initialPreviewStudy: StudyResponse | null;
     previewStatus?: number;
     joinStudyId?: string;
 }
@@ -33,10 +33,12 @@ export default function HomeClient({
     const router = useRouter();
     const pathname = usePathname();
 
-    const [studies] = useState<StudyResponse[]>(initialStudies);
-    const [selectedStudyId, setSelectedStudyId] = useState<string | null>(null);
-    const [previewStudy, setPreviewStudy] =
-        useState<StudyDetailResponse | null>(initialPreviewStudy);
+    const [selectedStudy, setSelectedStudy] = useState<StudyResponse | null>(
+        null,
+    );
+    const [previewStudy, setPreviewStudy] = useState<StudyResponse | null>(
+        initialPreviewStudy,
+    );
 
     const maxStudyCount = 3;
 
@@ -116,28 +118,28 @@ export default function HomeClient({
                 현재 진행중인 스터디를 확인하세요!
             </h1>
             <main className="flex h-full items-center justify-center gap-10 py-14">
-                {studies.map((study) => (
+                {initialStudies.map((study) => (
                     <StudyCard
                         key={study.id}
                         study={study}
-                        onCardClick={() => setSelectedStudyId(study.id)}
+                        onCardClick={() => setSelectedStudy(study)}
                         onEnterClick={() => handleEnterStudy(study.id)}
                     />
                 ))}
 
-                {studies.length < maxStudyCount && (
+                {initialStudies.length < maxStudyCount && (
                     <CreateCard onCreateClick={openCreateModal} />
                 )}
             </main>
 
             <StudyDetailModal
-                isOpen={!!selectedStudyId}
-                studyId={selectedStudyId}
-                onClose={() => setSelectedStudyId(null)}
+                isOpen={!!selectedStudy}
+                study={selectedStudy}
+                onClose={() => setSelectedStudy(null)}
                 onEnter={() => {
-                    if (selectedStudyId) {
-                        handleEnterStudy(selectedStudyId);
-                        setSelectedStudyId(null);
+                    if (selectedStudy) {
+                        handleEnterStudy(selectedStudy.id);
+                        setSelectedStudy(null);
                     }
                 }}
             />

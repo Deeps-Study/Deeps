@@ -7,10 +7,10 @@ import SquareButton from '@/components/SquareButton';
 import Icon from '@/ui/Icon/Icon';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { triggerAlertModal } from '@/utils/alertModalStore';
-import type { StudyDetailResponse } from '@/types/study';
+import type { StudyResponse } from '@/types/study';
 
 interface StudyJoinModalProps {
-    study: StudyDetailResponse & { hasPassword?: boolean };
+    study: StudyResponse & { hasPassword?: boolean };
     isOpen: boolean;
     onClose: () => void;
 }

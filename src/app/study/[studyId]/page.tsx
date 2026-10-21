@@ -2,7 +2,7 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { api, backendErrorStatus } from '@/api';
 import { requireAccessToken } from '@/api/authSession';
-import type { StudyDetailResponse, StudyMemberResponse } from '@/types/study';
+import type { StudyResponse, StudyMemberResponse } from '@/types/study';
 import type { DeepsItemResponse } from '@/types/deeps';
 import StudyClient from '../components/StudyClient';
 import StudyDetailSkeleton from '../components/StudyDetailSkeleton';
@@ -32,7 +32,7 @@ export default async function DeepStudyPage({ params }: DeepStudyPageProps) {
         headers: { Authorization: `Bearer ${accessToken}` },
     };
 
-    let studyDetail: StudyDetailResponse | null = null;
+    let studyDetail: StudyResponse | null = null;
     let detailStatus = 200;
     let members: StudyMemberResponse[] = [];
     let deepsList: DeepsItemResponse[] = [];
@@ -40,7 +40,7 @@ export default async function DeepStudyPage({ params }: DeepStudyPageProps) {
     // 2. 백엔드 데이터 병렬 패칭 (Promise.all)
     try {
         const [detailRes, membersRes, deepsRes] = await Promise.all([
-            api.get<StudyDetailResponse>(`/studies/${studyId}`, authHeader),
+            api.get<StudyResponse>(`/studies/${studyId}`, authHeader),
             api
                 .get<
                     StudyMemberResponse[]

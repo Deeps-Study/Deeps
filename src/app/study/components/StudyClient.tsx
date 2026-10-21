@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { StudyDetailResponse, StudyMemberResponse } from '@/types/study';
+import type { StudyResponse, StudyMemberResponse } from '@/types/study';
 import type { DeepsItemResponse } from '@/types/deeps';
 
 import StudyInfo from '../components/StudyInfo';
@@ -13,7 +13,7 @@ import { triggerAlertModal } from '@/utils/alertModalStore';
 
 interface StudyClientProps {
     studyId: string;
-    initialStudyDetail: StudyDetailResponse | null;
+    initialStudyDetail: StudyResponse | null;
     detailStatus: number;
     initialMembers: StudyMemberResponse[];
     initialDeepsList: DeepsItemResponse[];
@@ -28,9 +28,7 @@ export default function StudyClient({
 }: StudyClientProps) {
     const router = useRouter();
 
-    const [studyDetail] = useState<StudyDetailResponse | null>(
-        initialStudyDetail,
-    );
+    const [studyDetail] = useState<StudyResponse | null>(initialStudyDetail);
     const [members] = useState<StudyMemberResponse[]>(initialMembers);
     const [deepsList] = useState<DeepsItemResponse[]>(initialDeepsList);
 

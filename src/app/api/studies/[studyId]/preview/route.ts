@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { api, backendErrorStatus } from '@/api';
-import type { StudyDetailResponse } from '@/types/study';
+import type { StudyResponse } from '@/types/study';
 
 interface RouteParams {
     params: Promise<{ studyId: string }>;
@@ -10,7 +10,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { studyId } = await params;
 
     try {
-        const { data } = await api.get<StudyDetailResponse>(
+        const { data } = await api.get<StudyResponse>(
             `/studies/${studyId}/preview`,
         );
 

@@ -1,9 +1,14 @@
 export interface StudyResponse {
     id: string;
     title: string;
+    description: string;
     status: 'BEFORE_START' | 'IN_PROGRESS' | 'ENDED';
+    startDate: string;
+    endDate: string;
     currentMemberCount: number;
+    maxMemberCount: number;
     tags: string[];
+    hasPassword: boolean;
 }
 
 export function mapServerStatusToUI(
@@ -16,19 +21,6 @@ export function mapServerStatusToUI(
             ENDED: 'end',
         };
     return statusMap[status] ?? 'before';
-}
-
-export interface StudyDetailResponse {
-    id: string;
-    title: string;
-    description: string;
-    status: 'BEFORE_START' | 'IN_PROGRESS' | 'ENDED';
-    startDate: string;
-    endDate: string;
-    currentMemberCount: number;
-    maxMemberCount: number;
-    tags: string[];
-    hasPassword: boolean;
 }
 
 export interface ActivityLog {
