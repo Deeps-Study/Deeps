@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import cn from 'classnames';
 import Icon from '@/ui/Icon/Icon';
-import { sanitizeHtml } from '@/utils/editor';
+import { TiptapViewer } from '@/components/TiptapViewer';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { ExpandableBox } from './ExpandableBox';
 import type { OtherAnswerModel } from '@/types/deepsAnswerModel';
@@ -93,9 +93,7 @@ export function OtherAnswerCard({
                 heightClassName="min-h-40 max-h-70"
                 className="bg-gray-50 border border-gray-200 rounded-lg pt-3 px-4.5 pb-4.5 text-sm font-medium text-gray-600 leading-relaxed"
             >
-                <div
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
-                />
+                <TiptapViewer html={content} />
             </ExpandableBox>
         </div>
     );

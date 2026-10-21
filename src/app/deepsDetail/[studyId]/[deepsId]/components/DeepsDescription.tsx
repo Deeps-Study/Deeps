@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Icon from '@/ui/Icon/Icon';
-import { sanitizeHtml } from '@/utils/editor';
+import { TiptapViewer } from '@/components/TiptapViewer';
 import { ExpandableBox } from './ExpandableBox';
 
 interface DeepsDescriptionProps {
@@ -43,13 +43,9 @@ export function DeepsDescription({
             </div>
             <ExpandableBox
                 heightClassName="min-h-50 max-h-107.5"
-                className="bg-gray-50 border border-gray-200 rounded-lg pt-3 px-4.5 pb-4.5 text-sm font-medium text-gray-600 leading-relaxed prose prose-sm max-w-none [&>div>:first-child]:mt-0 [&>div>:last-child]:mb-0"
+                className="bg-gray-50 border border-gray-200 rounded-lg pt-3 px-4.5 pb-4.5"
             >
-                <div
-                    dangerouslySetInnerHTML={{
-                        __html: sanitizeHtml(description),
-                    }}
-                />
+                <TiptapViewer html={description} />
             </ExpandableBox>
         </section>
     );
