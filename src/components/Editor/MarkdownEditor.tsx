@@ -13,6 +13,7 @@ import swift from 'highlight.js/lib/languages/swift';
 import kotlin from 'highlight.js/lib/languages/kotlin';
 
 import { createLowlight } from 'lowlight';
+import 'highlight.js/styles/monokai-sublime.css';
 import Placeholder from '@tiptap/extension-placeholder';
 import { ImageWithSize } from './ImageWithSize';
 import TaskList from '@tiptap/extension-task-list';
@@ -233,9 +234,7 @@ function MarkdownEditor({
                 <div
                     className="tiptap"
                     dangerouslySetInnerHTML={{
-                        __html: sanitizeHtml(
-                            editor?.getHTML().replace(/<p><\/p>/g, '<p><br></p>') ?? '',
-                        ),
+                        __html: sanitizeHtml(editor?.getHTML() ?? ''),
                     }}
                 />
             </div>

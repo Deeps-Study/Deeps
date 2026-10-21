@@ -10,5 +10,5 @@ export function isHtmlEmpty(html: string) {
 }
 
 export function sanitizeHtml(html: string): string {
-    return DOMPurify.sanitize(html);
+    return DOMPurify.sanitize(html).replace(/<p><\/p>/g, '<p><br></p>');
 }
