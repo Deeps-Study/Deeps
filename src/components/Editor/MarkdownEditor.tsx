@@ -52,9 +52,9 @@ lowlight.register({
 const WRITE_CLASSES = cn(
     'flex-1 pt-3.5 px-4.5 pb-3.5 overflow-auto prose prose-sm max-w-none',
     '[&_.tiptap]:outline-none [&_.tiptap]:min-h-[120px]',
-    '[&_.tiptap_p]:my-[0.3em]',
-    '[&_.tiptap_h1]:my-[0.4em] [&_.tiptap_h2]:my-[0.4em] [&_.tiptap_h3]:my-[0.4em]',
-    '[&_.tiptap_h4]:my-[0.4em] [&_.tiptap_h5]:my-[0.4em] [&_.tiptap_h6]:my-[0.4em]',
+    '[&_.tiptap_p]:my-[0.2em]',
+    '[&_.tiptap_h1]:my-[0.5em] [&_.tiptap_h2]:my-[0.5em] [&_.tiptap_h3]:my-[0.5em]',
+    '[&_.tiptap_h4]:my-[0.5em] [&_.tiptap_h5]:my-[0.5em] [&_.tiptap_h6]:my-[0.5em]',
     '[&_.tiptap>:first-child]:mt-0 [&_.tiptap>:last-child]:mb-0',
     '[&_.tiptap_img]:rounded-lg [&_.tiptap_img]:my-3 [&_.tiptap_img]:max-w-full [&_.tiptap_img]:block',
     '[--tw-prose-body:var(--color-gray-600)]',
@@ -62,11 +62,11 @@ const WRITE_CLASSES = cn(
 
 const PREVIEW_CLASSES = cn(
     'flex-1 pt-3.5 px-4.5 pb-3.5 overflow-auto prose prose-sm max-w-none',
-    '[&_p]:my-[0.3em]',
-    '[&_h1]:my-[0.4em] [&_h2]:my-[0.4em] [&_h3]:my-[0.4em]',
-    '[&_h4]:my-[0.4em] [&_h5]:my-[0.4em] [&_h6]:my-[0.4em]',
-    '[&>:first-child]:mt-0 [&>:last-child]:mb-0',
-    '[&_img]:rounded-lg [&_img]:my-3 [&_img]:max-w-full [&_img]:block',
+    '[&_.tiptap_p]:my-[0.2em]',
+    '[&_.tiptap_h1]:my-[0.5em] [&_.tiptap_h2]:my-[0.5em] [&_.tiptap_h3]:my-[0.5em]',
+    '[&_.tiptap_h4]:my-[0.5em] [&_.tiptap_h5]:my-[0.5em] [&_.tiptap_h6]:my-[0.5em]',
+    '[&_.tiptap>:first-child]:mt-0 [&_.tiptap>:last-child]:mb-0',
+    '[&_.tiptap_img]:rounded-lg [&_.tiptap_img]:my-3 [&_.tiptap_img]:max-w-full [&_.tiptap_img]:block',
     '[--tw-prose-body:var(--color-gray-600)]',
 );
 
@@ -84,6 +84,24 @@ function MarkdownEditor({
         content: initialContent,
         editorProps: {
             attributes: { class: 'tiptap' },
+            handleKeyDown: (view, event) => {
+                if (event.key !== 'Backspace') return false;
+                const { state } = view;
+                const { $from } = state.selection;
+                if (
+                    $from.parent.type.name === 'heading' &&
+                    $from.parent.nodeSize === 2
+                ) {
+                    view.dispatch(
+                        state.tr.setNodeMarkup(
+                            $from.before(),
+                            state.schema.nodes.paragraph,
+                        ),
+                    );
+                    return true;
+                }
+                return false;
+            },
             handleDOMEvents: {
                 drop: (view, event) => {
                     const files = Array.from(event.dataTransfer?.files ?? []);
@@ -198,19 +216,29 @@ function MarkdownEditor({
                         Preview
                     </button>
                 </div>
-                {tab === 'write' && editor && <EditorToolbar editor={editor} />}
+                {editor && (
+                    <div className={tab === 'preview' ? 'invisible' : ''}>
+                        <EditorToolbar editor={editor} />
+                    </div>
+                )}
             </div>
-            {tab === 'write' ? (
-                <EditorContent editor={editor} className={WRITE_CLASSES} />
-            ) : (
+            <EditorContent
+                editor={editor}
+                className={cn(WRITE_CLASSES, tab !== 'write' && 'hidden')}
+            />
+            <div
+                ref={previewRef}
+                className={cn(PREVIEW_CLASSES, tab !== 'preview' && 'hidden')}
+            >
                 <div
-                    ref={previewRef}
-                    className={PREVIEW_CLASSES}
+                    className="tiptap"
                     dangerouslySetInnerHTML={{
-                        __html: sanitizeHtml(editor?.getHTML() ?? ''),
+                        __html: sanitizeHtml(
+                            editor?.getHTML().replace(/<p><\/p>/g, '<p><br></p>') ?? '',
+                        ),
                     }}
                 />
-            )}
+            </div>
         </div>
     );
 }
