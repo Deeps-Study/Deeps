@@ -49,7 +49,7 @@ export function ExpandableBox({
             >
                 {children}
             </div>
-            {canExpand && (
+            {(canExpand || isExpanded) && (
                 <button
                     type="button"
                     onClick={() => setIsExpanded((prev) => !prev)}
