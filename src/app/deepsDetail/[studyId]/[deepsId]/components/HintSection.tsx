@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import cn from 'classnames';
-import { sanitizeHtml } from '@/utils/editor';
 import { ExpandableBox } from './ExpandableBox';
+import { TiptapViewer } from '@/components/TiptapViewer';
 
 interface HintSectionProps {
     isExpired: boolean;
@@ -52,11 +52,7 @@ export function HintSection({
                     heightClassName="min-h-30 max-h-50"
                     className={boxClassName}
                 >
-                    <div
-                        dangerouslySetInnerHTML={{
-                            __html: sanitizeHtml(explanation ?? ''),
-                        }}
-                    />
+                    <TiptapViewer html={explanation ?? ''} />
                 </ExpandableBox>
             ) : (
                 <ExpandableBox

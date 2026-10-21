@@ -3,7 +3,8 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import Icon from '@/ui/Icon/Icon';
 import { SolutionEditor } from './SolutionEditor';
-import { isHtmlEmpty, sanitizeHtml } from '@/utils/editor';
+import { isHtmlEmpty } from '@/utils/editor';
+import { TiptapViewer } from '@/components/TiptapViewer';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { ExpandableBox } from './ExpandableBox';
 
@@ -116,13 +117,9 @@ export const MySolution = memo(function MySolution({
             ) : (
                 <ExpandableBox
                     heightClassName="min-h-107.5 max-h-107.5"
-                    className="border border-main-100 rounded-lg pt-3 px-4.5 pb-4.5 prose prose-sm max-w-none [&>div>:first-child]:mt-0 [&>div>:last-child]:mb-0"
+                    className="border border-main-100 rounded-lg pt-3 px-4.5 pb-4.5"
                 >
-                    <div
-                        dangerouslySetInnerHTML={{
-                            __html: sanitizeHtml(content),
-                        }}
-                    />
+                    <TiptapViewer html={content} />
                 </ExpandableBox>
             )}
         </section>
