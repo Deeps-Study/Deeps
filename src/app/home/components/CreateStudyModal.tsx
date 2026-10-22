@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Input from '@/components/Input';
 import Modal from '@/components/Modal';
 import SquareButton from '@/components/SquareButton';
@@ -20,7 +20,7 @@ const participantOptions = [1, 2, 3, 4, 5, 6];
 
 function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
     const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
+    const [rule, setRule] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [participants, setParticipants] = useState(0);
@@ -31,12 +31,14 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const textareaRef = useRef<HTMLTextAreaElement>(null);
     const refetch = useStudyRefresh();
 
     const isFormValid = Boolean(
         title.trim() &&
         startDate &&
         endDate &&
+        participants > 0 &&
         tags.length > 0 &&
         (!passwordEnabled || password.trim()),
     );
@@ -49,6 +51,14 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
     const handleDateSelect = (start: string, end: string) => {
         setStartDate(start);
         setEndDate(end);
+    };
+
+    const handleRuleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setRule(e.target.value);
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
     };
 
     const handleTagKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -75,7 +85,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                 },
                 body: JSON.stringify({
                     title: title.trim(),
-                    description: description.trim(),
+                    rule: rule.trim() ? rule.trim() : undefined,
                     startDate,
                     endDate,
                     maxMemberCount: participants,
@@ -133,7 +143,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
             }
 
             setTitle('');
-            setDescription('');
+            setRule('');
             setStartDate('');
             setEndDate('');
             setTags([]);
@@ -174,27 +184,17 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                         />
                     </div>
 
-                    {/* 2. 스터디 설명 */}
+                    {/* 2. 스터디 규칙 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
-                        <div className="flex justify-between items-center">
-                            <span>스터디 설명</span>
-                            <span className="text-xs font-normal text-gray-400">
-                                {description.length}/50자
-                            </span>
-                        </div>
+                        <span>스터디 규칙</span>
+
                         <textarea
-                            value={description}
-                            onChange={(event) =>
-                                setDescription(event.target.value)
-                            }
-                            maxLength={50}
-                            placeholder="스터디에 대해 간단히 설명해주세요 (50자 이내)"
-                            className="w-full min-h-8 h-auto py-2 px-3 text-sm text-gray-600 transition-colors rounded-lg bg-white border border-main-20 focus:outline-none resize-none field-sizing-content"
-                            style={
-                                {
-                                    fieldSizing: 'content',
-                                } as React.CSSProperties
-                            }
+                            ref={textareaRef}
+                            value={rule}
+                            onChange={handleRuleChange}
+                            rows={3}
+                            placeholder="스터디 진행 방식, 결석 패널티 등 스터디 규칙을 자유롭게 입력해주세요."
+                            className="w-full min-h-18 max-h-48 py-2 px-3 text-sm text-gray-600 transition-colors rounded-lg bg-white border border-main-20 focus:outline-none resize-none overflow-y-auto leading-relaxed placeholder-gray-300 focus:border-main-30"
                             disabled={isSubmitting}
                         />
                     </div>
@@ -232,6 +232,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                 startDate={startDate}
                                 endDate={endDate}
                                 onDateSelect={handleDateSelect}
+                                onClose={() => setIsCalendarOpen(false)}
                             />
                         )}
                     </div>
@@ -332,10 +333,6 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                     className="placeholder-gray-300"
                                     disabled={isSubmitting}
                                 />
-                                <p className="text-xs font-normal text-red-100 pl-0.5">
-                                    * 생성된 비밀번호는 추후 수정/재확인이
-                                    어려우니 반드시 기억해 주세요.
-                                </p>
                             </div>
                         )}
                     </div>
