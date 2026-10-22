@@ -1,38 +1,71 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Input from '@/components/Input';
 import Modal from '@/components/Modal';
 import SquareButton from '@/components/SquareButton';
 import Icon from '@/ui/Icon/Icon';
 import TagButton from '@/components/TagButton';
-import Calendar from './Calendar';
-import { useStudyRefresh } from '../StudyRefreshContext';
+import Calendar from '@/app/home/components/Calendar';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { triggerAlertModal } from '@/utils/alertModalStore';
+import type { StudyResponse } from '@/types/study';
 
-interface CreateStudyModalProps {
+interface StudyFormModalProps {
     isOpen: boolean;
     onClose?: () => void;
+    mode?: 'create' | 'edit';
+    initialData?: StudyResponse | null;
+    onSuccess?: (updatedStudy?: Partial<StudyResponse>) => void;
 }
 
 const participantOptions = [1, 2, 3, 4, 5, 6];
 
-function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
-    const [title, setTitle] = useState('');
-    const [rule, setRule] = useState('');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-    const [participants, setParticipants] = useState(0);
+function StudyFormContent({
+    mode = 'create',
+    initialData,
+    onClose,
+    onSuccess,
+}: Omit<StudyFormModalProps, 'isOpen'>) {
+    const isEditMode = mode === 'edit';
+    const studyStatus = initialData?.status ?? 'BEFORE_START';
+    const isProgress = isEditMode && studyStatus === 'IN_PROGRESS';
+    const currentMembers = initialData?.currentMemberCount ?? 1;
+
+    const [title, setTitle] = useState(
+        isEditMode ? (initialData?.title ?? '') : '',
+    );
+    const [rule, setRule] = useState(
+        isEditMode ? (initialData?.rule ?? '') : '',
+    );
+    const [startDate, setStartDate] = useState(
+        isEditMode ? (initialData?.startDate ?? '') : '',
+    );
+    const [endDate, setEndDate] = useState(
+        isEditMode ? (initialData?.endDate ?? '') : '',
+    );
+    const [participants, setParticipants] = useState(
+        isEditMode ? (initialData?.maxMemberCount ?? 0) : 0,
+    );
     const [tagInput, setTagInput] = useState('');
-    const [tags, setTags] = useState<string[]>([]);
-    const [passwordEnabled, setPasswordEnabled] = useState(false);
+    const [tags, setTags] = useState<string[]>(
+        isEditMode ? (initialData?.tags ?? []) : [],
+    );
+    const [passwordEnabled, setPasswordEnabled] = useState(
+        isEditMode ? Boolean(initialData?.hasPassword) : false,
+    );
     const [password, setPassword] = useState('');
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const refetch = useStudyRefresh();
+
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, []);
 
     const isFormValid = Boolean(
         title.trim() &&
@@ -40,7 +73,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
         endDate &&
         participants > 0 &&
         tags.length > 0 &&
-        (!passwordEnabled || password.trim()),
+        (!passwordEnabled || password.trim() || isEditMode),
     );
 
     const formatDisplay = (dateStr: string) => {
@@ -48,9 +81,23 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
         return dateStr.replace(/-/g, '.');
     };
 
+    // 날짜 선택 핸들러: 진행 중인 스터디인 경우 시작일은 그대로 유지하고 종료일만 갱신
     const handleDateSelect = (start: string, end: string) => {
-        setStartDate(start);
-        setEndDate(end);
+        if (isProgress) {
+            // 진행 중일 때는 사용자가 선택한 범위를 바탕으로 종료 날짜만 최신화
+            const selectedEnd = end || start;
+            if (selectedEnd < startDate) {
+                triggerAlertModal({
+                    title: '날짜 선택 불가',
+                    message: '종료일은 스터디 시작일보다 앞설 수 없습니다.',
+                });
+                return;
+            }
+            setEndDate(selectedEnd);
+        } else {
+            setStartDate(start);
+            setEndDate(end);
+        }
     };
 
     const handleRuleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -76,22 +123,41 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
     const handleSubmit = async () => {
         if (!isFormValid || isSubmitting) return;
 
+        // 방어 로직: 현재 멤버보다 적은 인원으로 수정한 경우 차단
+        if (isEditMode && participants < currentMembers) {
+            triggerAlertModal({
+                title: '인원 설정 불가',
+                message: `현재 참여 인원(${currentMembers}명)보다 적은 인원으로 설정할 수 없습니다.`,
+            });
+            return;
+        }
+
         setIsSubmitting(true);
         try {
-            const res = await fetch('/api/studies', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    title: title.trim(),
-                    rule: rule.trim() ? rule.trim() : undefined,
-                    startDate,
-                    endDate,
-                    maxMemberCount: participants,
-                    tags,
-                    password: passwordEnabled ? password : null,
-                }),
+            const endpoint = isEditMode
+                ? `/api/studies/${initialData?.id}`
+                : '/api/studies';
+            const method = isEditMode ? 'PATCH' : 'POST';
+
+            const payload: Record<string, unknown> = {
+                title: title.trim(),
+                rule: rule.trim() ? rule.trim() : null,
+                startDate,
+                endDate,
+                maxMemberCount: participants,
+                tags,
+            };
+
+            if (!isEditMode) {
+                payload.password = passwordEnabled ? password : null;
+            } else if (passwordEnabled && password.trim()) {
+                payload.password = password.trim();
+            }
+
+            const res = await fetch(endpoint, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload),
             });
 
             if (res.status === 401) {
@@ -102,58 +168,34 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
             if (!res.ok) {
                 const errorData = await res.json().catch(() => null);
                 const backendMessage = errorData?.message;
-                console.error(backendMessage);
 
-                switch (res.status) {
-                    case 400:
-                        triggerAlertModal({
-                            title: '입력값 오류',
-                            message:
-                                '입력하신 스터디 정보를 다시 확인해 주세요.',
-                        });
-                        break;
-                    case 403:
-                        triggerAlertModal({
-                            title: '권한 없음',
-                            message: '스터디를 생성할 권한이 없습니다.',
-                        });
-                        break;
-                    case 409:
-                        triggerAlertModal({
-                            title: '생성 중복',
-                            message: '이미 동일한 스터디가 존재합니다.',
-                        });
-                        break;
-                    case 500:
-                        triggerAlertModal({
-                            title: '서버 오류',
-                            message:
-                                '서버 내부 문제로 스터디를 생성하지 못했습니다. 잠시 후 다시 시도해 주세요.',
-                        });
-                        break;
-                    default:
-                        triggerAlertModal({
-                            title: '생성 실패',
-                            message:
-                                '스터디를 만드는 도중 오류가 발생했습니다. 다시 시도해 주세요.',
-                        });
-                        break;
-                }
+                triggerAlertModal({
+                    title: isEditMode ? '수정 실패' : '생성 실패',
+                    message:
+                        backendMessage ||
+                        (isEditMode
+                            ? '스터디 정보를 수정하지 못했습니다. 다시 시도해 주세요.'
+                            : '스터디를 만드는 도중 오류가 발생했습니다. 다시 시도해 주세요.'),
+                });
                 return;
             }
 
-            setTitle('');
-            setRule('');
-            setStartDate('');
-            setEndDate('');
-            setTags([]);
-            setPassword('');
-            setPasswordEnabled(false);
+            if (isEditMode) {
+                onSuccess?.({
+                    title: title.trim(),
+                    rule: rule.trim(),
+                    startDate,
+                    endDate,
+                    maxMemberCount: participants,
+                    tags,
+                });
+            } else {
+                onSuccess?.();
+            }
 
-            refetch();
             onClose?.();
         } catch (error) {
-            console.error('스터디 생성 중 오류 발생:', error);
+            console.error('스터디 폼 제출 중 오류 발생:', error);
             triggerAlertModal({
                 title: '네트워크 연결 오류',
                 message:
@@ -165,12 +207,14 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className="max-w-110 w-full">
-            <Modal.Header title="딥스터디 만들기" />
+        <>
+            <Modal.Header
+                title={isEditMode ? '스터디 정보 수정' : '딥스터디 만들기'}
+            />
             <Modal.Body>
                 <div className="flex flex-col gap-5 px-1 py-1 overflow-y-auto max-h-[calc(100vh-14rem)] pr-2">
                     {/* 1. 스터디 제목 */}
-                    <div className="flex flex-col gap-2 text-sm font-semibold text-gray-00">
+                    <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
                         <span>
                             스터디 제목 <span className="text-red-100">*</span>
                         </span>
@@ -187,7 +231,6 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                     {/* 2. 스터디 규칙 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
                         <span>스터디 규칙</span>
-
                         <textarea
                             ref={textareaRef}
                             value={rule}
@@ -201,13 +244,22 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
 
                     {/* 3. 스터디 기간 선택 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
-                        <span>
-                            스터디 기간 <span className="text-red-100">*</span>
-                        </span>
+                        <div className="flex items-center justify-between">
+                            <span>
+                                스터디 기간{' '}
+                                <span className="text-red-100">*</span>
+                            </span>
+                            {isProgress && (
+                                <span className="text-[11px] font-normal text-main-100">
+                                    * 진행 중인 스터디는 종료일만 변경
+                                    가능합니다
+                                </span>
+                            )}
+                        </div>
                         <button
                             type="button"
                             onClick={() => setIsCalendarOpen((prev) => !prev)}
-                            className="flex w-full items-center justify-between rounded-lg border border-main-20 bg-white px-3 py-2.5 text-sm font-medium text-gray-300 cursor-pointer hover:border-main-30 transition-colors text-left"
+                            className="flex w-full items-center justify-between rounded-lg border border-main-20 bg-white px-3 py-2.5 text-sm font-medium text-gray-700 cursor-pointer hover:border-main-30 transition-colors text-left"
                             disabled={isSubmitting}
                         >
                             <span
@@ -229,7 +281,11 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
 
                         {isCalendarOpen && (
                             <Calendar
-                                startDate={startDate}
+                                startDate={
+                                    isProgress
+                                        ? new Date().toISOString().split('T')[0]
+                                        : startDate
+                                }
                                 endDate={endDate}
                                 onDateSelect={handleDateSelect}
                                 onClose={() => setIsCalendarOpen(false)}
@@ -237,23 +293,46 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                         )}
                     </div>
 
-                    {/* 4. 스터디 인원 */}
+                    {/* 4. 스터디 인원 (현재 참여 인원보다 적은 옵션 비활성화) */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
-                        <span>
-                            스터디 인원 <span className="text-red-100">*</span>
-                        </span>
+                        <div className="flex items-center justify-between">
+                            <span>
+                                스터디 인원{' '}
+                                <span className="text-red-100">*</span>
+                            </span>
+                            {isEditMode && currentMembers > 1 && (
+                                <span className="text-[11px] font-normal text-gray-400">
+                                    * 현재 인원({currentMembers}명) 이상으로만
+                                    설정 가능
+                                </span>
+                            )}
+                        </div>
                         <div className="flex flex-wrap gap-2">
-                            {participantOptions.map((option) => (
-                                <TagButton
-                                    key={option}
-                                    selected={participants === option}
-                                    onClick={() => setParticipants(option)}
-                                    className="text-sm py-1 px-3.5"
-                                    disabled={isSubmitting}
-                                >
-                                    {option}명
-                                </TagButton>
-                            ))}
+                            {participantOptions.map((option) => {
+                                const isDisabledOption =
+                                    isEditMode && option < currentMembers;
+
+                                return (
+                                    <TagButton
+                                        key={option}
+                                        selected={participants === option}
+                                        onClick={() =>
+                                            !isDisabledOption &&
+                                            setParticipants(option)
+                                        }
+                                        className={`text-sm py-1 px-3.5 transition-opacity ${
+                                            isDisabledOption
+                                                ? 'opacity-30 cursor-not-allowed bg-gray-100 border-gray-200 text-gray-400'
+                                                : ''
+                                        }`}
+                                        disabled={
+                                            isSubmitting || isDisabledOption
+                                        }
+                                    >
+                                        {option}명
+                                    </TagButton>
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -295,6 +374,7 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                             </div>
                         )}
                     </div>
+
                     {/* 6. 비밀번호 설정 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
                         <div className="flex items-center gap-2 pt-1">
@@ -328,7 +408,11 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                                         setPassword(event.target.value)
                                     }
                                     type="text"
-                                    placeholder="비밀번호를 입력해주세요"
+                                    placeholder={
+                                        isEditMode
+                                            ? '새로운 비밀번호를 입력해주세요'
+                                            : '비밀번호를 입력해주세요'
+                                    }
                                     isFull
                                     className="placeholder-gray-300"
                                     disabled={isSubmitting}
@@ -351,11 +435,39 @@ function CreateStudyModal({ isOpen, onClose }: CreateStudyModalProps) {
                     onClick={handleSubmit}
                     disabled={!isFormValid || isSubmitting}
                 >
-                    {isSubmitting ? '생성중...' : '확인'}
+                    {isSubmitting
+                        ? isEditMode
+                            ? '수정중...'
+                            : '생성중...'
+                        : isEditMode
+                          ? '수정'
+                          : '확인'}
                 </SquareButton>
             </Modal.Footer>
-        </Modal>
+        </>
     );
 }
 
-export default CreateStudyModal;
+export default function StudyFormModal({
+    isOpen,
+    onClose,
+    mode = 'create',
+    initialData,
+    onSuccess,
+}: StudyFormModalProps) {
+    if (!isOpen) return null;
+
+    const contentKey = mode === 'edit' ? `edit-${initialData?.id}` : 'create';
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} className="max-w-110 w-full">
+            <StudyFormContent
+                key={contentKey}
+                mode={mode}
+                initialData={initialData}
+                onClose={onClose}
+                onSuccess={onSuccess}
+            />
+        </Modal>
+    );
+}
