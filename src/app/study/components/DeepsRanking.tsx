@@ -91,6 +91,17 @@ export default function DeepsRanking({ members = [] }: DeepsRankingProps) {
                                 <span className="text-sm font-semibold text-gray-600">
                                     {item.nickname}
                                 </span>
+                                {item.isHost && (
+                                    <span
+                                        title="방장"
+                                        className="flex items-center"
+                                    >
+                                        <Icon
+                                            name="crown"
+                                            className="w-3.5 h-3.5 text-main-30 stroke-main-30"
+                                        />
+                                    </span>
+                                )}
                             </div>
 
                             <span className="text-sm font-semibold text-main-50">
