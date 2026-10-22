@@ -81,10 +81,8 @@ function StudyFormContent({
         return dateStr.replace(/-/g, '.');
     };
 
-    // 날짜 선택 핸들러: 진행 중인 스터디인 경우 시작일은 그대로 유지하고 종료일만 갱신
     const handleDateSelect = (start: string, end: string) => {
         if (isProgress) {
-            // 진행 중일 때는 사용자가 선택한 범위를 바탕으로 종료 날짜만 최신화
             const selectedEnd = end || start;
             if (selectedEnd < startDate) {
                 triggerAlertModal({
@@ -123,7 +121,6 @@ function StudyFormContent({
     const handleSubmit = async () => {
         if (!isFormValid || isSubmitting) return;
 
-        // 방어 로직: 현재 멤버보다 적은 인원으로 수정한 경우 차단
         if (isEditMode && participants < currentMembers) {
             triggerAlertModal({
                 title: '인원 설정 불가',
@@ -139,6 +136,20 @@ function StudyFormContent({
                 : '/api/studies';
             const method = isEditMode ? 'PATCH' : 'POST';
 
+            let passwordPayload: string | null | undefined = undefined;
+
+            if (!isEditMode) {
+                passwordPayload = passwordEnabled ? password.trim() : null;
+            } else {
+                if (!passwordEnabled) {
+                    passwordPayload = null;
+                } else if (password.trim()) {
+                    passwordPayload = password.trim();
+                } else {
+                    passwordPayload = undefined;
+                }
+            }
+
             const payload: Record<string, unknown> = {
                 title: title.trim(),
                 rule: rule.trim() ? rule.trim() : null,
@@ -148,10 +159,8 @@ function StudyFormContent({
                 tags,
             };
 
-            if (!isEditMode) {
-                payload.password = passwordEnabled ? password : null;
-            } else if (passwordEnabled && password.trim()) {
-                payload.password = password.trim();
+            if (passwordPayload !== undefined) {
+                payload.password = passwordPayload;
             }
 
             const res = await fetch(endpoint, {
@@ -188,6 +197,7 @@ function StudyFormContent({
                     endDate,
                     maxMemberCount: participants,
                     tags,
+                    hasPassword: passwordEnabled,
                 });
             } else {
                 onSuccess?.();
@@ -213,7 +223,6 @@ function StudyFormContent({
             />
             <Modal.Body>
                 <div className="flex flex-col gap-5 px-1 py-1 overflow-y-auto max-h-[calc(100vh-14rem)] pr-2">
-                    {/* 1. 스터디 제목 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
                         <span>
                             스터디 제목 <span className="text-red-100">*</span>
@@ -228,7 +237,6 @@ function StudyFormContent({
                         />
                     </div>
 
-                    {/* 2. 스터디 규칙 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
                         <span>스터디 규칙</span>
                         <textarea
@@ -242,7 +250,6 @@ function StudyFormContent({
                         />
                     </div>
 
-                    {/* 3. 스터디 기간 선택 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
                         <div className="flex items-center justify-between">
                             <span>
@@ -293,7 +300,6 @@ function StudyFormContent({
                         )}
                     </div>
 
-                    {/* 4. 스터디 인원 (현재 참여 인원보다 적은 옵션 비활성화) */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
                         <div className="flex items-center justify-between">
                             <span>
@@ -336,7 +342,6 @@ function StudyFormContent({
                         </div>
                     </div>
 
-                    {/* 5. 해시 태그 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
                         <span>
                             해시 태그 <span className="text-red-100">*</span>
@@ -375,29 +380,43 @@ function StudyFormContent({
                         )}
                     </div>
 
-                    {/* 6. 비밀번호 설정 */}
                     <div className="flex flex-col gap-2 text-sm font-semibold text-gray-600">
-                        <div className="flex items-center gap-2 pt-1">
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setPasswordEnabled((prev) => !prev)
-                                }
-                                className={`flex h-5 w-5 items-center justify-center rounded-sm border cursor-pointer transition-colors ${
-                                    passwordEnabled
-                                        ? 'border-main-30 bg-main-30'
-                                        : 'border-main-20 bg-white'
-                                }`}
-                                disabled={isSubmitting}
-                            >
-                                {passwordEnabled ? (
-                                    <Icon
-                                        name="check"
-                                        className="h-3 w-3 text-white"
-                                    />
-                                ) : null}
-                            </button>
-                            <span>비밀번호 설정</span>
+                        <div className="flex items-center justify-between pt-1">
+                            <div className="flex items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setPasswordEnabled((prev) => !prev);
+                                        if (passwordEnabled) setPassword('');
+                                    }}
+                                    className={`flex h-5 w-5 items-center justify-center rounded-sm border cursor-pointer transition-colors ${
+                                        passwordEnabled
+                                            ? 'border-main-30 bg-main-30'
+                                            : 'border-main-20 bg-white'
+                                    }`}
+                                    disabled={isSubmitting}
+                                >
+                                    {passwordEnabled ? (
+                                        <Icon
+                                            name="check"
+                                            className="h-3 w-3 stroke-white"
+                                        />
+                                    ) : null}
+                                </button>
+                                <span>비밀번호 설정</span>
+                            </div>
+
+                            {isEditMode && (
+                                <span className="text-[11px] font-normal text-gray-400">
+                                    {passwordEnabled
+                                        ? initialData?.hasPassword
+                                            ? '* 미입력 시 기존 비밀번호 유지'
+                                            : '* 비밀번호를 새로 설정합니다'
+                                        : initialData?.hasPassword
+                                          ? '* 체크 해제 시 비밀번호가 삭제됩니다'
+                                          : ''}
+                                </span>
+                            )}
                         </div>
 
                         {passwordEnabled && (
@@ -407,16 +426,21 @@ function StudyFormContent({
                                     onChange={(event) =>
                                         setPassword(event.target.value)
                                     }
-                                    type="text"
+                                    type="password"
                                     placeholder={
-                                        isEditMode
-                                            ? '새로운 비밀번호를 입력해주세요'
-                                            : '비밀번호를 입력해주세요'
+                                        isEditMode && initialData?.hasPassword
+                                            ? '새 비밀번호를 입력해주세요 (미입력 시 기존 유지)'
+                                            : '새로운 비밀번호를 입력해주세요'
                                     }
                                     isFull
                                     className="placeholder-gray-300"
                                     disabled={isSubmitting}
                                 />
+
+                                <p className="px-1 mt-1 text-xs font-normal leading-relaxed text-gray-400">
+                                    * 다시 확인할 수 없으며, 스터디 설정에서
+                                    재등록할 수 있습니다.
+                                </p>
                             </div>
                         )}
                     </div>
