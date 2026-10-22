@@ -27,6 +27,7 @@ import googleLogo from '@/assets/googleLogo.svg';
 import close from '@/assets/close.svg';
 import attach from '@/assets/attach.svg';
 import imageFile from '@/assets/imageFile.svg';
+import crown from '@/assets/crown.svg';
 
 const icons = {
     calendar,
@@ -34,6 +35,7 @@ const icons = {
     chevronDown,
     circleAlert,
     clock,
+    crown,
     code,
     doubleCheck,
     eye,
