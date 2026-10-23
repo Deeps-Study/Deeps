@@ -5,11 +5,18 @@ import Icon from '@/ui/Icon/Icon';
 import { StudyResponse } from '@/types/study';
 import Tag from '@/components/Tag';
 import { CopyToast } from './CopyToast';
+
 interface StudyInfoProps {
     study: StudyResponse;
+    onEditClick?: () => void;
+    onDeleteClick?: () => void;
 }
 
-export default function StudyInfo({ study }: StudyInfoProps) {
+export default function StudyInfo({
+    study,
+    onEditClick,
+    onDeleteClick,
+}: StudyInfoProps) {
     const [showToast, setShowToast] = useState(false);
 
     const handleCopyLink = () => {
@@ -25,13 +32,47 @@ export default function StudyInfo({ study }: StudyInfoProps) {
 
     return (
         <div className="flex flex-col gap-5">
-            <h1 className="text-3xl font-bold text-gray-600 tracking-tight">
-                {study.title}
-            </h1>
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold text-gray-600 tracking-tight">
+                    {study.title}
+                </h1>
 
-            <p className="text-sm font-medium text-gray-400 max-w-xl leading-relaxed">
-                {study.description}
-            </p>
+                {/* 방장 전용 관리 버튼 (수정 / 삭제) */}
+                {study.isHost && (
+                    <div className="flex items-center gap-2">
+                        {onEditClick && study.status !== 'ENDED' && (
+                            <button
+                                type="button"
+                                onClick={onEditClick}
+                                className="text-xs font-semibold text-gray-400 hover:text-main-100 transition-colors cursor-pointer"
+                            >
+                                정보 수정
+                            </button>
+                        )}
+                        {onEditClick &&
+                            onDeleteClick &&
+                            study.status !== 'ENDED' && (
+                                <span className="text-xs text-gray-300">|</span>
+                            )}
+                        {onDeleteClick && (
+                            <button
+                                type="button"
+                                onClick={onDeleteClick}
+                                className="text-xs font-semibold text-gray-400 hover:text-red-100 transition-colors cursor-pointer"
+                            >
+                                스터디 삭제
+                            </button>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* 줄바꿈(whitespace-pre-wrap) 보존 및 가독성 개선 */}
+            {study.rule && (
+                <p className="text-sm font-medium text-gray-500 max-w-xl leading-relaxed whitespace-pre-wrap bg-gray-50/60 p-3.5 rounded-xl border border-gray-100">
+                    {study.rule}
+                </p>
+            )}
 
             <p className="text-xs font-medium text-gray-400 tracking-wide">
                 {study.startDate} ~ {study.endDate}

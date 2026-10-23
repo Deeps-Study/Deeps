@@ -1,7 +1,7 @@
 export interface StudyResponse {
     id: string;
     title: string;
-    description: string;
+    rule?: string;
     status: 'BEFORE_START' | 'IN_PROGRESS' | 'ENDED';
     startDate: string;
     endDate: string;
@@ -9,6 +9,8 @@ export interface StudyResponse {
     maxMemberCount: number;
     tags: string[];
     hasPassword: boolean;
+    hostId?: string;
+    isHost?: boolean;
 }
 
 export function mapServerStatusToUI(
@@ -33,6 +35,7 @@ export interface StudyMemberResponse {
     id: string;
     nickname: string;
     profileImageUrl: string;
+    isHost: boolean;
     totalLikesReceived: number;
     activityLogs: ActivityLog[];
 }
