@@ -1,8 +1,8 @@
 'use client';
 
+import { useStudyRefresh } from './StudyRefreshContext';
 import React, { createContext, useContext, useState } from 'react';
-import CreateStudyModal from '@/app/home/components/CreateStudyModal';
-
+import StudyFormModal from '@/components/StudyFormModal';
 interface CreateStudyModalContextType {
     openModal: () => void;
     studyCount: number;
@@ -33,6 +33,7 @@ export function CreateStudyModalProvider({
 }) {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [studyCount, setStudyCount] = useState(0);
+    const refetch = useStudyRefresh();
 
     const openModal = () => setIsCreateModalOpen(true);
 
@@ -40,9 +41,11 @@ export function CreateStudyModalProvider({
         <ModalContext.Provider value={{ openModal, studyCount, setStudyCount }}>
             {children}
             {isCreateModalOpen && (
-                <CreateStudyModal
+                <StudyFormModal
                     isOpen={isCreateModalOpen}
+                    mode="create"
                     onClose={() => setIsCreateModalOpen(false)}
+                    onSuccess={() => refetch()}
                 />
             )}
         </ModalContext.Provider>

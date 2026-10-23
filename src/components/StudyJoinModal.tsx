@@ -15,11 +15,10 @@ interface StudyJoinModalProps {
     onClose: () => void;
 }
 
-export default function StudyJoinModal({
+function StudyJoinContent({
     study,
-    isOpen,
     onClose,
-}: StudyJoinModalProps) {
+}: Omit<StudyJoinModalProps, 'isOpen'>) {
     const router = useRouter();
     const pathname = usePathname();
     const { currentUser } = useCurrentUser();
@@ -27,7 +26,6 @@ export default function StudyJoinModal({
     const [password, setPassword] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // 1. 비로그인 시 로그인 페이지로 이동 (돌아왔을 때 초대 팝업이 다시 뜨도록 returnUrl 설정)
     const handleLoginRedirect = () => {
         const returnUrl = encodeURIComponent(
             `${pathname}?joinStudy=${study.id}`,
@@ -35,7 +33,6 @@ export default function StudyJoinModal({
         router.push(`/login?redirect=${returnUrl}`);
     };
 
-    // 스터디 입장 API 호출
     const handleJoinStudy = async () => {
         setIsSubmitting(true);
 
@@ -43,11 +40,12 @@ export default function StudyJoinModal({
             const res = await fetch(`/api/studies/${study.id}/join`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ password }),
+                body: JSON.stringify({
+                    password: password.trim() ? password.trim() : undefined,
+                }),
             });
 
             if (res.ok) {
-                // 201 Created: 성공 시 모달 닫고 해당 스터디 페이지로 이동
                 onClose();
                 router.push(`/study/${study.id}`);
                 return;
@@ -56,9 +54,7 @@ export default function StudyJoinModal({
             const errorData = await res.json().catch(() => null);
             const backendMessage = errorData?.message;
 
-            // 백엔드 상태 코드별 triggerAlertModal 분기 처리
             if (res.status === 403) {
-                // ForbiddenException: 비밀번호 불일치
                 triggerAlertModal({
                     title: '비밀번호 오류',
                     message:
@@ -66,7 +62,6 @@ export default function StudyJoinModal({
                         '스터디 비밀번호가 일치하지 않습니다. 다시 확인해 주세요.',
                 });
             } else if (res.status === 400) {
-                // BadRequestException: 정원 초과 / 최대 개수 초과
                 triggerAlertModal({
                     title: '참여 불가',
                     message:
@@ -74,9 +69,8 @@ export default function StudyJoinModal({
                         '스터디에 참여할 수 없습니다. 참여 조건이나 정원을 확인해 주세요.',
                 });
             } else if (res.status === 409) {
-                // ConflictException: 이미 가입된 멤버 -> 바로 입장 처리
                 onClose();
-                router.refresh();
+                router.push(`/study/${study.id}`);
             } else {
                 triggerAlertModal({
                     title: '참여 실패',
@@ -98,18 +92,14 @@ export default function StudyJoinModal({
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className="max-w-100 w-full">
+        <>
             <Modal.Header title={study.title} />
 
             <Modal.Body>
                 <div className="flex flex-col gap-5">
-                    <p className="px-1 text-sm font-medium leading-6 text-gray-400">
-                        {study.description}
-                    </p>
-
                     <div className="flex flex-col gap-2.5">
                         {/* 참여 인원 */}
-                        <div className="flex flex-col gap-2 rounded-[10px] border border-main-20 bg-white px-4 py-3">
+                        <div className="flex flex-col gap-4.5 rounded-[10px] border border-main-20 bg-white px-4 py-3">
                             <div className="flex items-center gap-2.5">
                                 <Icon
                                     name="users"
@@ -121,19 +111,19 @@ export default function StudyJoinModal({
                             </div>
                             <div className="text-sm font-semibold">
                                 {study.currentMemberCount} /{' '}
-                                {study.maxMemberCount}명
+                                {study.maxMemberCount}
                             </div>
                         </div>
 
-                        {/* 스터디 기간 */}
-                        <div className="flex flex-col gap-2 rounded-[10px] border border-main-20 bg-white px-4 py-3">
+                        {/* 기간 */}
+                        <div className="flex flex-col gap-4.5 rounded-[10px] border border-main-20 bg-white px-4 py-3">
                             <div className="flex items-center gap-2.5">
                                 <Icon
                                     name="calendar"
                                     className="stroke-2 stroke-main-30"
                                 />
                                 <span className="text-sm text-gray-400">
-                                    스터디 기간
+                                    기간
                                 </span>
                             </div>
                             <div className="text-sm font-semibold">
@@ -142,7 +132,7 @@ export default function StudyJoinModal({
                         </div>
 
                         {/* 태그 */}
-                        <div className="flex flex-col gap-2 rounded-[10px] border border-main-20 bg-white px-4 py-3">
+                        <div className="flex flex-col gap-4.5 rounded-[10px] border border-main-20 bg-white px-4 py-3">
                             <div className="flex items-center gap-2.5">
                                 <Icon
                                     name="tag"
@@ -153,9 +143,9 @@ export default function StudyJoinModal({
                                 </span>
                             </div>
                             <div className="flex flex-wrap gap-2">
-                                {study.tags?.map((tag, i) => (
+                                {study.tags.map((tag, index) => (
                                     <span
-                                        key={i}
+                                        key={`${tag}-${index}`}
                                         className="text-sm font-semibold text-gray-600"
                                     >
                                         # {tag}
@@ -164,11 +154,30 @@ export default function StudyJoinModal({
                             </div>
                         </div>
 
-                        {/* 비밀번호 입력 (비밀번호 방 + 로그인 상태인 경우만 노출) */}
+                        {/* 스터디 규칙 */}
+                        {study.rule && (
+                            <div className="flex flex-col gap-2 rounded-[10px] border border-main-20 bg-white px-4 py-3">
+                                <div className="flex items-center gap-2.5">
+                                    <Icon
+                                        name="check"
+                                        className="stroke-2 stroke-main-30 w-4 h-4"
+                                    />
+                                    <span className="text-sm text-gray-400">
+                                        스터디 규칙
+                                    </span>
+                                </div>
+                                <div className="max-h-36 overflow-y-auto text-sm font-semibold text-gray-700 leading-relaxed whitespace-pre-wrap pr-1">
+                                    {study.rule}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 비밀번호 입력 (비밀번호가 걸려있고 로그인한 상태일 때 노출) */}
                         {currentUser && study.hasPassword && (
-                            <div className="flex flex-col gap-1.5 mt-2">
+                            <div className="flex flex-col gap-1.5 mt-1">
                                 <label className="text-xs font-semibold text-gray-600">
-                                    비밀번호 입력
+                                    비밀번호 입력{' '}
+                                    <span className="text-red-100">*</span>
                                 </label>
                                 <input
                                     type="password"
@@ -177,7 +186,8 @@ export default function StudyJoinModal({
                                         setPassword(e.target.value)
                                     }
                                     placeholder="비밀번호를 입력해 주세요"
-                                    className="w-full rounded-lg border border-main-20 px-3 py-2 text-sm outline-none transition-all focus:border-main-100"
+                                    className="w-full rounded-lg border border-main-20 px-3 py-2 text-sm text-gray-700 outline-none transition-all placeholder-gray-300 focus:border-main-30"
+                                    disabled={isSubmitting}
                                 />
                             </div>
                         )}
@@ -186,11 +196,14 @@ export default function StudyJoinModal({
             </Modal.Body>
 
             <Modal.Footer>
-                <SquareButton variant="cancel" onClick={onClose}>
+                <SquareButton
+                    variant="cancel"
+                    onClick={onClose}
+                    disabled={isSubmitting}
+                >
                     취소
                 </SquareButton>
 
-                {/* 로그인 여부 버튼 분기 */}
                 {!currentUser ? (
                     <SquareButton onClick={handleLoginRedirect}>
                         로그인
@@ -199,13 +212,32 @@ export default function StudyJoinModal({
                     <SquareButton
                         onClick={handleJoinStudy}
                         disabled={
-                            isSubmitting || (study.hasPassword && !password)
+                            isSubmitting ||
+                            (Boolean(study.hasPassword) && !password.trim())
                         }
                     >
-                        {isSubmitting ? '처리 중...' : '입장'}
+                        {isSubmitting ? '입장 중...' : '입장'}
                     </SquareButton>
                 )}
             </Modal.Footer>
+        </>
+    );
+}
+
+export default function StudyJoinModal({
+    study,
+    isOpen,
+    onClose,
+}: StudyJoinModalProps) {
+    if (!isOpen || !study) return null;
+
+    return (
+        <Modal isOpen={isOpen} onClose={onClose} className="max-w-100 w-full">
+            <StudyJoinContent
+                key={`join-${study.id}`}
+                study={study}
+                onClose={onClose}
+            />
         </Modal>
     );
 }

@@ -16,8 +16,11 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     const { studyId } = await params;
 
     try {
+        const body = await request.json().catch(() => null);
+
         await api.delete(`/studies/${studyId}/members/me`, {
             headers: { Authorization: `Bearer ${accessToken}` },
+            data: body || undefined,
         });
 
         // 204 No Content 반환

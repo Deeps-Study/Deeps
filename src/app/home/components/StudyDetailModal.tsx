@@ -26,10 +26,6 @@ function StudyDetailModal({
 
             <Modal.Body>
                 <div className="flex flex-col gap-5">
-                    <p className="px-1 text-sm font-medium leading-6 text-gray-400">
-                        {study.description}
-                    </p>
-
                     <div className="flex flex-col gap-2.5">
                         <div className="flex flex-col gap-4.5 rounded-[10px] border border-main-20 bg-white px-4 py-3">
                             <div className="flex items-center gap-2.5">
@@ -84,6 +80,23 @@ function StudyDetailModal({
                                 ))}
                             </div>
                         </div>
+
+                        {study.rule && (
+                            <div className="flex flex-col gap-2 rounded-[10px] border border-main-20 bg-white px-4 py-3">
+                                <div className="flex items-center gap-2.5">
+                                    <Icon
+                                        name="check"
+                                        className="stroke-2 stroke-main-30 w-4 h-4"
+                                    />
+                                    <span className="text-sm text-gray-400">
+                                        스터디 규칙
+                                    </span>
+                                </div>
+                                <div className="max-h-36 overflow-y-auto text-sm font-semibold text-gray-700 leading-relaxed whitespace-pre-wrap pr-1">
+                                    {study.rule}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </Modal.Body>
