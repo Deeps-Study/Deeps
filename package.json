@@ -6,7 +6,12 @@
         "dev": "next dev -p 3001",
         "build": "next build",
         "start": "next start",
-        "lint": "eslint"
+        "lint": "eslint",
+        "typecheck": "tsc --noEmit --incremental false",
+        "test": "vitest run",
+        "test:acceptance": "playwright test -c tests/acceptance/playwright.config.ts",
+        "check:acceptance": "node scripts/check-acceptance.mjs",
+        "check": "node scripts/check.mjs"
     },
     "dependencies": {
         "@tiptap/extension-code-block-lowlight": "^3.35.0",
@@ -30,6 +35,7 @@
         "react-dom": "19.2.4"
     },
     "devDependencies": {
+        "@playwright/test": "^1.65.1",
         "@svgr/webpack": "^8.1.0",
         "@tailwindcss/postcss": "^4",
         "@tailwindcss/typography": "^0.5.20",
@@ -39,6 +45,7 @@
         "eslint": "^9",
         "eslint-config-next": "16.4.6",
         "tailwindcss": "^4",
-        "typescript": "^5"
+        "typescript": "^5",
+        "vitest": "^4.1.12"
     }
 }
