@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import 'highlight.js/styles/monokai-sublime.css';
 
 import cn from 'classnames';
@@ -24,22 +24,32 @@ hljs.registerLanguage('cpp', cpp);
 hljs.registerLanguage('swift', swift);
 hljs.registerLanguage('kotlin', kotlin);
 
+const subscribe = () => () => {};
+
 interface TiptapViewerProps {
     html: string;
     className?: string;
 }
 
 export function TiptapViewer({ html, className }: TiptapViewerProps) {
-    const [processedHtml, setProcessedHtml] = useState(sanitizeHtml(html));
+    // 서버 렌더와 hydration 첫 렌더에서는 false다.
+    const isHydrated = useSyncExternalStore(
+        subscribe,
+        () => true,
+        () => false,
+    );
 
-    useEffect(() => {
+    const processedHtml = useMemo(() => {
+        const sanitizedHtml = sanitizeHtml(html);
+        if (!isHydrated) return sanitizedHtml;
+
         const div = document.createElement('div');
-        div.innerHTML = sanitizeHtml(html);
+        div.innerHTML = sanitizedHtml;
         div.querySelectorAll<HTMLElement>('pre code').forEach((block) => {
             hljs.highlightElement(block);
         });
-        setProcessedHtml(div.innerHTML);
-    }, [html]);
+        return div.innerHTML;
+    }, [html, isHydrated]);
 
     return (
         <div
