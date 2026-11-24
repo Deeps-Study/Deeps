@@ -27,6 +27,11 @@ export interface FakeState {
     studies: unknown[];
     user: unknown;
     forcedStatus: number | null;
+    failures: Record<string, number | 'drop'>;
+    redisFailure: {
+        commands: string[];
+        mode: 'http' | 'command' | 'invalid' | 'drop';
+    } | null;
 }
 
 export async function resetFakes(state: Partial<FakeState> = {}) {

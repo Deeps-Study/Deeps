@@ -23,6 +23,10 @@ const initialState = () => ({
     user: null,
     // 업무 API가 강제로 돌려줄 상태 코드
     forcedStatus: null,
+    // 백엔드 경로 -> 상태 코드 또는 'drop'(연결 끊기). 오류 본문에 요청을 되풀이한다.
+    failures: {},
+    // Upstash 실패: { commands: ['get'], mode: 'http' | 'command' | 'invalid' | 'drop' }
+    redisFailure: null,
 });
 let state = initialState();
 
@@ -61,6 +65,9 @@ function business(call, res) {
     if (call.method === 'GET' && call.path === '/users/me') {
         return send(res, 200, state.user ?? {});
     }
+    if (call.method === 'GET' && call.path === '/users/me/nickname/check') {
+        return send(res, 200, { available: true });
+    }
     if (call.method === 'GET' && call.path === '/studies/me') {
         return send(res, 200, state.studies);
     }
@@ -91,6 +98,13 @@ const backend = http.createServer(async (req, res) => {
         body,
     };
     state.calls.push(call);
+
+    const failure = state.failures[call.path];
+    if (failure === 'drop') return req.socket.destroy();
+    if (failure) {
+        const echo = JSON.stringify([call.authorization, call.body]);
+        return send(res, failure, { message: `fake error: ${echo}` });
+    }
 
     if (call.method === 'GET' && call.path === '/auth/google') {
         res.writeHead(200, { 'Content-Type': 'text/html' });
@@ -146,6 +160,26 @@ const redis = http.createServer(async (req, res) => {
         }
     };
     const isPipeline = req.url.startsWith('/pipeline');
+    const commands = isPipeline ? body : [body];
+    const { redisFailure } = state;
+    const isFailing = commands.some(([name]) =>
+        redisFailure?.commands.includes(String(name).toLowerCase()),
+    );
+    if (isFailing) {
+        state.redisCommands.push(...commands);
+        const error = `ERR fake, command was: ${JSON.stringify(body)}`;
+        if (redisFailure.mode === 'drop') return req.socket.destroy();
+        if (redisFailure.mode === 'http') return send(res, 400, { error });
+        if (redisFailure.mode === 'command') {
+            return send(
+                res,
+                200,
+                isPipeline ? commands.map(() => ({ error })) : { error },
+            );
+        }
+        res.writeHead(502, { 'Content-Type': 'text/html' });
+        return res.end(`<p>${error}</p>`);
+    }
     send(res, 200, isPipeline ? body.map(run) : run(body));
 });
 
