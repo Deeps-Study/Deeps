@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { api } from '@/api';
 import { cacheAccessToken } from '@/api/session';
 import { REFRESH_COOKIE } from '@/api/authSession';
+import { errorSummary } from '@/utils/errorSummary';
+import { resolveRedirectPath } from '@/utils/redirectPath';
 
 interface ExchangeResult {
     accessToken: string;
@@ -28,11 +30,10 @@ export async function GET(request: NextRequest) {
         // await를 붙여 Redis에 토큰이 100% 저장된 후 다음 줄로 넘어가도록 보장
         await cacheAccessToken(data.refreshToken, data.accessToken);
 
+        // cookies.get()은 이미 디코딩된 값을 반환
         const savedRedirect = request.cookies.get('auth_redirect')?.value;
         const targetPath = data.nickname
-            ? savedRedirect
-                ? decodeURIComponent(savedRedirect)
-                : '/home'
+            ? resolveRedirectPath(savedRedirect)
             : '/nickname';
 
         // 리다이렉트 응답 객체를 먼저 생성
@@ -49,13 +50,13 @@ export async function GET(request: NextRequest) {
             path: '/',
         });
 
-        if (data.nickname && savedRedirect) {
+        if (data.nickname) {
             response.cookies.delete('auth_redirect');
         }
 
         return response;
     } catch (error) {
-        console.error('OAuth 콜백 교환 실패:', error);
+        console.error('OAuth 콜백 교환 실패:', errorSummary(error));
         return NextResponse.redirect(
             new URL('/login?error=oauth_failed', request.url),
         );
