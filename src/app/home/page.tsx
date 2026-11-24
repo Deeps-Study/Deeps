@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { api, backendErrorStatus } from '@/api';
 import { requireAccessToken } from '@/api/authSession';
+import { errorSummary } from '@/utils/errorSummary';
 import type { StudyResponse } from '@/types/study';
 import HomeClient from './components/HomeClient';
 
@@ -18,7 +19,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     try {
         accessToken = await requireAccessToken();
     } catch (err) {
-        console.error('SSR requireAccessToken 에러:', err);
+        console.error('SSR requireAccessToken 에러:', errorSummary(err));
     }
 
     if (!accessToken) {

@@ -1,5 +1,6 @@
 import { api } from './index';
 import { redis } from '@/lib/redis';
+import { errorSummary } from '@/utils/errorSummary';
 
 export interface TokenPair {
     accessToken: string;
@@ -22,7 +23,7 @@ export async function cacheAccessToken(
             ex: ACCESS_TOKEN_TTL_SEC, // Redis가 50분 뒤 자동 삭제
         });
     } catch (error) {
-        console.error('Redis 캐시 저장 실패:', error);
+        console.error('Redis 캐시 저장 실패:', errorSummary(error));
     }
 }
 
@@ -31,7 +32,7 @@ export async function clearSession(refreshToken: string): Promise<void> {
     try {
         await redis.del(`token:${refreshToken}`);
     } catch (error) {
-        console.error('Redis 세션 삭제 실패:', error);
+        console.error('Redis 세션 삭제 실패:', errorSummary(error));
     }
 }
 
@@ -50,7 +51,7 @@ export async function getAccessToken(
             return { accessToken: cachedAccessToken, refreshToken };
         }
     } catch (error) {
-        console.error('Redis 캐시 조회 실패:', error);
+        console.error('Redis 캐시 조회 실패:', errorSummary(error));
     }
 
     // 캐시에 없을 때만 백엔드로 토큰 회전 요청 (중복 방지 Promise 큐 사용)
@@ -83,13 +84,13 @@ async function rotate(refreshToken: string): Promise<TokenPair | null> {
                     ex: 30, // 30초 후 소멸
                 });
             } catch (e) {
-                console.error('Grace token 저장 실패:', e);
+                console.error('Grace token 저장 실패:', errorSummary(e));
             }
         }
 
         return data;
     } catch (error) {
-        console.error('토큰 회전(/auth/token) 실패:', error);
+        console.error('토큰 회전(/auth/token) 실패:', errorSummary(error));
         return null;
     }
 }

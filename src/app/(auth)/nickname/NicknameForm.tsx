@@ -3,6 +3,7 @@ import Input from '@/components/Input';
 import RoundButton from '@/components/RoundButton';
 import { useNicknameCheck } from '@/hooks/useNicknameCheck';
 import { NicknameStatusMessage } from '@/components/NicknameStatusMessage';
+import { resolveRedirectPath, safeDecode } from '@/utils/redirectPath';
 import { isValidNickname } from '@/utils/validateNickname';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -39,7 +40,9 @@ export function NicknameForm() {
         }
 
         const match = document.cookie.match(/(?:^|; )auth_redirect=([^;]*)/);
-        const redirectUrl = match ? decodeURIComponent(match[1]) : '/home';
+        const redirectUrl = resolveRedirectPath(
+            match && safeDecode(match[1]),
+        );
 
         document.cookie = 'auth_redirect=; path=/; max-age=0;';
 
