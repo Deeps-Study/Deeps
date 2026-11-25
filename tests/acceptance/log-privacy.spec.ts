@@ -117,7 +117,7 @@ for (const [name, failure, code] of [
                     '/studies/s1/preview': failure,
                 },
             },
-            act: getPage('/home?joinStudy=s1'),
+            act: getPage('/?joinStudy=s1'),
             status: 200,
             phrases: [
                 'SSR GET /studies/me 실패 status:',
@@ -152,7 +152,7 @@ for (const mode of ['http', 'command', 'invalid', 'drop'] as const) {
             state: { ...signingIn, redisFailure: { commands: ['set'], mode } },
             act: callback,
             status: 307,
-            location: /\/home$/,
+            location: /^(https?:\/\/[^/]+)?\/$/,
             phrases: ['Redis 캐시 저장 실패'],
             code,
         },
@@ -193,7 +193,7 @@ test.describe('사용자에게 보이는 오류', () => {
         await page
             .context()
             .addCookies([{ name: 'refresh_token', value: OLD, url: baseURL ?? '' }]);
-        await page.goto('/home');
+        await page.goto('/');
         await expect(
             page.getByText('서버 내부 문제로 스터디 목록을 불러오지 못했습니다.'),
         ).toBeVisible();
