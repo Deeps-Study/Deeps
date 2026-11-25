@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { clearSession, getAccessToken, cacheAccessToken } from './session';
+import { errorSummary } from '@/utils/errorSummary';
 
 export const REFRESH_COOKIE = 'refresh_token';
 const REFRESH_MAX_AGE = 60 * 60 * 24 * 30; // 30일
@@ -44,7 +45,7 @@ export async function setSessionCookie(refreshToken: string): Promise<void> {
     try {
         cookieStore.set(REFRESH_COOKIE, refreshToken, cookieOptions);
     } catch (e) {
-        console.error('쿠키 설정 실패:', e);
+        console.error('쿠키 설정 실패:', errorSummary(e));
     }
 }
 
@@ -58,6 +59,6 @@ export async function endSession(): Promise<void> {
     try {
         cookieStore.delete(REFRESH_COOKIE);
     } catch (e) {
-        console.error('쿠키 삭제 실패:', e);
+        console.error('쿠키 삭제 실패:', errorSummary(e));
     }
 }

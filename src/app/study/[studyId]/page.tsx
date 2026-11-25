@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { redirect } from 'next/navigation';
 import { api, backendErrorStatus } from '@/api';
 import { requireAccessToken } from '@/api/authSession';
+import { errorSummary } from '@/utils/errorSummary';
 import type { StudyResponse, StudyMemberResponse } from '@/types/study';
 import type { DeepsItemResponse } from '@/types/deeps';
 import StudyClient from '../components/StudyClient';
@@ -21,7 +22,7 @@ export default async function DeepStudyPage({ params }: DeepStudyPageProps) {
     try {
         accessToken = await requireAccessToken();
     } catch (err) {
-        console.error('SSR requireAccessToken 에러:', err);
+        console.error('SSR requireAccessToken 에러:', errorSummary(err));
     }
 
     if (!accessToken) {
@@ -46,7 +47,7 @@ export default async function DeepStudyPage({ params }: DeepStudyPageProps) {
                     StudyMemberResponse[]
                 >(`/studies/${studyId}/members`, authHeader)
                 .catch((err) => {
-                    console.error('SSR members 패칭 에러:', err);
+                    console.error('SSR members 패칭 에러:', errorSummary(err));
                     return { data: [] as StudyMemberResponse[] };
                 }),
             api
@@ -54,7 +55,7 @@ export default async function DeepStudyPage({ params }: DeepStudyPageProps) {
                     DeepsItemResponse[]
                 >(`/studies/${studyId}/deeps`, authHeader)
                 .catch((err) => {
-                    console.error('SSR deeps 패칭 에러:', err);
+                    console.error('SSR deeps 패칭 에러:', errorSummary(err));
                     return { data: [] as DeepsItemResponse[] };
                 }),
         ]);
