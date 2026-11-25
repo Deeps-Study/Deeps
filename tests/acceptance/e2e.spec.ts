@@ -45,7 +45,7 @@ const heading = '현재 진행중인 스터디를 확인하세요!';
 
 async function logIn(page: Page) {
     await page.goto('/auth/callback?code=code-existing');
-    await expect(page).toHaveURL(`${BROWSER_URL}/home`);
+    await expect(page).toHaveURL(`${BROWSER_URL}/`);
     await expect(page.getByRole('heading', { name: heading })).toBeVisible();
 }
 
@@ -53,11 +53,13 @@ test.beforeEach(async () => {
     await resetFakes(login);
 });
 
-test('비로그인으로 /home에 가면 /login으로 이동한다', async ({ page }) => {
-    await page.goto('/home');
-    await expect(page).toHaveURL(`${BROWSER_URL}/login`);
-    expect((await readFakes()).calls).toEqual([]);
-});
+for (const path of ['/', '/home']) {
+    test(`비로그인으로 ${path}에 가면 /login으로 이동한다`, async ({ page }) => {
+        await page.goto(path);
+        await expect(page).toHaveURL(`${BROWSER_URL}/login`);
+        expect((await readFakes()).calls).toEqual([]);
+    });
+}
 
 test('로그인 버튼이 백엔드 OAuth를 시작한다', async ({ page }) => {
     await page.goto('/login');
@@ -73,7 +75,7 @@ test('로그인 버튼이 백엔드 OAuth를 시작한다', async ({ page }) => 
     ]);
 });
 
-test('콜백 성공(기존 사용자): /home에 스터디가 보인다', async ({ page }) => {
+test('콜백 성공(기존 사용자): /에 스터디가 보인다', async ({ page }) => {
     await logIn(page);
     await expect(page.getByText(study.title)).toBeVisible();
     const { calls } = await readFakes();
@@ -87,9 +89,9 @@ test('콜백 성공(기존 사용자): /home에 스터디가 보인다', async (
     ).toBe('Bearer access-e2e');
 });
 
-test('콜백 성공(신규 사용자): /nickname으로 이동한다', async ({ page }) => {
+test('콜백 성공(신규 사용자): /onboarding으로 이동한다', async ({ page }) => {
     await page.goto('/auth/callback?code=code-new');
-    await expect(page).toHaveURL(`${BROWSER_URL}/nickname`);
+    await expect(page).toHaveURL(`${BROWSER_URL}/onboarding`);
     await expect(page.getByPlaceholder('닉네임을 입력해주세요.')).toBeVisible();
 });
 
@@ -108,7 +110,7 @@ for (const [name, query] of [
     });
 }
 
-test('스터디를 만들면 /home에 나타난다', async ({ page }) => {
+test('스터디를 만들면 /에 나타난다', async ({ page }) => {
     await logIn(page);
     await expect(page.getByText(study.title)).toBeVisible();
 
@@ -148,14 +150,16 @@ test('스터디를 만들면 /home에 나타난다', async ({ page }) => {
     });
 });
 
-test('로그아웃하면 /home에 갈 수 없다', async ({ page }) => {
+test('로그아웃하면 /에 갈 수 없다', async ({ page }) => {
     await logIn(page);
     await page.goto('/mypage');
     await page.getByRole('button', { name: '로그아웃' }).click();
     await expect(page).toHaveURL(`${BROWSER_URL}/login`);
 
-    await page.goto('/home');
-    await expect(page).toHaveURL(`${BROWSER_URL}/login`);
+    for (const path of ['/', '/home']) {
+        await page.goto(path);
+        await expect(page).toHaveURL(`${BROWSER_URL}/login`);
+    }
     const { calls } = await readFakes();
     expect(calls.filter((c) => c.path === '/auth/logout')).toHaveLength(1);
 });

@@ -27,6 +27,8 @@ export interface FakeState {
     studies: unknown[];
     user: unknown;
     forcedStatus: number | null;
+    /** GET 업무 경로 -> 응답 본문 */
+    responses: Record<string, unknown>;
     failures: Record<string, number | 'drop'>;
     redisFailure: {
         commands: string[];

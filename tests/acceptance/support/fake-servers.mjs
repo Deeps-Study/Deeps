@@ -23,6 +23,8 @@ const initialState = () => ({
     user: null,
     // 업무 API가 강제로 돌려줄 상태 코드
     forcedStatus: null,
+    // GET 업무 경로 -> 응답 본문
+    responses: {},
     // 백엔드 경로 -> 상태 코드 또는 'drop'(연결 끊기). 오류 본문에 요청을 되풀이한다.
     failures: {},
     // Upstash 실패: { commands: ['get'], mode: 'http' | 'command' | 'invalid' | 'drop' }
@@ -61,6 +63,9 @@ function business(call, res) {
     }
     if (state.forcedStatus) {
         return send(res, state.forcedStatus, { message: 'fake error' });
+    }
+    if (call.method === 'GET' && call.path in state.responses) {
+        return send(res, 200, state.responses[call.path]);
     }
     if (call.method === 'GET' && call.path === '/users/me') {
         return send(res, 200, state.user ?? {});
