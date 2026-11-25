@@ -52,7 +52,7 @@ export default function DeepStudyLayout({
 
             if (res.status === 204 || res.ok) {
                 setIsExitModalOpen(false);
-                router.push('/home');
+                router.push('/');
             } else {
                 const errorData = await res.json().catch(() => null);
                 alert(errorData?.message || '스터디 나가기에 실패했습니다.');

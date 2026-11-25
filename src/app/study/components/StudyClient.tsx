@@ -51,7 +51,7 @@ export default function StudyClient({
                 title: '접근 제한',
                 message: '해당 스터디의 멤버만 접근할 수 있습니다.',
                 onConfirm: () => {
-                    router.replace('/home');
+                    router.replace('/');
                 },
             });
             return;
@@ -62,7 +62,7 @@ export default function StudyClient({
                 title: '조회 실패',
                 message: '존재하지 않거나 삭제된 스터디입니다.',
                 onConfirm: () => {
-                    router.replace('/home');
+                    router.replace('/');
                 },
             });
             return;
@@ -89,7 +89,7 @@ export default function StudyClient({
             }
 
             setIsDeleteModalOpen(false);
-            router.replace('/home');
+            router.replace('/');
         } catch (err: unknown) {
             const errorMessage =
                 err instanceof Error

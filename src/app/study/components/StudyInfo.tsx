@@ -20,7 +20,7 @@ export default function StudyInfo({
     const [showToast, setShowToast] = useState(false);
 
     const handleCopyLink = () => {
-        const inviteUrl = `${window.location.origin}/home?joinStudy=${study.id}`;
+        const inviteUrl = `${window.location.origin}/?joinStudy=${study.id}`;
         navigator.clipboard.writeText(inviteUrl);
 
         setShowToast(true);

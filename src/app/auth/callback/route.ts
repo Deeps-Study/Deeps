@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
         const savedRedirect = request.cookies.get('auth_redirect')?.value;
         const targetPath = data.nickname
             ? resolveRedirectPath(savedRedirect)
-            : '/nickname';
+            : '/onboarding';
 
         // 리다이렉트 응답 객체를 먼저 생성
         const response = NextResponse.redirect(

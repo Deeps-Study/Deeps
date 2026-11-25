@@ -12,8 +12,16 @@ interface PageProps {
     searchParams: Promise<{ joinStudy?: string }>;
 }
 
+/* 로그인 뒤 초대 창으로 돌아오도록 초대 경로를 로그인 주소에 담는다 */
+function loginPathWithInvite(joinStudy: string | undefined): string {
+    if (!joinStudy) return '/login';
+    const returnPath = `/?${new URLSearchParams({ joinStudy })}`;
+    return `/login?${new URLSearchParams({ redirect: returnPath })}`;
+}
+
 export default async function HomePage({ searchParams }: PageProps) {
     const { joinStudy } = await searchParams;
+    const loginPath = loginPathWithInvite(joinStudy);
 
     let accessToken: string | null = null;
     try {
@@ -23,7 +31,7 @@ export default async function HomePage({ searchParams }: PageProps) {
     }
 
     if (!accessToken) {
-        redirect('/login');
+        redirect(loginPath);
     }
 
     const authHeaders = { Authorization: `Bearer ${accessToken}` };
@@ -52,7 +60,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         studiesStatus = backendErrorStatus(studiesResult.reason);
         console.error('SSR GET /studies/me 실패 status:', studiesStatus);
         if (studiesStatus === 401) {
-            redirect('/login');
+            redirect(loginPath);
         }
     }
 

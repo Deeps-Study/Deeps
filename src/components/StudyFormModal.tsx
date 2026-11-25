@@ -6,7 +6,7 @@ import Modal from '@/components/Modal';
 import SquareButton from '@/components/SquareButton';
 import Icon from '@/ui/Icon/Icon';
 import TagButton from '@/components/TagButton';
-import Calendar from '@/app/home/components/Calendar';
+import Calendar from '@/app/(home)/components/Calendar';
 import { triggerSessionExpired } from '@/utils/sessionExpiredStore';
 import { triggerAlertModal } from '@/utils/alertModalStore';
 import type { StudyResponse } from '@/types/study';

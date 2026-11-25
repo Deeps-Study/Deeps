@@ -1,4 +1,4 @@
-export const DEFAULT_REDIRECT_PATH = '/home';
+export const DEFAULT_REDIRECT_PATH = '/';
 
 const BASE_ORIGIN = 'http://internal.invalid';
 
