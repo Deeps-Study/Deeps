@@ -9,7 +9,7 @@
         "lint": "eslint",
         "typecheck": "tsc --noEmit --incremental false",
         "test": "vitest run",
-        "test:acceptance": "playwright test -c tests/acceptance/playwright.config.ts",
+        "test:acceptance": "node scripts/run-acceptance.mjs",
         "check:acceptance": "node scripts/check-acceptance.mjs",
         "check": "node scripts/check.mjs"
     },
