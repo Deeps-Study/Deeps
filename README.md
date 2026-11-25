@@ -132,8 +132,8 @@ Deeps는 이런 불편함을 개선하고, 효율적인 학습 환경을 제공�
 graph TD
   Root["Root Layout\nAlertModal · Pretendard"]
 
-  Root --> Auth["(auth)\nlogin · nickname"]
-  Root --> Home["/home\n스터디 목록"]
+  Root --> Auth["(auth)\nlogin · onboarding"]
+  Root --> Home["/\n스터디 목록"]
   Root --> Study["/study/studyId\n딥스 목록"]
   Root --> Creator["/deepsCreator\n딥스 생성"]
   Root --> Detail["/deepsDetail\n딥스 풀기"]

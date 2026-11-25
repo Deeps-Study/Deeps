@@ -54,7 +54,7 @@ function MainHeader({
         <header className="bg-white flex w-full px-8 py-3 items-center justify-between border-b border-gray-100">
             <div className="flex items-center w-full">
                 <Link
-                    href="/home"
+                    href="/"
                     className=" font-bold text-2xl text-main-100"
                 >
                     DeepStudy

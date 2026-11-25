@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { REFRESH_COOKIE } from '@/api/authSession';
 import { NicknameForm } from './NicknameForm';
 
-export default async function NicknamePage() {
+export default async function OnboardingPage() {
     const cookieStore = await cookies();
     if (!cookieStore.get(REFRESH_COOKIE)?.value) redirect('/login');
 
