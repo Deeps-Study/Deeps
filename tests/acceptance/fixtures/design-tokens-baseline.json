@@ -1,0 +1,814 @@
+{
+  "note": "구현 전 코드(develop 기준)에서 만든 기준값. 손으로 고치지 않는다.",
+  "utilities": {
+    "bg-white": "rgb(252, 252, 252)",
+    "bg-main-10": "rgb(240, 251, 245)",
+    "bg-main-20": "rgb(204, 238, 221)",
+    "bg-main-30": "rgb(102, 221, 163)",
+    "bg-main-40": "rgb(147, 231, 162)",
+    "bg-main-50": "rgb(0, 209, 105)",
+    "bg-main-60": "rgb(85, 174, 131)",
+    "bg-main-100": "rgb(20, 159, 55)",
+    "bg-main-200": "rgb(0, 99, 0)",
+    "bg-gray-50": "rgb(247, 247, 247)",
+    "bg-gray-100": "rgb(240, 240, 240)",
+    "bg-gray-200": "rgb(210, 210, 210)",
+    "bg-gray-300": "rgb(180, 180, 180)",
+    "bg-gray-400": "rgb(130, 130, 130)",
+    "bg-gray-500": "rgb(60, 60, 60)",
+    "bg-gray-600": "rgb(30, 30, 30)",
+    "bg-gray-700": "oklch(0.373 0.034 259.733)",
+    "bg-gray-800": "oklch(0.278 0.033 256.848)",
+    "bg-gray-900": "oklch(0.21 0.034 264.665)",
+    "bg-gray-950": "oklch(0.13 0.028 261.692)",
+    "bg-red-10": "rgb(254, 246, 243)",
+    "bg-red-20": "rgb(250, 216, 204)",
+    "bg-red-50": "rgb(255, 121, 116)",
+    "bg-red-100": "rgb(237, 71, 66)",
+    "bg-red-200": "rgb(200, 53, 53)",
+    "bg-red-300": "oklch(0.808 0.114 19.571)",
+    "bg-red-400": "oklch(0.704 0.191 22.216)",
+    "bg-red-500": "oklch(0.637 0.237 25.331)",
+    "bg-red-600": "oklch(0.577 0.245 27.325)",
+    "bg-red-700": "oklch(0.505 0.213 27.518)",
+    "bg-red-800": "oklch(0.444 0.177 26.899)",
+    "bg-red-900": "oklch(0.396 0.141 25.723)",
+    "bg-red-950": "oklch(0.258 0.092 26.042)"
+  },
+  "screens": {
+    "로그인": {
+      "html[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)"
+      },
+      "html[1]>body[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderTopColor": "rgb(240, 251, 245)",
+        "borderRightColor": "rgb(240, 251, 245)",
+        "borderBottomColor": "rgb(240, 251, 245)",
+        "borderLeftColor": "rgb(240, 251, 245)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(204, 238, 221) 0px 0px 10px 0px"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>span[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>p[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>p[1]>br[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderTopColor": "rgb(116, 119, 117)",
+        "borderRightColor": "rgb(116, 119, 117)",
+        "borderBottomColor": "rgb(116, 119, 117)",
+        "borderLeftColor": "rgb(116, 119, 117)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(0, 0, 0)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]>path[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(234, 67, 53)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]>path[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(66, 133, 244)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]>path[3]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(251, 188, 5)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]>path[4]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(52, 168, 83)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]>path[5]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>span[1]": {
+        "color": "rgb(31, 31, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>next-route-announcer[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      }
+    },
+    "로그인 실패": {
+      "html[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)"
+      },
+      "html[1]>body[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderTopColor": "rgb(240, 251, 245)",
+        "borderRightColor": "rgb(240, 251, 245)",
+        "borderBottomColor": "rgb(240, 251, 245)",
+        "borderLeftColor": "rgb(240, 251, 245)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(204, 238, 221) 0px 0px 10px 0px"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>span[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>p[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>p[1]>br[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(255, 255, 255)",
+        "borderTopColor": "rgb(116, 119, 117)",
+        "borderRightColor": "rgb(116, 119, 117)",
+        "borderBottomColor": "rgb(116, 119, 117)",
+        "borderLeftColor": "rgb(116, 119, 117)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(0, 0, 0)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]>path[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(234, 67, 53)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]>path[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(66, 133, 244)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]>path[3]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(251, 188, 5)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]>path[4]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(52, 168, 83)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>div[1]>svg[1]>path[5]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>button[1]>span[1]": {
+        "color": "rgb(31, 31, 31)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[2]>p[1]": {
+        "color": "rgb(237, 71, 66)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>next-route-announcer[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      }
+    },
+    "닉네임": {
+      "html[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)"
+      },
+      "html[1]>body[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)",
+        "borderTopColor": "rgb(240, 251, 245)",
+        "borderRightColor": "rgb(240, 251, 245)",
+        "borderBottomColor": "rgb(240, 251, 245)",
+        "borderLeftColor": "rgb(240, 251, 245)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(204, 238, 221) 0px 0px 10px 0px"
+      },
+      "html[1]>body[1]>div[2]>div[1]>span[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>form[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>form[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>form[1]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>form[1]>div[1]>div[1]>p[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>form[1]>div[1]>div[1]>input[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgb(252, 252, 252)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      },
+      "html[1]>body[1]>div[2]>div[1]>form[1]>div[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>form[1]>button[1]": {
+        "color": "rgb(252, 252, 252)",
+        "backgroundColor": "rgb(204, 238, 221)"
+      },
+      "html[1]>body[1]>next-route-announcer[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      }
+    },
+    "홈": {
+      "html[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)"
+      },
+      "html[1]>body[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>header[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)",
+        "borderBottomColor": "rgb(240, 240, 240)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[1]>a[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[2]>button[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgb(240, 251, 245)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[2]>button[1]>svg[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "rgb(20, 159, 55)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[2]>button[1]>svg[1]>path[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "rgb(20, 159, 55)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[2]>a[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[2]>a[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[2]>a[1]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(240, 240, 240)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[2]>a[1]>div[1]>div[1]>svg[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(20, 159, 55)",
+        "stroke": "rgb(20, 159, 55)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[2]>a[1]>div[1]>div[1]>svg[1]>path[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "rgb(20, 159, 55)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>div[2]>a[1]>span[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>h1[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(204, 238, 221) 0px 0px 10px 0px"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>header[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>header[1]>span[1]": {
+        "color": "rgb(0, 99, 0)",
+        "backgroundColor": "rgb(204, 238, 221)",
+        "borderTopColor": "rgb(85, 174, 131)",
+        "borderRightColor": "rgb(85, 174, 131)",
+        "borderBottomColor": "rgb(85, 174, 131)",
+        "borderLeftColor": "rgb(85, 174, 131)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>header[1]>div[1]": {
+        "color": "rgb(0, 99, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>header[1]>div[1]>svg[1]": {
+        "color": "rgb(0, 99, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(0, 0, 0)",
+        "stroke": "rgb(0, 99, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>header[1]>div[1]>svg[1]>path[1]": {
+        "color": "rgb(0, 99, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "rgb(0, 99, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>main[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>main[1]>span[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>main[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>main[1]>div[1]>div[1]": {
+        "color": "rgb(0, 99, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>main[1]>div[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(247, 247, 247)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>main[1]>div[1]>div[2]>span[1]": {
+        "color": "rgb(0, 99, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>main[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>div[1]>main[1]>div[2]>button[1]": {
+        "color": "rgb(252, 252, 252)",
+        "backgroundColor": "rgb(102, 221, 163)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>button[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(204, 238, 221) 0px 0px 10px 0px"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>button[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>button[1]>div[1]>svg[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "rgb(102, 221, 163)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>button[1]>div[1]>svg[1]>path[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "rgb(102, 221, 163)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>button[1]>div[1]>span[1]": {
+        "color": "rgb(0, 99, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>div[1]>div[1]>main[1]>button[1]>div[1]>span[1]>span[1]": {
+        "color": "rgb(102, 221, 163)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>next-route-announcer[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      }
+    },
+    "마이페이지": {
+      "html[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)"
+      },
+      "html[1]>body[1]>next-route-announcer[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)"
+      },
+      "html[1]>body[1]>div[2]>header[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(252, 252, 252)",
+        "borderBottomColor": "rgb(240, 240, 240)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>button[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>button[1]>svg[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(0, 0, 0)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>header[1]>button[1]>svg[1]>path[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(20, 159, 55)",
+        "stroke": "rgb(20, 159, 55)"
+      },
+      "html[1]>body[1]>div[2]>header[1]>h1[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderTopColor": "rgb(102, 221, 163)",
+        "borderRightColor": "rgb(102, 221, 163)",
+        "borderBottomColor": "rgb(102, 221, 163)",
+        "borderLeftColor": "rgb(102, 221, 163)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[1]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgb(247, 247, 247)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[1]>div[1]>div[1]>svg[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(20, 159, 55)",
+        "stroke": "rgb(20, 159, 55)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[1]>div[1]>div[1]>svg[1]>path[1]": {
+        "color": "rgb(20, 159, 55)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "rgb(20, 159, 55)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[1]>p[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[2]>p[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[2]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[3]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[3]>p[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[3]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[3]>div[1]>button[1]": {
+        "color": "rgb(102, 221, 163)",
+        "backgroundColor": "rgb(252, 252, 252)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[3]>div[1]>button[1]>svg[1]": {
+        "color": "rgb(102, 221, 163)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "rgb(102, 221, 163)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[3]>div[1]>button[1]>svg[1]>path[1]": {
+        "color": "rgb(102, 221, 163)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "rgb(102, 221, 163)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[3]>div[1]>button[2]": {
+        "color": "rgb(200, 53, 53)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[3]>div[1]>button[2]>svg[1]": {
+        "color": "rgb(200, 53, 53)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(0, 0, 0)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[1]>div[3]>div[1]>button[2]>svg[1]>path[1]": {
+        "color": "rgb(200, 53, 53)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "rgb(200, 53, 53)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>p[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[1]>p[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[1]>div[1]>span[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[1]>div[1]>button[1]": {
+        "color": "rgb(102, 221, 163)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>p[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "borderTopColor": "rgb(204, 238, 221)",
+        "borderRightColor": "rgb(204, 238, 221)",
+        "borderBottomColor": "rgb(204, 238, 221)",
+        "borderLeftColor": "rgb(204, 238, 221)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>div[1]>svg[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(0, 0, 0)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>div[1]>svg[1]>path[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(234, 67, 53)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>div[1]>svg[1]>path[2]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(66, 133, 244)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>div[1]>svg[1]>path[3]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(251, 188, 5)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>div[1]>svg[1]>path[4]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "rgb(52, 168, 83)",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>div[1]>svg[1]>path[5]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)",
+        "fill": "none",
+        "stroke": "none"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>div[1]>div[1]": {
+        "color": "rgb(0, 0, 0)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>div[1]>div[1]>span[1]": {
+        "color": "rgb(30, 30, 30)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      },
+      "html[1]>body[1]>div[2]>main[1]>div[2]>div[1]>div[2]>div[1]>div[1]>span[2]": {
+        "color": "rgb(130, 130, 130)",
+        "backgroundColor": "rgba(0, 0, 0, 0)"
+      }
+    }
+  },
+  "scrollWidth320": {
+    "로그인": 320,
+    "로그인 실패": 320,
+    "닉네임": 320,
+    "홈": 401,
+    "마이페이지": 825
+  },
+  "packages": {
+    "dependencies": {
+      "@tiptap/extension-code-block-lowlight": "^3.35.0",
+      "@tiptap/extension-image": "^3.35.0",
+      "@tiptap/extension-link": "^3.35.0",
+      "@tiptap/extension-placeholder": "^3.35.0",
+      "@tiptap/extension-task-item": "^3.35.0",
+      "@tiptap/extension-task-list": "^3.35.0",
+      "@tiptap/extension-underline": "^3.35.0",
+      "@tiptap/pm": "^3.35.0",
+      "@tiptap/react": "^3.35.0",
+      "@tiptap/starter-kit": "^3.35.0",
+      "@upstash/redis": "^1.38.2",
+      "axios": "^1.21.1",
+      "classnames": "^2.5.1",
+      "highlight.js": "^11.11.1",
+      "isomorphic-dompurify": "^3.19.0",
+      "lowlight": "^3.3.0",
+      "next": "16.4.6",
+      "react": "19.2.4",
+      "react-dom": "19.2.4"
+    },
+    "devDependencies": {
+      "@playwright/test": "^1.65.1",
+      "@svgr/webpack": "^8.1.0",
+      "@tailwindcss/postcss": "^4",
+      "@tailwindcss/typography": "^0.5.20",
+      "@types/node": "^20",
+      "@types/react": "^19",
+      "@types/react-dom": "^19",
+      "eslint": "^9",
+      "eslint-config-next": "16.4.6",
+      "tailwindcss": "^4",
+      "typescript": "^5",
+      "vitest": "^4.1.12"
+    }
+  }
+}
