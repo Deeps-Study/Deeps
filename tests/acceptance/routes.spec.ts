@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import { test, expect } from './support/browser';
 import { APP_URL, BROWSER_URL } from './support/env';
 import { readFakes, resetFakes, type FakeState } from './support/fakes';
+import { completeOnboarding, onboarding } from './support/onboarding';
 
 const study = {
     id: 'study-1',
@@ -146,7 +147,7 @@ test.describe('주소', () => {
         await signIn(page);
         await page.goto('/nickname');
         await expect(page).toHaveURL(`${BROWSER_URL}/onboarding`);
-        await expect(page.getByPlaceholder('닉네임을 입력해주세요.')).toBeVisible();
+        await expect(onboarding.input(page)).toBeVisible();
     });
 
     for (const path of ['/onboarding', '/nickname']) {
@@ -225,7 +226,7 @@ test.describe('초대 링크', () => {
                         url.origin === BROWSER_URL && url.pathname === '/login',
                 );
                 await page
-                    .getByRole('button', { name: 'Google 계정으로 로그인' })
+                    .getByRole('button', { name: 'Google로 계속하기', exact: true })
                     .click();
                 await expect(
                     page.getByRole('heading', { name: 'fake oauth start' }),
@@ -247,10 +248,7 @@ test.describe('초대 링크', () => {
                 await start(page);
                 await page.goto('/auth/callback?code=code-new');
                 await expect(page).toHaveURL(`${BROWSER_URL}/onboarding`);
-                await page
-                    .getByPlaceholder('닉네임을 입력해주세요.')
-                    .fill('tester');
-                await page.getByRole('button', { name: '완료' }).click();
+                await completeOnboarding(page, 'tester');
                 await expectHome(page, '?joinStudy=study-1');
                 await expectInvite(page);
             });
@@ -266,7 +264,7 @@ test.describe('초대 링크', () => {
             (url) => url.origin === BROWSER_URL && url.pathname === '/login',
         );
         await resetFakes(fakes());
-        await page.getByRole('button', { name: 'Google 계정으로 로그인' }).click();
+        await page.getByRole('button', { name: 'Google로 계속하기', exact: true }).click();
         await expect(
             page.getByRole('heading', { name: 'fake oauth start' }),
         ).toBeVisible();
@@ -280,7 +278,7 @@ test.describe('초대 링크', () => {
         blockedUrls,
     }) => {
         await page.goto('/?joinStudy=//external.test&next=https://external.test');
-        await page.getByRole('button', { name: 'Google 계정으로 로그인' }).click();
+        await page.getByRole('button', { name: 'Google로 계속하기', exact: true }).click();
         await expect(
             page.getByRole('heading', { name: 'fake oauth start' }),
         ).toBeVisible();
@@ -322,8 +320,7 @@ test('온보딩 뒤 저장된 경로가 없으면 /로 간다', async ({ page })
     const old = watchOldHome(page);
     await page.goto('/auth/callback?code=code-new');
     await expect(page).toHaveURL(`${BROWSER_URL}/onboarding`);
-    await page.getByPlaceholder('닉네임을 입력해주세요.').fill('tester');
-    await page.getByRole('button', { name: '완료' }).click();
+    await completeOnboarding(page, 'tester');
     await expectHome(page);
     expect(old).toEqual([]);
 });

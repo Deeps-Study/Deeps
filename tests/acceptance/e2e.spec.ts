@@ -2,6 +2,7 @@ import type { Page } from '@playwright/test';
 import { test, expect } from './support/browser';
 import { BACKEND_URL, BROWSER_URL } from './support/env';
 import { readFakes, resetFakes, type FakeState } from './support/fakes';
+import { onboarding } from './support/onboarding';
 
 const study = {
     id: 'study-1',
@@ -63,7 +64,7 @@ for (const path of ['/', '/home']) {
 
 test('로그인 버튼이 백엔드 OAuth를 시작한다', async ({ page }) => {
     await page.goto('/login');
-    await page.getByRole('button', { name: 'Google 계정으로 로그인' }).click();
+    await page.getByRole('button', { name: 'Google로 계속하기', exact: true }).click();
     await expect(
         page.getByRole('heading', { name: 'fake oauth start' }),
     ).toBeVisible();
@@ -92,7 +93,7 @@ test('콜백 성공(기존 사용자): /에 스터디가 보인다', async ({ pa
 test('콜백 성공(신규 사용자): /onboarding으로 이동한다', async ({ page }) => {
     await page.goto('/auth/callback?code=code-new');
     await expect(page).toHaveURL(`${BROWSER_URL}/onboarding`);
-    await expect(page.getByPlaceholder('닉네임을 입력해주세요.')).toBeVisible();
+    await expect(onboarding.input(page)).toBeVisible();
 });
 
 for (const [name, query] of [

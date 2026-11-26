@@ -2,6 +2,7 @@ import type { APIRequestContext, BrowserContext, Page } from '@playwright/test';
 import { test, expect } from './support/browser';
 import { APP_URL, BROWSER_URL } from './support/env';
 import { readFakes, resetFakes, type FakeState } from './support/fakes';
+import { completeOnboarding } from './support/onboarding';
 
 const enc = encodeURIComponent;
 
@@ -196,10 +197,7 @@ test.describe('닉네임 설정', () => {
         await addCookie(page.context(), 'auth_redirect', cookie);
         await page.goto('/onboarding');
         await expect(page).toHaveURL(`${BROWSER_URL}/onboarding`);
-        const input = page.getByPlaceholder('닉네임을 입력해주세요.');
-        await expect(input).toBeVisible();
-        await input.fill('tester');
-        await page.getByRole('button', { name: '완료' }).click();
+        await completeOnboarding(page, 'tester');
     };
     const expectSaved = async (page: Page) => {
         const { calls } = await readFakes();
