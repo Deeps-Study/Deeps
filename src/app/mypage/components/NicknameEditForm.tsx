@@ -3,7 +3,10 @@
 import { useState } from 'react';
 import { NicknameStatusMessage } from '@/components/NicknameStatusMessage';
 import { useNicknameCheck } from '@/hooks/useNicknameCheck';
-import { isValidNickname } from '@/utils/validateNickname';
+import {
+    isValidNickname,
+    NICKNAME_MAX_LENGTH,
+} from '@/utils/validateNickname';
 
 interface NicknameEditFormProps {
     nickname: string;
@@ -53,7 +56,7 @@ export function NicknameEditForm({
                 <input
                     type="text"
                     value={draft}
-                    maxLength={10}
+                    maxLength={NICKNAME_MAX_LENGTH}
                     onChange={(e) => {
                         setDraft(e.target.value);
                         setSubmitError('');

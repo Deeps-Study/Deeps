@@ -1,57 +1,41 @@
-'use client';
-import { Suspense } from 'react';
-import Icon from '@/ui/Icon/Icon';
-import { useSearchParams } from 'next/navigation';
+import { GoogleLoginButton } from './GoogleLoginButton';
 
-function LoginCard() {
-    const searchParams = useSearchParams();
-    const isLoginFailed = searchParams.get('error') === 'oauth_failed';
-
-    const handleLoginButtonClick = () => {
-        const redirectParam = searchParams.get('redirect');
-
-        if (redirectParam) {
-            document.cookie = `auth_redirect=${encodeURIComponent(redirectParam)}; path=/; max-age=300; SameSite=Lax`;
-        }
-        window.location.href = '/api/auth/google';
-    };
-
-    return (
-        <div className="w-85 min-h-85 pt-14 pb-10 px-10 border border-main-10 shadow-mint rounded-[40px]">
-            <div className="flex flex-col items-center">
-                <span className="text-5xl font-bold text-main-100">Deeps</span>
-                <p className="mt-3.5 text-base text-center text-gray-600">
-                    소셜 로그인으로
-                    <br /> 빠르게 시작해 보세요!
-                </p>
-            </div>
-
-            <div className="flex flex-col items-center">
-                <button
-                    className="flex items-center gap-2.5 h-10 bg-[#FFFFFF] border border-[#747775] rounded-xl pl-3 pr-3 mt-16 cursor-pointer"
-                    onClick={handleLoginButtonClick}
-                >
-                    <div className="flex items-center justify-center w-5 h-5">
-                        <Icon name="googleLogo" className="w-5 h-5" />
-                    </div>
-                    <span className="text-[#1F1F1F] text-sm text-left leading-5 font-medium">
-                        Google 계정으로 로그인
-                    </span>
-                </button>
-                {isLoginFailed && (
-                    <p className="mt-3 text-sm font-medium text-red-100">
-                        로그인에 실패했어요. 다시 시도해 주세요.
-                    </p>
-                )}
-            </div>
-        </div>
-    );
+interface LoginPageProps {
+    searchParams: Promise<{ redirect?: string | string[]; error?: string | string[] }>;
 }
 
-export default function LoginPage() {
+const first = (value: string | string[] | undefined) =>
+    Array.isArray(value) ? value[0] : value;
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+    const params = await searchParams;
+    const isLoginFailed = first(params.error) === 'oauth_failed';
+
     return (
-        <Suspense fallback={null}>
-            <LoginCard />
-        </Suspense>
+        <>
+            <p className="mt-8 inline-flex rounded-full bg-primary-subtle px-2.5 py-1 text-xs leading-4.5 font-semibold text-primary-strong">
+                함께 깊어지는 학습
+            </p>
+            <h1 className="mt-3 text-2xl leading-8.5 font-bold text-foreground lg:text-[28px] lg:leading-9.5">
+                질문하고, 풀고,
+                <br />
+                <span className="text-primary-strong">더 깊이 이해하세요.</span>
+            </h1>
+            <p className="mt-3 text-sm leading-5.5 text-foreground-muted">
+                혼자 넘겼던 개념을 문제로 만들고 동료의 풀이에서 새로운 관점을 발견하세요.
+            </p>
+            <GoogleLoginButton
+                redirect={first(params.redirect) ?? null}
+                isRetry={isLoginFailed}
+            />
+            {isLoginFailed && (
+                <p
+                    role="alert"
+                    className="mt-3 text-[13px] leading-5 font-medium text-error"
+                >
+                    로그인에 실패했어요. 다시 시도해 주세요.
+                </p>
+            )}
+        </>
     );
 }
