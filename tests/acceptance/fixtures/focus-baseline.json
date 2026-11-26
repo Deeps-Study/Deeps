@@ -1,0 +1,329 @@
+{
+  "note": "develop(28474e8) 코드에서 support/focus.ts로 만든 포커스 기준값. 손으로 고치지 않는다.",
+  "로그인": {
+    "tabs": [
+      {
+        "element": "button Google 계정으로 로그인",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      }
+    ],
+    "clicks": []
+  },
+  "로그인 실패": {
+    "tabs": [
+      {
+        "element": "button Google 계정으로 로그인",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      }
+    ],
+    "clicks": []
+  },
+  "닉네임": {
+    "tabs": [
+      {
+        "element": "input 닉네임을 입력해주세요.",
+        "focusVisible": true,
+        "outline": "none",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      }
+    ],
+    "clicks": [
+      {
+        "element": "input 닉네임을 입력해주세요.",
+        "focusVisible": true,
+        "outline": "none",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px"
+      }
+    ]
+  },
+  "홈": {
+    "tabs": [
+      {
+        "element": "a DeepStudy",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 1px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button 딥스터디 만들기",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "a tester",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 1px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button 입장하기",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button 딥스터디 만들기",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(204, 238, 221) 0px 0px 10px 0px"
+      }
+    ],
+    "clicks": []
+  },
+  "마이페이지": {
+    "tabs": [
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button 로그아웃",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button 회원탈퇴",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button 변경",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      }
+    ],
+    "clicks": []
+  },
+  "딥스 생성": {
+    "tabs": [
+      {
+        "element": "a 딥스 생성하기",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 1px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "input 딥스 제목을 입력해주세요",
+        "focusVisible": true,
+        "outline": "none",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button Write",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button Preview",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button H",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button B",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button I",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "div[편집] ",
+        "focusVisible": true,
+        "outline": "none",
+        "boxShadow": "none"
+      }
+    ],
+    "clicks": [
+      {
+        "element": "input 딥스 제목을 입력해주세요",
+        "focusVisible": true,
+        "outline": "none",
+        "boxShadow": "none"
+      },
+      {
+        "element": "div[편집] ",
+        "focusVisible": true,
+        "outline": "none",
+        "boxShadow": "none"
+      },
+      {
+        "element": "textarea 힌트를 입력해 주세요",
+        "focusVisible": true,
+        "outline": "none",
+        "boxShadow": "none"
+      },
+      {
+        "element": "div[편집] ",
+        "focusVisible": true,
+        "outline": "none",
+        "boxShadow": "none"
+      }
+    ]
+  },
+  "딥스 풀이": {
+    "tabs": [
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button 보기",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button Write",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button Preview",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button H",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button B",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button I",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "button ",
+        "focusVisible": true,
+        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "boxShadow": "none"
+      },
+      {
+        "element": "div[편집] ",
+        "focusVisible": true,
+        "outline": "none",
+        "boxShadow": "none"
+      }
+    ],
+    "clicks": [
+      {
+        "element": "div[편집] ",
+        "focusVisible": true,
+        "outline": "none",
+        "boxShadow": "none"
+      }
+    ]
+  }
+}

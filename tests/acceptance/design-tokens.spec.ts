@@ -11,7 +11,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Page } from '@playwright/test';
 import { test, expect } from './support/browser';
-import { collectColors, editorScreens, editorState, prepare, screens, settle } from './support/screens';
+import { clickLooks, focusScreens, tabLooks, type FocusLook } from './support/focus';
+import { collectColors, editorState, prepare, screens, settle } from './support/screens';
 import { buildCss } from './support/tailwind';
 
 /**
@@ -219,150 +220,24 @@ test.describe('4. 글자·버튼 조합 대비', () => {
     });
 });
 
-/** 포커스 표시가 포커스 토큰 색으로 보이는지 */
-function focusIndicator(page: Page) {
-    return page.evaluate(async () => {
-        const el = document.activeElement as HTMLElement | null;
-        if (!el || el === document.body) return null;
-        // 색 전환(transition)이 끝난 뒤의 표시를 본다.
-        await Promise.all(el.getAnimations().map((a) => a.finished.catch(() => undefined)));
-        const s = getComputedStyle(el);
-        return {
-            element: `${el.tagName.toLowerCase()} ${(el.getAttribute('aria-label') ?? el.textContent ?? '').trim().slice(0, 20)}`,
-            focusVisible: el.matches(':focus-visible'),
-            outline:
-                s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0
-                    ? { width: parseFloat(s.outlineWidth), color: s.outlineColor }
-                    : null,
-            boxShadow: s.boxShadow === 'none' ? '' : s.boxShadow,
-            editable: el.isContentEditable,
-            clippedBy: clippingAncestors(el, s),
-        };
+// 5. 포커스 동작은 이번 변경 전(develop)과 같다(PM 결정 2026-11-26: 앱이 새로 그리는 포커스 테두리 없음).
+// 기준값(fixtures/focus-baseline.json)은 develop(28474e8) 코드에서 support/focus.ts로 만든 것이다. 손으로 고치지 않는다.
+const focusBaseline = JSON.parse(
+    fs.readFileSync(path.join(__dirname, 'fixtures/focus-baseline.json'), 'utf8'),
+) as Record<string, { tabs: FocusLook[]; clicks: FocusLook[] }>;
 
-        /**
-         * 포커스 표시(outline·바깥 그림자)의 바깥 경계가 잘리는 조상을 찾는다.
-         * 구현 방식(outline offset, ring, 여백)과 상관없이 계산된 위치만 본다.
-         */
-        function clippingAncestors(target: HTMLElement, style: CSSStyleDeclaration): string[] {
-            let extent = -Infinity;
-            if (style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0) {
-                extent = parseFloat(style.outlineOffset) + parseFloat(style.outlineWidth);
-            }
-            if (style.boxShadow !== 'none') {
-                for (const shadow of style.boxShadow.split(/,(?![^(]*\))/)) {
-                    const text = shadow.trim();
-                    if (/inset/.test(text) || /rgba\([^)]*,\s*0\)/.test(text)) continue;
-                    const [x, y, blur, spread] = (text.replace(/^rgba?\([^)]*\)\s*/, '').match(/-?[\d.]+px/g) ?? []).map(parseFloat);
-                    extent = Math.max(extent, Math.max(Math.abs(x || 0), Math.abs(y || 0)) + (blur || 0) + (spread || 0));
-                }
-            }
-            if (extent === -Infinity) return [];
-            const r = target.getBoundingClientRect();
-            const box = { left: r.left - extent, right: r.right + extent, top: r.top - extent, bottom: r.bottom + extent };
-            const found: string[] = [];
-            for (let p = target.parentElement; p; p = p.parentElement) {
-                const ps = getComputedStyle(p);
-                const clips =
-                    ps.overflowX !== 'visible' || ps.overflowY !== 'visible' || /paint|strict|content/.test(ps.contain);
-                if (!clips || p === document.documentElement || p === document.body) continue;
-                const pr = p.getBoundingClientRect();
-                const left = pr.left + p.clientLeft;
-                const top = pr.top + p.clientTop;
-                const right = left + p.clientWidth;
-                const bottom = top + p.clientHeight;
-                const tol = 0.5;
-                if (box.left < left - tol || box.top < top - tol || box.right > right + tol || box.bottom > bottom + tol) {
-                    found.push(`${p.tagName.toLowerCase()}.${String(p.className).trim().split(/\s+/).slice(0, 4).join('.')}`);
-                }
-            }
-            return found;
-        }
-    });
-}
-
-type Indicator = NonNullable<Awaited<ReturnType<typeof focusIndicator>>>;
-
-function showsColor(i: Indicator, color: string): boolean {
-    if (i.outline && i.outline.width >= 2 && i.outline.color === color) return true;
-    // 링(box-shadow)으로 그린 경우: 해당 색의 그림자가 퍼짐(spread) 2px 이상
-    return i.boxShadow
-        .split(/,(?![^(]*\))/)
-        .map((s) => s.trim())
-        .some((s) => s.startsWith(color) && /\s0px 0px 0px ([2-9]|\d{2,})(\.\d+)?px/.test(s.slice(color.length)));
-}
-
-/** Tab으로 도는 요소마다 포커스 표시를 모은다(한 바퀴). untilEditable이면 편집 본문에 닿을 때 멈춘다. */
-async function tabThrough(page: Page, untilEditable = false): Promise<Indicator[]> {
-    const seen: Indicator[] = [];
-    const handles = [];
-    for (let i = 0; i < 40; i++) {
-        await page.keyboard.press('Tab');
-        const handle = await page.evaluateHandle(() => document.activeElement);
-        if (handles.length > 0 && (await page.evaluate(([a, b]) => a === b, [handles[0], handle] as const))) break;
-        const indicator = await focusIndicator(page);
-        if (!indicator) continue;
-        if (untilEditable && indicator.editable) break;
-        handles.push(handle);
-        seen.push(indicator);
-    }
-    return seen;
-}
-
-test.describe('5. 키보드 포커스 표시가 보인다(공통 포커스 스타일)', () => {
-    test('공통 스타일: 기본 요소에 따로 클래스 없이 포커스 색 표시가 생긴다', async ({ page }) => {
-        const focus = (await tokenColors(page)).focus;
-        const css = await buildCss([]);
-        await page.setContent(
-            `<!doctype html><html><head><style>${css}</style></head><body>
-            <a href="#a">링크</a><button type="button">버튼</button><input aria-label="입력">
-            <select aria-label="선택"><option>하나</option></select><textarea aria-label="여러 줄"></textarea>
-            <div tabindex="0">사용자 정의</div></body></html>`,
-        );
-        const seen = await tabThrough(page);
-        expect(seen.map((s) => s.element)).toHaveLength(6);
-        const bad = seen.filter((s) => !s.focusVisible || !showsColor(s, focus));
-        expect(bad, JSON.stringify(bad)).toEqual([]);
-    });
-
-    for (const screen of screens) {
-        test(`기존 화면(${screen.name})의 모든 Tab 대상에 포커스 색 표시가 보인다`, async ({ page }) => {
-            const focus = hexToRgb(TOKENS.focus.value ?? '');
-            await prepare(page);
+test.describe('5. 포커스 동작(Tab 이동·입력칸 클릭)의 표시가 develop과 같다', () => {
+    for (const { screen, editor } of focusScreens) {
+        test(`${screen.name}`, async ({ page }) => {
+            await page.setViewportSize({ width: 1280, height: 800 });
+            await prepare(page, editor ? editorState : {});
             await screen.open(page);
             await settle(page);
-            const seen = await tabThrough(page);
-            expect(seen.length, 'Tab 대상이 있어야 함').toBeGreaterThan(0);
-            const bad = seen.filter((s) => !s.focusVisible || !showsColor(s, focus));
-            expect(bad, JSON.stringify(bad)).toEqual([]);
-        });
-    }
-
-    // 포커스 표시가 overflow 등으로 잘리지 않고 네 변 모두 보인다(편집기 본문 .tiptap은 범위 밖).
-    for (const screen of screens) {
-        test(`기존 화면(${screen.name})의 Tab 대상 포커스 표시가 잘리지 않는다`, async ({ page }) => {
-            await prepare(page);
-            await screen.open(page);
-            await settle(page);
-            const seen = await tabThrough(page);
-            expect(seen.length, 'Tab 대상이 있어야 함').toBeGreaterThan(0);
-            const clipped = seen.filter((s) => s.clippedBy.length > 0);
-            expect(clipped, JSON.stringify(clipped)).toEqual([]);
-        });
-    }
-
-    for (const screen of editorScreens) {
-        test(`${screen.name}: 편집기 탭·툴바 버튼의 포커스 표시가 포커스 색으로 잘리지 않고 보인다`, async ({ page }) => {
-            const focus = hexToRgb(TOKENS.focus.value ?? '');
-            await prepare(page, editorState);
-            await screen.open(page);
-            await settle(page);
-            const seen = (await tabThrough(page, true)).filter((s) => !s.editable);
-            const names = seen.map((s) => s.element.replace(/^button /, ''));
-            for (const name of ['Write', 'Preview', 'H', 'B', 'I']) {
-                expect(names, `Tab으로 ${name}에 닿아야 함: ${JSON.stringify(names)}`).toContain(name);
-            }
-            const bad = seen.filter((s) => !s.focusVisible || !showsColor(s, focus) || s.clippedBy.length > 0);
-            expect(bad, JSON.stringify(bad)).toEqual([]);
+            const tabs = await tabLooks(page);
+            const clicks = await clickLooks(page);
+            const expected = focusBaseline[screen.name];
+            expect(tabs, 'Tab 이동 때의 포커스 표시').toEqual(expected.tabs);
+            expect(clicks, '입력칸 클릭 때의 포커스 표시').toEqual(expected.clicks);
         });
     }
 });
