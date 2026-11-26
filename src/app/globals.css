@@ -72,16 +72,6 @@
     }
 }
 
-/*
- * 공통 키보드 포커스 표시(#152).
- * 레이어 밖에 두어 컴포넌트의 outline-none·focus:outline-none 유틸리티보다 우선한다.
- * :focus-visible이라 버튼·링크는 마우스 클릭에 보이지 않는다(글자 입력칸·편집기는 클릭에도 보인다).
- */
-:focus-visible {
-    outline: 2px solid var(--color-focus);
-    outline-offset: 2px;
-}
-
 /* content: attr()는 런타임 CSS 함수라 Tailwind 유틸리티로 표현 불가 */
 .tiptap p.is-editor-empty:first-child::before {
     color: var(--color-gray-300);
