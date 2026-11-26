@@ -38,10 +38,7 @@ export function NicknameForm() {
         if (isConflict) return { text: '이미 사용 중인 닉네임입니다.', tone: 'error' };
         if (error === 'format') return { text: '한글, 영문, 숫자만 사용할 수 있어요.', tone: 'error' };
         if (error === 'length') return { text: '2~12자로 입력해주세요.', tone: 'error' };
-        if (value === '') return { text: '한글, 영문, 숫자만 사용할 수 있어요.', tone: 'muted' };
         switch (status) {
-            case 'checking':
-                return { text: '중복 확인 중이에요.', tone: 'muted' };
             case 'available':
                 return { text: '사용할 수 있는 닉네임이에요.', tone: 'success' };
             case 'taken':
@@ -49,7 +46,8 @@ export function NicknameForm() {
             case 'failed':
                 return { text: '확인하지 못했어요. 다시 시도해주세요.', tone: 'error' };
             default:
-                return { text: '중복 확인을 해주세요.', tone: 'muted' };
+                // 입력 전·확인 전·확인 중에는 기본 안내를 유지한다.
+                return { text: '한글, 영문, 숫자만 사용할 수 있어요.', tone: 'muted' };
         }
     })();
 
@@ -137,7 +135,7 @@ export function NicknameForm() {
                     type="button"
                     onClick={handleCheck}
                     disabled={!canCheck}
-                    className="h-12 shrink-0 cursor-pointer rounded-md border border-border-input bg-surface px-4 text-[15px] leading-5.5 font-semibold text-primary-strong enabled:hover:bg-primary-subtle disabled:cursor-default disabled:border-border disabled:bg-border disabled:text-foreground-muted"
+                    className="h-12 shrink-0 cursor-pointer rounded-xl border border-border-input bg-surface px-4 text-[15px] leading-5.5 font-semibold text-primary-strong enabled:hover:bg-primary-subtle disabled:cursor-default disabled:border-border disabled:bg-border disabled:text-foreground-muted"
                 >
                     중복 확인
                 </button>
@@ -152,7 +150,7 @@ export function NicknameForm() {
             <button
                 type="submit"
                 disabled={!canSave}
-                className="mt-6 h-12 w-full cursor-pointer rounded-md bg-primary-strong px-4 text-[15px] leading-5.5 font-semibold text-surface enabled:hover:bg-primary-hover disabled:cursor-default disabled:bg-border disabled:text-foreground-muted"
+                className="mt-6 h-12 w-full cursor-pointer rounded-xl bg-primary-strong px-4 text-[15px] leading-5.5 font-semibold text-surface enabled:hover:bg-primary-hover disabled:cursor-default disabled:bg-border disabled:text-foreground-muted"
             >
                 Deeps 시작하기
             </button>
