@@ -16,7 +16,7 @@ export default async function DeepsDetailPage({
 
     return (
         <div className="flex flex-col h-screen bg-white">
-            <DeepsDetailHeader title="딥스 생성하기" backHref="/" />
+            <DeepsDetailHeader title="딥스 생성하기" backHref={`/study/${encodeURIComponent(studyId)}`} />
             <DeepsForm studyId={studyId} />
         </div>
     );
