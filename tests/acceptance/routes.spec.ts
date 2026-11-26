@@ -342,15 +342,6 @@ test.describe('홈 이동은 옛 주소를 거치지 않고 /로 간다', () => 
         });
     }
 
-    test('딥스 생성 화면의 뒤로 가기', async ({ page }) => {
-        await signIn(page);
-        const old = watchOldHome(page);
-        await page.goto('/deepsCreator/study-1');
-        await page.getByRole('link', { name: '딥스 생성하기' }).click();
-        await expectHome(page);
-        expect(old).toEqual([]);
-    });
-
     test('마이페이지의 뒤로 가기', async ({ page }) => {
         await signIn(page);
         const old = watchOldHome(page);
@@ -395,6 +386,49 @@ test.describe('홈 이동은 옛 주소를 거치지 않고 /로 간다', () => 
             await page.getByRole('button', { name: '확인', exact: true }).click();
             await expectHome(page);
             expect(old).toEqual([]);
+        });
+    }
+});
+
+// PM 변경(화면 확인): 딥스 생성의 뒤로 가기는 홈이 아니라 그 스터디로 간다.
+test.describe('딥스 생성 화면의 뒤로 가기는 그 스터디로 간다', () => {
+    for (const id of ['study-1', 'study-2']) {
+        test(id, async ({ page }) => {
+            const title = `가짜 스터디 ${id}`;
+            const base = fakes();
+            const target = { ...study, id, title, isHost: false };
+            await resetFakes({
+                ...base,
+                responses: {
+                    ...base.responses,
+                    [`/studies/${id}`]: target,
+                    [`/studies/${id}/members`]: [],
+                    [`/studies/${id}/deeps`]: [],
+                },
+            });
+            await signIn(page);
+            await page.goto(`/deepsCreator/${id}`);
+            await expect(
+                page.getByPlaceholder('딥스 제목을 입력해주세요'),
+            ).toBeVisible();
+
+            const visited: string[] = [];
+            page.on('framenavigated', (frame) => {
+                if (frame === page.mainFrame()) visited.push(frame.url());
+            });
+            await page.getByRole('link', { name: '딥스 생성하기' }).click();
+
+            await expect(page).toHaveURL(`${BROWSER_URL}/study/${id}`);
+            await expect(
+                page.getByRole('heading', { name: title, level: 1 }),
+            ).toBeVisible();
+            await expect(
+                page.getByRole('button', { name: '스터디 링크 복사' }),
+            ).toBeVisible();
+            // 홈(/, /home)을 거치지 않는다.
+            expect(
+                visited.map((url) => new URL(url).pathname),
+            ).toEqual(visited.map(() => `/study/${id}`));
         });
     }
 });
