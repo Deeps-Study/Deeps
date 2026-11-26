@@ -9,9 +9,10 @@
 import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import type { Page } from '@playwright/test';
+import type { ElementHandle, Page } from '@playwright/test';
 import { test, expect } from './support/browser';
 import { clickLooks, focusScreens, normalizeRing, tabLooks, uaRingColor, type FocusLook } from './support/focus';
+import { activeHandle, describeElement, focusProblems, focusStyle, type FocusStyle } from './support/focus-change';
 import { collectColors, editorState, prepare, screens, settle } from './support/screens';
 import { buildCss } from './support/tailwind';
 
@@ -45,6 +46,16 @@ const UTILITIES = [
 ] as const;
 
 const root = path.resolve(__dirname, '../..');
+
+/**
+ * 4·5단계(로그인·온보딩)에서 화면 자체가 새 디자인으로 바뀌는 화면(팀장 지시 2026-11-26).
+ * 이 화면들은 develop 기준값과 비교하지 않고, 조건 5는 "앱이 새 포커스 표시를 그리지 않는다",
+ * 조건 8은 "가로 넘침 없음"으로 본다. 조건 7의 새 색 기준은 auth-screens.spec.ts에서 본다.
+ * 기준값 파일은 고치지 않고 이 화면 항목만 비교에서 뺀다.
+ */
+const REDESIGNED = new Set(['로그인', '로그인 실패', '닉네임']);
+const unchangedScreens = screens.filter((s) => !REDESIGNED.has(s.name));
+const redesignedScreens = screens.filter((s) => REDESIGNED.has(s.name));
 const baseline = JSON.parse(
     fs.readFileSync(path.join(__dirname, 'fixtures/design-tokens-baseline.json'), 'utf8'),
 ) as {
@@ -228,7 +239,7 @@ const focusBaseline = JSON.parse(
 ) as Record<string, { tabs: FocusLook[]; clicks: FocusLook[] }>;
 
 test.describe('5. 포커스 동작(Tab 이동·입력칸 클릭)의 표시가 develop과 같다', () => {
-    for (const { screen, editor } of focusScreens) {
+    for (const { screen, editor } of focusScreens.filter(({ screen }) => !REDESIGNED.has(screen.name))) {
         test(`${screen.name}`, async ({ page }) => {
             await page.setViewportSize({ width: 1280, height: 800 });
             await prepare(page, editor ? editorState : {});
@@ -241,6 +252,50 @@ test.describe('5. 포커스 동작(Tab 이동·입력칸 클릭)의 표시가 de
             const expected = focusBaseline[screen.name];
             expect(tabs, 'Tab 이동 때의 포커스 표시').toEqual(expected.tabs);
             expect(clicks, '입력칸 클릭 때의 포커스 표시').toEqual(expected.clicks);
+        });
+    }
+});
+
+test.describe('5. (새 디자인 화면) 앱이 새 포커스 표시를 그리지 않는다', () => {
+    // 팀장 결정(2026-11-26): 포커스만으로 outline·box-shadow·테두리가 바뀌지 않는다.
+    // 브라우저 기본 링은 허용하고, 그 색은 같은 실행에서 읽는다(uaRingColor). 상태는 같고 포커스 여부만 다르게 비교한다.
+    for (const screen of redesignedScreens) {
+        test(`${screen.name}`, async ({ page }) => {
+            await page.setViewportSize({ width: 1280, height: 800 });
+            await prepare(page);
+            await screen.open(page);
+            await settle(page);
+            await page.mouse.move(0, 0);
+
+            const seen: { how: string; handle: ElementHandle<HTMLElement>; focused: FocusStyle }[] = [];
+            // Tab 한 바퀴
+            for (let i = 0; i < 40; i++) {
+                await page.keyboard.press('Tab');
+                const handle = await activeHandle(page);
+                if (!handle) continue;
+                if (seen.length > 0 && (await page.evaluate(([a, b]) => a === b, [seen[0].handle, handle] as const))) break;
+                seen.push({ how: 'Tab', handle, focused: await focusStyle(handle) });
+            }
+            expect(seen.length, 'Tab으로 닿는 요소').toBeGreaterThan(0);
+            // 마지막 입력이 키보드일 때 읽어야 기본 링이 나온다.
+            const ring = await uaRingColor(page);
+            // 입력칸 클릭
+            const inputs = page.locator('input:visible, textarea:visible');
+            for (let i = 0; i < (await inputs.count()); i++) {
+                await inputs.nth(i).click();
+                await page.mouse.move(0, 0);
+                const handle = await activeHandle(page);
+                if (handle) seen.push({ how: '클릭', handle, focused: await focusStyle(handle) });
+            }
+            await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+            await page.mouse.move(0, 0);
+
+            const results = [];
+            for (const { how, handle, focused } of seen) {
+                const problems = focusProblems(focused, await focusStyle(handle), ring);
+                results.push({ how, element: await describeElement(handle), problems });
+            }
+            expect(results.filter((r) => r.problems.length > 0), JSON.stringify(results, null, 1)).toEqual([]);
         });
     }
 });
@@ -322,7 +377,8 @@ test.describe('7. 기존 색 값과 기존 화면의 계산된 색이 그대로�
         expect(actual).toEqual(baseline.utilities);
     });
 
-    for (const screen of screens) {
+    // 새 디자인 화면(REDESIGNED)은 기준 비교에서 뺀다. 새 색 기준은 auth-screens.spec.ts.
+    for (const screen of unchangedScreens) {
         test(`${screen.name} 화면`, async ({ page }) => {
             await page.setViewportSize({ width: 1280, height: 800 });
             await prepare(page);
@@ -346,6 +402,11 @@ test.describe('8. 320px 폭에서 새 가로 스크롤이 생기지 않는다', 
             await screen.open(page);
             await settle(page);
             const width = await page.evaluate(() => document.documentElement.scrollWidth);
+            if (REDESIGNED.has(screen.name)) {
+                // 새 디자인 화면(4·5단계)은 develop과 비교하지 않고 가로 넘침이 없어야 한다.
+                expect(width).toBeLessThanOrEqual(320);
+                return;
+            }
             // 같은 실행(같은 OS·브라우저)에서 이번 변경의 글꼴 연결만 되돌린 참조 폭을 잰다.
             // develop은 layout이 만든 --font-pretendard를 쓰지 않았으므로, 그 변수를 없는 글꼴로 바꾸면 develop의 글꼴 스택이 된다.
             // 구현 전부터 넘치던 화면(홈 등)은 참조 폭보다 넓어지지 않아야 하고, 넘치지 않던 화면은 계속 넘치지 않아야 한다.
