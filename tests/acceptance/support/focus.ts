@@ -51,6 +51,40 @@ export async function tabLooks(page: Page): Promise<FocusLook[]> {
     return seen;
 }
 
+/** 기준값에서 브라우저 기본 포커스 링 색 대신 쓰는 이름 */
+export const UA_RING = '브라우저 기본색';
+
+/**
+ * 같은 브라우저·OS에서 앱 스타일이 닿지 않는 버튼(빈 shadow root 안)에 포커스를 주고
+ * 기본 포커스 링 색을 읽는다. 기본 링 색은 OS마다 다르다(macOS 파랑, Linux 짙은 회색).
+ * 마지막 입력이 키보드일 때 불러야 :focus-visible이 된다.
+ */
+export async function uaRingColor(page: Page): Promise<string> {
+    const result = await page.evaluate(async () => {
+        const host = document.createElement('div');
+        host.style.all = 'initial';
+        const button = document.createElement('button');
+        button.textContent = 'qa-ref';
+        host.attachShadow({ mode: 'open' }).append(button);
+        document.body.append(host);
+        button.focus();
+        await Promise.all(button.getAnimations().map((a) => a.finished.catch(() => undefined)));
+        const s = getComputedStyle(button);
+        const out = { focusVisible: button.matches(':focus-visible'), style: s.outlineStyle, color: s.outlineColor };
+        host.remove();
+        return out;
+    });
+    if (!result.focusVisible || result.style === 'none') {
+        throw new Error(`참조 버튼의 기본 포커스 링을 읽지 못함: ${JSON.stringify(result)}`);
+    }
+    return result.color;
+}
+
+/** outline 색이 브라우저 기본 링 색과 같으면 이름으로 바꾼다(OS 차이를 지운다). */
+export function normalizeRing(looks: FocusLook[], ringColor: string): FocusLook[] {
+    return looks.map((look) => ({ ...look, outline: look.outline.split(ringColor).join(UA_RING) }));
+}
+
 /** 보이는 입력칸(input, textarea, 편집 본문)을 마우스로 하나씩 눌렀을 때의 포커스 표시 */
 export async function clickLooks(page: Page): Promise<FocusLook[]> {
     const targets = page.locator('input:visible, textarea:visible, [contenteditable="true"]:visible');

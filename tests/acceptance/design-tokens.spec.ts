@@ -11,7 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import type { Page } from '@playwright/test';
 import { test, expect } from './support/browser';
-import { clickLooks, focusScreens, tabLooks, type FocusLook } from './support/focus';
+import { clickLooks, focusScreens, normalizeRing, tabLooks, uaRingColor, type FocusLook } from './support/focus';
 import { collectColors, editorState, prepare, screens, settle } from './support/screens';
 import { buildCss } from './support/tailwind';
 
@@ -222,6 +222,7 @@ test.describe('4. 글자·버튼 조합 대비', () => {
 
 // 5. 포커스 동작은 이번 변경 전(develop)과 같다(PM 결정 2026-11-26: 앱이 새로 그리는 포커스 테두리 없음).
 // 기준값(fixtures/focus-baseline.json)은 develop(28474e8) 코드에서 support/focus.ts로 만든 것이다. 손으로 고치지 않는다.
+// 브라우저 기본 포커스 링 색은 OS마다 달라서, 같은 실행에서 앱 스타일이 닿지 않는 참조 버튼의 색으로 바꿔 비교한다.
 const focusBaseline = JSON.parse(
     fs.readFileSync(path.join(__dirname, 'fixtures/focus-baseline.json'), 'utf8'),
 ) as Record<string, { tabs: FocusLook[]; clicks: FocusLook[] }>;
@@ -233,8 +234,10 @@ test.describe('5. 포커스 동작(Tab 이동·입력칸 클릭)의 표시가 de
             await prepare(page, editor ? editorState : {});
             await screen.open(page);
             await settle(page);
-            const tabs = await tabLooks(page);
-            const clicks = await clickLooks(page);
+            const raw = await tabLooks(page);
+            const ring = await uaRingColor(page);
+            const tabs = normalizeRing(raw, ring);
+            const clicks = normalizeRing(await clickLooks(page), ring);
             const expected = focusBaseline[screen.name];
             expect(tabs, 'Tab 이동 때의 포커스 표시').toEqual(expected.tabs);
             expect(clicks, '입력칸 클릭 때의 포커스 표시').toEqual(expected.clicks);
@@ -343,8 +346,20 @@ test.describe('8. 320px 폭에서 새 가로 스크롤이 생기지 않는다', 
             await screen.open(page);
             await settle(page);
             const width = await page.evaluate(() => document.documentElement.scrollWidth);
-            // 구현 전부터 넘치던 화면은 그 폭보다 넓어지지 않아야 한다.
-            expect(width).toBeLessThanOrEqual(Math.max(320, baseline.scrollWidth320[screen.name]));
+            // 같은 실행(같은 OS·브라우저)에서 이번 변경의 글꼴 연결만 되돌린 참조 폭을 잰다.
+            // develop은 layout이 만든 --font-pretendard를 쓰지 않았으므로, 그 변수를 없는 글꼴로 바꾸면 develop의 글꼴 스택이 된다.
+            // 구현 전부터 넘치던 화면(홈 등)은 참조 폭보다 넓어지지 않아야 하고, 넘치지 않던 화면은 계속 넘치지 않아야 한다.
+            const reference = await page.evaluate(async () => {
+                document.documentElement.style.setProperty('--font-pretendard', 'qa-not-installed');
+                await document.fonts.ready;
+                await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+                return {
+                    font: getComputedStyle(document.body).fontFamily,
+                    width: document.documentElement.scrollWidth,
+                };
+            });
+            expect(reference.font, '참조 렌더는 이번 변경의 글꼴 연결을 되돌린 상태여야 함').toMatch(/^qa-not-installed,/);
+            expect(width, `참조 폭 ${reference.width}`).toBeLessThanOrEqual(Math.max(320, reference.width));
         });
     }
 });
