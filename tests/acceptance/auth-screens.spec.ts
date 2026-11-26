@@ -206,10 +206,16 @@ async function expectFits(page: Page, buttons: Locator[]) {
         expect(box.x + box.width, '버튼 오른쪽이 화면 안').toBeLessThanOrEqual(size.vw);
         const onTop = await button.evaluate((el) => {
             const r = el.getBoundingClientRect();
+            // 둥근 모서리 바깥은 부모가 잡히므로 모서리 대신 중앙과 네 변의 중간점(2px 안쪽)을 본다.
+            // 변 중간점은 border-radius가 얼마든(알약 모양 포함) 버튼 모양 안에 있다.
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
             const points = [
-                [r.left + r.width / 2, r.top + r.height / 2],
-                [r.left + 2, r.top + 2],
-                [r.right - 2, r.bottom - 2],
+                [cx, cy],
+                [cx, r.top + 2],
+                [cx, r.bottom - 2],
+                [r.left + 2, cy],
+                [r.right - 2, cy],
             ];
             return points.every(([x, y]) => {
                 const hit = document.elementFromPoint(x, y);
@@ -361,16 +367,26 @@ test.describe('4-4. 버튼이 OAuth를 시작하고 초대 복귀가 유지된�
     });
 
     test('OAuth 시작이 끝나기 전에 다시 눌러도 한 번만 시작한다', async ({ page }) => {
-        const held = await holdRequests(page, (r) => new URL(r.url()).pathname === '/auth/google');
+        // 리다이렉트를 거치면 route는 첫 요청에만 불린다. 그래서 시작 요청(BFF /api/auth/google,
+        // 또는 백엔드로 바로 가는 /auth/google)을 센다. 백엔드 시작 1회는 아래 backendCalls로 따로 본다.
+        const held = await holdRequests(page, (r) => {
+            const url = new URL(r.url());
+            return (
+                (url.origin === BROWSER_URL && url.pathname === '/api/auth/google') ||
+                (url.origin === BACKEND_URL && url.pathname === '/auth/google')
+            );
+        });
         await page.goto('/login');
         const button = loginButton(page);
         await expect(button).toBeVisible();
-        await button.click();
+        // 시작 요청을 붙잡아 두면 이동이 끝나지 않고, 그동안 Playwright의 locator·evaluate는 이동 완료를
+        // 기다린다. 그래서 다시 누르기는 페이지 안에서 예약한다: 첫 클릭 300ms 뒤에 두 번 더 누른다.
+        await button.evaluate((el: HTMLElement) => {
+            el.addEventListener('click', () => setTimeout(() => (el.click(), el.click()), 300), { once: true });
+        });
+        await button.click({ noWaitAfter: true });
         await expect.poll(() => held.length).toBe(1);
-        // 첫 요청이 붙잡혀 있는 동안 다시 누른다(비활성이면 click은 무시된다).
-        await button.evaluate((el: HTMLElement) => el.click());
-        await button.evaluate((el: HTMLElement) => el.click());
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(1000);
         expect(held.length, '두 번째 OAuth 시작 요청').toBe(1);
         await held[0].release();
         await oauthStarted(page);
@@ -574,6 +590,8 @@ test.describe('5-2. 온보딩 문구와 처음 상태', () => {
 
 const LENGTH_ERROR = '2~12자로 입력해주세요.';
 const FORMAT_GUIDE = '한글, 영문, 숫자만 사용할 수 있어요.';
+/** 중복 확인 버튼(확인 중에는 문구가 "확인 중"일 수 있다) */
+const checkButton = (page: Page) => page.getByRole('button', { name: /^(중복 확인|확인 중)$/ });
 
 test.describe('5-3. 닉네임 규칙(한글 음절·영문·숫자 2~12자)', () => {
     const valid = ['가나', 'ab', 'a1', '12', 'abcdefghijkl', '가나다라마바사아자차카타', 'Tester12한글'];
@@ -736,14 +754,39 @@ test.describe('5-4. 중복 확인은 형식이 맞을 때만, 누를 때만 요�
         await expect(onboarding.start(page)).toBeDisabled();
     });
 
+    test('확인 전·확인 중에 기획에 없는 상태 문구가 없다', async ({ page }) => {
+        const held = await holdRequests(page, isCheck);
+        await openOnboarding(page);
+        const extra = ['중복 확인을 해주세요.', '중복 확인 중이에요.'];
+        const expectNoExtra = async () => {
+            for (const text of extra) await expect(page.getByText(text)).toHaveCount(0);
+        };
+        // 확인 전: 기본 안내(보조 글자색 #64748B)를 유지한다.
+        await onboarding.input(page).fill('tester');
+        await expect(onboarding.check(page)).toBeEnabled();
+        await see(page, FORMAT_GUIDE);
+        const guide = page.getByText(FORMAT_GUIDE, { exact: true }).filter({ visible: true }).first();
+        expect(await guide.evaluate((el) => getComputedStyle(el).color)).toBe('rgb(100, 116, 139)');
+        await expectNoExtra();
+        // 확인 중: 확인 버튼이 비활성이다(버튼 문구는 "확인 중"으로 바뀌어도 된다).
+        await onboarding.check(page).click();
+        await expect.poll(() => held.length).toBe(1);
+        await expect(checkButton(page)).toBeDisabled();
+        await expect(onboarding.start(page)).toBeDisabled();
+        await expectNoExtra();
+        await held[0].release();
+        await see(page, onboarding.available);
+        await expectNoExtra();
+    });
+
     test('확인 중에 다시 눌러도 요청은 한 번이다', async ({ page }) => {
         const held = await holdRequests(page, isCheck);
         await openOnboarding(page);
         await onboarding.input(page).fill('tester');
         await onboarding.check(page).click();
         await expect.poll(() => held.length).toBe(1);
-        await onboarding.check(page).evaluate((el: HTMLElement) => el.click());
-        await onboarding.check(page).evaluate((el: HTMLElement) => el.click());
+        await checkButton(page).evaluate((el: HTMLElement) => el.click());
+        await checkButton(page).evaluate((el: HTMLElement) => el.click());
         await page.waitForTimeout(500);
         expect(held.length, '확인 중 추가 요청').toBe(1);
         await expect(onboarding.start(page)).toBeDisabled();
