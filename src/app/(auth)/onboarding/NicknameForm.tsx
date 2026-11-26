@@ -59,6 +59,7 @@ export function NicknameForm() {
                     <Input
                         {...inputConfig}
                         maxLength={10}
+                        isFull
                         className={`transition-all duration-100 ${isValid ? `shadow-mint` : `shadow-none`}`}
                         value={nickname}
                         onChange={(e) => {
