@@ -32,17 +32,17 @@ function AuthVisual() {
             </div>
             <div className="flex flex-1 items-center justify-center gap-4 py-12">
                 <div className="flex h-40 w-44 items-end rounded-2xl bg-[#1e293b] p-6">
-                    <p className="text-lg leading-7 font-semibold text-surface">
+                    <p className="text-lg leading-7 font-semibold break-keep text-surface">
                         좋은 질문을 직접 만들어보고
                     </p>
                 </div>
                 <div className="flex h-40 w-44 translate-y-10 items-end rounded-2xl bg-primary-strong p-6">
-                    <p className="text-lg leading-7 font-semibold text-surface">
+                    <p className="text-lg leading-7 font-semibold break-keep text-surface">
                         동료와 생각을 나누며 성장해요
                     </p>
                 </div>
             </div>
-            <p className="text-sm leading-5 text-foreground-muted">
+            <p className="text-sm leading-5 text-[#cbd5e1]">
                 Deeps · Study platform for developers
             </p>
         </div>
