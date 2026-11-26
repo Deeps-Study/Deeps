@@ -1,11 +1,11 @@
 {
-  "note": "develop(28474e8) 코드에서 support/focus.ts로 만든 포커스 기준값. 손으로 고치지 않는다.",
+  "note": "develop(28474e8) 코드에서 support/focus.ts로 만든 포커스 기준값. 브라우저 기본 포커스 링 색은 이름으로 바꿨다. 손으로 고치지 않는다.",
   "로그인": {
     "tabs": [
       {
         "element": "button Google 계정으로 로그인",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       }
     ],
@@ -16,7 +16,7 @@
       {
         "element": "button Google 계정으로 로그인",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       }
     ],
@@ -45,31 +45,31 @@
       {
         "element": "a DeepStudy",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 1px",
+        "outline": "auto 1px 브라우저 기본색 offset 1px",
         "boxShadow": "none"
       },
       {
         "element": "button 딥스터디 만들기",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "a tester",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 1px",
+        "outline": "auto 1px 브라우저 기본색 offset 1px",
         "boxShadow": "none"
       },
       {
         "element": "button 입장하기",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button 딥스터디 만들기",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgb(204, 238, 221) 0px 0px 10px 0px"
       }
     ],
@@ -80,25 +80,25 @@
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button 로그아웃",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button 회원탈퇴",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button 변경",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       }
     ],
@@ -109,7 +109,7 @@
       {
         "element": "a 딥스 생성하기",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 1px",
+        "outline": "auto 1px 브라우저 기본색 offset 1px",
         "boxShadow": "none"
       },
       {
@@ -121,73 +121,73 @@
       {
         "element": "button Write",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button Preview",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button H",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button B",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button I",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
@@ -229,85 +229,85 @@
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button 보기",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button Write",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button Preview",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button H",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button B",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button I",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
         "element": "button ",
         "focusVisible": true,
-        "outline": "auto 1px rgb(0, 95, 204) offset 0px",
+        "outline": "auto 1px 브라우저 기본색 offset 0px",
         "boxShadow": "none"
       },
       {
