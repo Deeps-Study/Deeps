@@ -3,9 +3,10 @@
 @plugin '@tailwindcss/typography';
 
 @theme {
+    /* layout.tsx의 next/font/local이 html에 --font-pretendard(저장소 폰트 파일)를 만든다 */
     --font-sans:
-        'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui,
-        Roboto, sans-serif;
+        var(--font-pretendard), 'Pretendard Variable', -apple-system,
+        BlinkMacSystemFont, system-ui, Roboto, sans-serif;
 
     /* 커스텀 컬러 */
     --color-white: #fcfcfc;
@@ -32,6 +33,22 @@
     --color-red-100: #ed4742;
     --color-red-200: #c83535;
 
+    /* 의미 토큰(#152). 테마를 바꿀 때는 이 변수 값만 바꾼다. */
+    --color-primary: #10b981; /* 장식 */
+    --color-primary-strong: #047857; /* 버튼·강조 글자 */
+    --color-primary-hover: #065f46;
+    --color-primary-subtle: #ecfdf5;
+    --color-canvas: #f8fafc;
+    --color-surface: #ffffff;
+    --color-inverse: #0f172a;
+    --color-foreground: #0f172a;
+    --color-foreground-muted: #64748b;
+    --color-border: #e2e8f0;
+    --color-border-input: #64748b;
+    --color-success: #047857;
+    --color-error: #dc2626;
+    --color-focus: #059669;
+
     /* 커스텀 이펙트 */
     --shadow-mint: 0 0 10px 0 #cceedd;
     --shadow-green: 0 0 10px 0 #55ae8399;
@@ -53,6 +70,16 @@
     100% {
         opacity: 0;
     }
+}
+
+/*
+ * 공통 키보드 포커스 표시(#152).
+ * 레이어 밖에 두어 컴포넌트의 outline-none·focus:outline-none 유틸리티보다 우선한다.
+ * :focus-visible이라 버튼·링크는 마우스 클릭에 보이지 않는다(글자 입력칸·편집기는 클릭에도 보인다).
+ */
+:focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
 }
 
 /* content: attr()는 런타임 CSS 함수라 Tailwind 유틸리티로 표현 불가 */
