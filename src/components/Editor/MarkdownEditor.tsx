@@ -196,7 +196,7 @@ function MarkdownEditor({
                         type="button"
                         onClick={() => setTab('write')}
                         className={cn(
-                            'px-4 text-[17px] font-medium transition-colors',
+                            'px-4 text-[17px] font-medium transition-colors focus-visible:-outline-offset-2!',
                             tab === 'write'
                                 ? 'bg-white text-gray-600 rounded-tr-lg'
                                 : 'text-gray-400',
@@ -208,7 +208,7 @@ function MarkdownEditor({
                         type="button"
                         onClick={() => setTab('preview')}
                         className={cn(
-                            'px-3 text-[17px] font-medium transition-colors',
+                            'px-3 text-[17px] font-medium transition-colors focus-visible:-outline-offset-2!',
                             tab === 'preview'
                                 ? 'bg-white text-gray-600 rounded-tl-lg rounded-tr-lg'
                                 : 'text-gray-400',
