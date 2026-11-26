@@ -55,7 +55,7 @@ export function GoogleLoginButton({ redirect, isRetry }: GoogleLoginButtonProps)
             type="button"
             onClick={handleClick}
             disabled={isStarting}
-            className="mt-8 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-md border border-border-input bg-surface px-4 text-[15px] leading-5.5 font-semibold text-foreground enabled:hover:bg-canvas disabled:cursor-default"
+            className="mt-8 flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-border-input bg-surface px-4 text-[15px] leading-5.5 font-semibold text-foreground enabled:hover:bg-canvas disabled:cursor-default"
         >
             <span aria-hidden="true" className="flex size-5 shrink-0">
                 <Icon name="googleLogo" className="size-5" />
