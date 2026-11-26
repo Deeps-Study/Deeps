@@ -98,8 +98,8 @@ export const screens: Screen[] = [
     },
 ];
 
-export async function prepare(page: Page) {
-    await resetFakes(fakeState);
+export async function prepare(page: Page, extra: Partial<FakeState> = {}) {
+    await resetFakes({ ...fakeState, ...extra });
     await page.clock.setFixedTime(FIXED_TIME);
     await page.emulateMedia({ reducedMotion: 'reduce' });
 }
@@ -154,3 +154,49 @@ export function collectColors(page: Page): Promise<Record<string, Record<string,
         return out;
     });
 }
+
+/** 편집기가 있는 화면(딥스 생성·풀이). 가짜 딥스 응답이 필요하다. */
+const deeps = {
+    id: 'deeps-1',
+    title: '가짜 문제: 이진 탐색을 설명하세요',
+    description: '<p>가짜 설명 본문</p>',
+    durationSeconds: 7200,
+    // FIXED_TIME(브라우저 시계) 기준 1시간 전 출제, 1시간 남음
+    createdAt: '2030-03-15T00:00:00.000Z',
+    expiredAt: '2030-03-15T02:00:00.000Z',
+    hint: '가짜 힌트',
+    myAnswerStatus: 'NOT_SUBMITTED',
+    isCreatedByMe: false,
+    hasAnswers: false,
+    creator: { nickname: '가짜출제자' },
+    explanation: null,
+};
+
+/** 가짜 서버의 기존 형식을 쓴다: responses(GET 경로 -> 200 본문), failures(경로 -> 상태 코드). */
+export const editorState: Partial<FakeState> = {
+    responses: {
+        '/studies/study-1': { ...study, isHost: false },
+        '/studies/study-1/deeps/deeps-1': deeps,
+        '/studies/study-1/deeps/deeps-1/answers': [],
+    },
+    failures: { '/studies/study-1/deeps/deeps-1/answers/me': 404 },
+};
+
+export const editorScreens: Screen[] = [
+    {
+        name: '딥스 생성',
+        open: async (page) => {
+            await logIn(page);
+            await page.goto('/deepsCreator/study-1');
+            await expect(page.getByRole('button', { name: 'Write' }).first()).toBeVisible();
+        },
+    },
+    {
+        name: '딥스 풀이',
+        open: async (page) => {
+            await logIn(page);
+            await page.goto('/deepsDetail/study-1/deeps-1');
+            await expect(page.getByRole('button', { name: 'Write' }).first()).toBeVisible();
+        },
+    },
+];
