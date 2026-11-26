@@ -8,11 +8,19 @@ export default async function OnboardingPage() {
     if (!cookieStore.get(REFRESH_COOKIE)?.value) redirect('/login');
 
     return (
-        <div className="w-125 min-h-78.5 pt-11 pb-14 px-12 border border-main-10 shadow-mint rounded-[40px] bg-white flex flex-col gap-6">
-            <span className="text-main-100 text-xl font-bold text-center">
-                안녕하세요! 닉네임을 알려주세요
-            </span>
+        <>
+            <p className="mt-8 inline-flex rounded-full bg-primary-subtle px-2.5 py-1 text-xs leading-4.5 font-semibold text-primary-strong">
+                2 / 2 단계
+            </p>
+            <h1 className="mt-3 text-2xl leading-8.5 font-bold text-foreground lg:text-[28px] lg:leading-9.5">
+                반가워요!
+                <br />
+                어떻게 불러드릴까요?
+            </h1>
+            <p className="mt-3 text-sm leading-5.5 text-foreground-muted">
+                Deeps에서 사용할 나만의 닉네임을 설정해주세요.
+            </p>
             <NicknameForm />
-        </div>
+        </>
     );
 }
