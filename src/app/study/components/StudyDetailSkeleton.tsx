@@ -1,10 +1,10 @@
 export default function StudyDetailSkeleton() {
     return (
-        <div className="flex w-full max-w-350 flex-col gap-14 px-10 py-12 animate-pulse">
+        <div className="flex w-full max-w-350 flex-col gap-14 px-4 py-12 sm:px-10 animate-pulse">
             {/* 상단 섹션: StudyInfo & ActivityGrass */}
-            <div className="grid grid-cols-12 gap-16 items-start">
+            <div className="grid grid-cols-1 gap-10 items-start xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] xl:gap-16">
                 {/* 왼쪽: StudyInfo 스켈레톤 */}
-                <div className="col-span-7 flex flex-col gap-5">
+                <div className="min-w-0 flex flex-col gap-5">
                     {/* 제목 */}
                     <div className="w-2/3 h-9 bg-gray-200 rounded-lg" />
 
@@ -29,7 +29,7 @@ export default function StudyDetailSkeleton() {
                 </div>
 
                 {/* 오른쪽: ActivityGrass 스켈레톤 */}
-                <div className="col-span-5 pl-10 flex flex-col gap-4">
+                <div className="min-w-0 xl:pl-10 flex flex-col gap-4">
                     <div className="w-28 h-6 bg-gray-200 rounded-md" />
                     {/* 잔디 그래프 박스 */}
                     <div className="w-full h-44 bg-gray-100 rounded-2xl border border-gray-100 p-4" />
@@ -37,9 +37,9 @@ export default function StudyDetailSkeleton() {
             </div>
 
             {/* 하단 섹션: DeepsContainer & DeepsRanking */}
-            <div className="grid grid-cols-12 gap-16 items-start">
+            <div className="grid grid-cols-1 gap-10 items-start xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] xl:gap-16">
                 {/* 왼쪽: DeepsContainer 스켈레톤 */}
-                <div className="col-span-7 flex flex-col gap-4">
+                <div className="min-w-0 flex flex-col gap-4">
                     <div className="flex justify-between items-center">
                         <div className="w-24 h-6 bg-gray-200 rounded-md" />
                         <div className="w-20 h-8 bg-gray-200 rounded-lg" />
@@ -50,7 +50,7 @@ export default function StudyDetailSkeleton() {
                 </div>
 
                 {/* 오른쪽: DeepsRanking 스켈레톤 */}
-                <div className="col-span-5 pl-10 flex flex-col gap-4">
+                <div className="min-w-0 xl:pl-10 flex flex-col gap-4">
                     <div className="w-24 h-6 bg-gray-200 rounded-md" />
                     <div className="w-full h-52 bg-gray-100 rounded-2xl border border-gray-100 p-4 flex flex-col gap-3">
                         <div className="w-full h-8 bg-gray-200 rounded-lg" />

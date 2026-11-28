@@ -1,7 +1,8 @@
 'use client';
 
 import { useCallback, useState, useEffect } from 'react';
-import MainHeader from '@/components/MainHeader';
+import AppShell from '@/components/AppShell';
+import Icon from '@/ui/Icon/Icon';
 import {
     CreateStudyModalProvider,
     useCreateStudyModal,
@@ -42,19 +43,22 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         : undefined;
 
     return (
-        <div className="flex flex-col min-h-screen">
-            <MainHeader
-                type="home"
-                onCreateStudyClick={handleCreateStudyClick}
-                userProfile={userProfileData}
-            />
-
-            <div className="flex flex-1 justify-center bg-white">
-                {children}
+        <AppShell userProfile={userProfileData}>
+            <div className="flex w-full justify-end px-4 pt-6 sm:px-8">
+                <button
+                    type="button"
+                    onClick={handleCreateStudyClick}
+                    className="flex h-10 items-center gap-2 whitespace-nowrap rounded-xl bg-primary-strong px-4 text-sm font-bold text-surface hover:cursor-pointer hover:bg-primary-hover"
+                >
+                    <Icon name="plus" className="stroke-3" />
+                    딥스터디 만들기
+                </button>
             </div>
 
+            <div className="flex flex-1 justify-center">{children}</div>
+
             <StudyLimitAlert show={showAlert} />
-        </div>
+        </AppShell>
     );
 }
 

@@ -8,7 +8,7 @@ export function StudyLimitAlert({ show }: StudyLimitAlertProps) {
     if (!show) return null;
 
     return (
-        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-87.5 animate-toast">
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 w-87.5 max-w-[calc(100vw-2rem)] animate-toast">
             <div className="border border-red-50 bg-red-10 rounded-lg px-10 py-5 text-center flex flex-col gap-1 shadow-md">
                 <p className="text-sm font-bold text-red-200">
                     스터디 참여 제한 안내
