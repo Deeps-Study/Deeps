@@ -860,7 +860,11 @@ test.describe('10. 넓은 폭 접힘·펼침 상태를 기억한다(2026-11-28)'
         await open(page, appPages[0], 1280);
         await collapseAndWait(page);
 
+        // 홈 카드를 누르면 상세 모달("입장"/"취소")이 뜬다. 모달의 "입장"으로 스터디로 간다.
         await page.getByText(study.title).first().click();
+        const enter = page.getByRole('button', { name: '입장', exact: true });
+        await expect(enter, '카드를 누르면 상세 모달의 "입장" 버튼이 보인다').toBeVisible();
+        await enter.click();
         await expect(page).toHaveURL(`${BROWSER_URL}/study/study-1`);
         await appPages[1].ready(page);
         await expectSidebar(page, false, '스터디로 이동');
@@ -1178,6 +1182,64 @@ test.describe('11. 서랍: dialog·포커스 가두기, 넓히면 닫힘, 열린
             await settleMotion(page);
             await wheelAt(page, width - 20, 200);
             expect(await outsideScroll(page), '닫으면 다시 스크롤된다').toBeGreaterThan(0);
+        });
+    }
+});
+
+test.describe('12. 경계 사례: 서랍을 다른 방법으로 닫아도 스크롤이 풀리고, 저장 상태로 하이드레이션 오류가 없다(2026-11-28)', () => {
+    test('1023px: 가림막을 눌러 닫으면 뒤 본문이 다시 스크롤된다', async ({ page }) => {
+        await resetFakes(tallFakes());
+        const button = await openDrawer(page, appPages[0], NARROW, 400);
+        const drawer = await sidebarBox(menuNavs(page));
+        const right = drawer.x + drawer.width;
+        await page.mouse.click(right + (NARROW - right) / 2, 300);
+        await expect(button).toHaveAttribute('aria-expanded', 'false');
+        await expect(drawerDialog(page)).toHaveCount(0);
+        await settleMotion(page);
+        await resetScroll(page);
+        await wheelAt(page, NARROW - 20, 200);
+        expect(await outsideScroll(page), '가림막으로 닫은 뒤 본문이 스크롤된다').toBeGreaterThan(0);
+    });
+
+    test('1023px: 스터디에서 서랍의 "홈"으로 이동해 닫혀도 홈 본문이 스크롤된다', async ({ page }) => {
+        await resetFakes(tallFakes());
+        await openDrawer(page, appPages[1], NARROW, 400);
+        await drawerDialog(page).getByRole('link', { name: '홈', exact: true }).click();
+        await expect(page).toHaveURL(`${BROWSER_URL}/`);
+        await appPages[0].ready(page);
+        await expect(drawerDialog(page)).toHaveCount(0);
+        await page.waitForLoadState('networkidle');
+        await settleMotion(page);
+        await resetScroll(page);
+        await wheelAt(page, NARROW - 20, 200);
+        expect(await outsideScroll(page), '링크로 이동해 닫힌 뒤 본문이 스크롤된다').toBeGreaterThan(0);
+    });
+
+    for (const saved of [false, true]) {
+        test(`${saved ? '접힘 저장' : '저장 없음'}: 홈·스터디·마이페이지를 처음 열 때 하이드레이션 오류가 없다`, async ({ page }) => {
+            if (saved) {
+                await open(page, appPages[0], 1280);
+                await collapseAndWait(page);
+            } else {
+                await page.setViewportSize({ width: 1280, height: HEIGHT });
+                await signIn(page);
+            }
+            const problems: string[] = [];
+            const hydration = /hydrat|#418|#419|#423|#425/i;
+            page.on('console', (m) => {
+                if (m.type() === 'error' && hydration.test(m.text())) problems.push(`console: ${m.text().slice(0, 200)}`);
+            });
+            page.on('pageerror', (e) => {
+                if (hydration.test(`${e.name} ${e.message}`)) problems.push(`pageerror: ${e.message.slice(0, 200)}`);
+            });
+            for (const target of appPages) {
+                await page.goto(target.path);
+                await target.ready(page);
+                await page.waitForLoadState('networkidle');
+                await settleMotion(page);
+                await expectSidebar(page, !saved, `${target.name} 처음 열기`);
+            }
+            expect(problems, '하이드레이션 오류').toEqual([]);
         });
     }
 });
