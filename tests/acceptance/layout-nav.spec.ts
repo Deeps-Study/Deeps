@@ -15,8 +15,13 @@
 // - "메뉴 이름이 보인다"는 문서 안의 글자 "홈"이 실제로 그려지는지(크기, 잘림, 투명도, 화면 안)로 본다.
 //   title 속성의 브라우저 기본 말풍선은 키보드 포커스에서 뜨지 않으므로 인정하지 않는다.
 // - 포커스 모양(테두리 등)은 검사하지 않는다(2026-11-26 PM 결정: 포커스 표시는 UI 개편 뒤에 정함).
-// - 접힘 상태 저장, 첫 화면의 접힘/펼침 기본값은 문서에 없어 검사하지 않는다.
-import type { Locator, Page } from '@playwright/test';
+// - 2026-11-28 결정: 넓은 폭 접힘·펼침 상태를 쿠키(sidebar_collapsed)에 기억한다. 처음 방문은 펼침.
+//   새로고침·페이지 이동·새 탭·재방문(브라우저를 닫았다 열기) 뒤에도 유지, 첫 HTML부터 맞는 폭(깜빡임 없음).
+//   쿠키 값 형식은 보지 않고 동작으로 본다. 첫 HTML은 JS를 끈 컨텍스트에서 폭으로 본다(10).
+// - 2026-11-28 결정: 서랍은 dialog(aria-modal, 이름)이고 포커스를 가두며, 넓히면 닫히고,
+//   열린 동안 뒤 본문이 스크롤되지 않는다(11).
+// - 테스트마다 새 브라우저 컨텍스트라 쿠키가 다른 테스트로 새지 않는다. 직접 만든 컨텍스트는 테스트 안에서 닫는다.
+import { chromium, type Browser, type BrowserContext, type Locator, type Page } from '@playwright/test';
 import { test, expect } from './support/browser';
 import { BROWSER_URL } from './support/env';
 import { readFakes, resetFakes, type FakeState } from './support/fakes';
@@ -753,4 +758,734 @@ test.describe('9. 320·360·768·1280px(경계 1023·1024 포함)에서 가로 �
             });
         }
     }
+});
+
+const SIDEBAR_COOKIE = 'sidebar_collapsed';
+
+const sidebarCookie = async (context: BrowserContext) =>
+    (await context.cookies(BROWSER_URL)).find((c) => c.name === SIDEBAR_COOKIE) ?? null;
+
+/** 넓은 폭 사이드바의 상태(aria-expanded, 폭)를 본다. */
+async function expectSidebar(page: Page, expanded: boolean, where: string) {
+    const toggle = await theToggle(page);
+    await expect(toggle, `${where}: aria-expanded`).toHaveAttribute('aria-expanded', String(expanded));
+    await settleMotion(page);
+    const width = (await sidebarBox(menuNavs(page))).width;
+    expect(Math.abs(width - (expanded ? 240 : 76)), `${where}: 사이드바 폭 ${width}`).toBeLessThanOrEqual(1);
+}
+
+/** 접고 나서 쿠키가 생길 때까지 기다린다(쿠키 이름만 확인, 값 형식은 보지 않는다). */
+async function collapseAndWait(page: Page) {
+    await setExpanded(page, await theToggle(page), false);
+    await expect
+        .poll(async () => (await sidebarCookie(page.context()))?.name ?? null, {
+            message: `접으면 ${SIDEBAR_COOKIE} 쿠키가 생긴다`,
+        })
+        .toBe(SIDEBAR_COOKIE);
+}
+
+/** 펼치고 나서 쿠키가 접힘 때와 달라질 때까지(값이 바뀌거나 지워질 때까지) 기다린다. */
+async function expandAndWait(page: Page) {
+    const before = JSON.stringify(await sidebarCookie(page.context()));
+    await setExpanded(page, await theToggle(page), true);
+    await expect
+        .poll(async () => JSON.stringify(await sidebarCookie(page.context())), {
+            message: '펼치면 저장된 값이 바뀐다',
+        })
+        .not.toBe(before);
+}
+
+/** 기본 픽스처처럼 외부 주소를 막은 새 컨텍스트 */
+async function isolatedContext(browser: Browser, options: Parameters<Browser['newContext']>[0] = {}) {
+    const context = await browser.newContext({
+        baseURL: BROWSER_URL,
+        locale: 'ko-KR',
+        timezoneId: 'Asia/Seoul',
+        serviceWorkers: 'block',
+        reducedMotion: 'reduce',
+        viewport: { width: 1280, height: HEIGHT },
+        ...options,
+    });
+    await context.route(
+        (url) => url.origin !== BROWSER_URL && !url.origin.startsWith('http://127.0.0.1:'),
+        (route) => route.abort('blockedbyclient'),
+    );
+    await context.addCookies([{ name: 'refresh_token', value: 'refresh-e2e', url: BROWSER_URL }]);
+    return context;
+}
+
+/** JS를 끈 컨텍스트에서 서버가 보낸 첫 HTML의 사이드바 폭을 잰다. */
+async function firstHtmlSidebar(browser: Browser, saved: Awaited<ReturnType<typeof sidebarCookie>>) {
+    const context = await isolatedContext(browser, { javaScriptEnabled: false });
+    try {
+        if (saved) await context.addCookies([saved]);
+        const page = await context.newPage();
+        await page.goto('/');
+        await page.waitForLoadState('load');
+        await expect(menuNavs(page), 'JS 없이도 첫 HTML에 메뉴가 있다').toHaveCount(1);
+        const toggle = page.locator('button[aria-expanded]').filter({ visible: true });
+        await expect(toggle, 'JS 없이도 첫 HTML에 접기 버튼이 있다').toHaveCount(1);
+        return {
+            width: (await sidebarBox(menuNavs(page))).width,
+            expanded: await toggle.getAttribute('aria-expanded'),
+        };
+    } finally {
+        await context.close();
+    }
+}
+
+test.describe('10. 넓은 폭 접힘·펼침 상태를 기억한다(2026-11-28)', () => {
+    test('처음 방문(저장 없음)은 펼침', async ({ page }) => {
+        expect(await sidebarCookie(page.context()), '새 컨텍스트에는 저장이 없다').toBeNull();
+        await open(page, appPages[0], 1280);
+        await expectSidebar(page, true, '처음 방문');
+    });
+
+    for (const target of appPages) {
+        test(`${target.name}: 접은 뒤 새로고침해도 접혀 있고, 다시 펼치면 펼침이 기억된다`, async ({ page }) => {
+            await open(page, target, 1280);
+            await collapseAndWait(page);
+            await page.reload();
+            await target.ready(page);
+            await expectSidebar(page, false, '접고 새로고침');
+
+            await expandAndWait(page);
+            await page.reload();
+            await target.ready(page);
+            await expectSidebar(page, true, '펼치고 새로고침');
+        });
+    }
+
+    test('접은 뒤 홈 -> 스터디 -> 마이페이지 -> 홈으로 옮겨도 접혀 있다(화면 안 링크 이동)', async ({ page }) => {
+        await open(page, appPages[0], 1280);
+        await collapseAndWait(page);
+
+        // 홈 카드를 누르면 상세 모달("입장"/"취소")이 뜬다. 모달의 "입장"으로 스터디로 간다.
+        await page.getByText(study.title).first().click();
+        const enter = page.getByRole('button', { name: '입장', exact: true });
+        await expect(enter, '카드를 누르면 상세 모달의 "입장" 버튼이 보인다').toBeVisible();
+        await enter.click();
+        await expect(page).toHaveURL(`${BROWSER_URL}/study/study-1`);
+        await appPages[1].ready(page);
+        await expectSidebar(page, false, '스터디로 이동');
+
+        await banner(page).locator('a[href="/mypage"]').filter({ visible: true }).click();
+        await expect(page).toHaveURL(`${BROWSER_URL}/mypage`);
+        await appPages[2].ready(page);
+        await expectSidebar(page, false, '마이페이지로 이동');
+
+        await homeLinks(page).first().click();
+        await expect(page).toHaveURL(`${BROWSER_URL}/`);
+        await appPages[0].ready(page);
+        await expectSidebar(page, false, '홈으로 이동');
+    });
+
+    test('접은 뒤 주소로 다른 페이지를 열어도 접혀 있고, 펼친 뒤에는 펼쳐 있다', async ({ page }) => {
+        await open(page, appPages[0], 1280);
+        await collapseAndWait(page);
+        for (const target of [appPages[1], appPages[2], appPages[0]]) {
+            await page.goto(target.path);
+            await target.ready(page);
+            await expectSidebar(page, false, `${target.name} 주소로 열기`);
+        }
+        await expandAndWait(page);
+        for (const target of [appPages[2], appPages[1]]) {
+            await page.goto(target.path);
+            await target.ready(page);
+            await expectSidebar(page, true, `펼친 뒤 ${target.name} 주소로 열기`);
+        }
+    });
+
+    test('접은 뒤 새 탭으로 열어도 접혀 있고, 새 탭에서 펼치면 원래 탭 새로고침도 펼침', async ({ page }) => {
+        await open(page, appPages[0], 1280);
+        await collapseAndWait(page);
+
+        const tab = await page.context().newPage();
+        await tab.setViewportSize({ width: 1280, height: HEIGHT });
+        await tab.goto(appPages[2].path);
+        await appPages[2].ready(tab);
+        await expectSidebar(tab, false, '새 탭');
+
+        await expandAndWait(tab);
+        await tab.close();
+        await page.reload();
+        await appPages[0].ready(page);
+        await expectSidebar(page, true, '새 탭에서 펼친 뒤 원래 탭 새로고침');
+    });
+
+    test('접은 뒤 브라우저를 닫았다 다시 열어도(세션 쿠키는 사라짐) 접혀 있다', async ({ page, browser }) => {
+        await open(page, appPages[0], 1280);
+        await collapseAndWait(page);
+        const saved = await sidebarCookie(page.context());
+        expect(saved?.expires ?? -1, '브라우저를 닫아도 남는 쿠키(만료 시각이 있다)').toBeGreaterThan(Date.now() / 1000);
+
+        // 브라우저를 다시 연 것처럼: 세션 쿠키는 버리고 만료 시각이 있는 쿠키만 옮긴다.
+        const persistent = (await page.context().cookies()).filter((c) => c.expires > 0 && c.name !== 'refresh_token');
+        const context = await isolatedContext(browser);
+        try {
+            await context.addCookies(persistent);
+            const again = await context.newPage();
+            await again.goto(appPages[1].path);
+            await appPages[1].ready(again);
+            await expectSidebar(again, false, '다시 연 브라우저');
+        } finally {
+            await context.close();
+        }
+    });
+
+    test('첫 HTML(JS 실행 전)부터 저장된 폭이다: 접힘 76px, 저장 없음 240px', async ({ page, browser }) => {
+        const fresh = await firstHtmlSidebar(browser, null);
+        expect(Math.abs(fresh.width - 240), `저장 없음 첫 HTML 폭 ${fresh.width}`).toBeLessThanOrEqual(1);
+        expect(fresh.expanded, '저장 없음 첫 HTML aria-expanded').toBe('true');
+
+        await open(page, appPages[0], 1280);
+        await collapseAndWait(page);
+        const collapsed = await firstHtmlSidebar(browser, await sidebarCookie(page.context()));
+        expect(Math.abs(collapsed.width - 76), `접힘 저장 첫 HTML 폭 ${collapsed.width}`).toBeLessThanOrEqual(1);
+        expect(collapsed.expanded, '접힘 저장 첫 HTML aria-expanded').toBe('false');
+
+        await expandAndWait(page);
+        const expanded = await firstHtmlSidebar(browser, await sidebarCookie(page.context()));
+        expect(Math.abs(expanded.width - 240), `펼침 저장 첫 HTML 폭 ${expanded.width}`).toBeLessThanOrEqual(1);
+    });
+
+    test('접힘 저장 뒤 새로고침 중 펼친 폭이 한 번도 그려지지 않는다', async ({ page }) => {
+        await open(page, appPages[0], 1280);
+        await collapseAndWait(page);
+        // 문서가 만들어질 때부터 매 프레임 사이드바 폭을 기록한다.
+        await page.addInitScript(() => {
+            const seen: number[] = [];
+            (window as unknown as { __qaWidths: number[] }).__qaWidths = seen;
+            const sample = () => {
+                for (const a of document.querySelectorAll('nav a[href="/"]')) {
+                    if (a.closest('header')) continue;
+                    let node: Element = a;
+                    const header = document.querySelector('header');
+                    while (node.parentElement && node.parentElement !== document.body) {
+                        const parent = node.parentElement;
+                        if (header && parent.contains(header)) break;
+                        if (parent.getBoundingClientRect().width >= window.innerWidth - 1) break;
+                        node = parent;
+                    }
+                    const r = node.getBoundingClientRect();
+                    // 화면 밖(닫힌 서랍 등)이나 크기 없는 것은 뺀다.
+                    if (r.width > 0 && r.right > 0 && r.left < window.innerWidth) seen.push(Math.round(r.width));
+                }
+                if (performance.now() < 5000) requestAnimationFrame(sample);
+            };
+            requestAnimationFrame(sample);
+        });
+        await page.reload();
+        await appPages[0].ready(page);
+        await page.waitForTimeout(500);
+        const widths = await page.evaluate(() => (window as unknown as { __qaWidths: number[] }).__qaWidths);
+        expect(widths.length, '폭을 잰 프레임이 있다').toBeGreaterThan(0);
+        expect(Math.max(...widths), `프레임별 폭 중 최대(76이어야 함): ${[...new Set(widths)].join(',')}`).toBeLessThanOrEqual(77);
+    });
+
+    test('좁은 폭: 저장 상태와 관계없이 처음에는 서랍이 닫혀 있다', async ({ page }) => {
+        await open(page, appPages[0], 1280);
+        await collapseAndWait(page);
+        await expandAndWait(page);
+        for (const width of [NARROW, 360]) {
+            await page.setViewportSize({ width, height: HEIGHT });
+            await page.reload();
+            await appPages[0].ready(page);
+            await settleMotion(page);
+            await expect(await theToggle(page), `${width}px aria-expanded`).toHaveAttribute('aria-expanded', 'false');
+            expect(await menuInView(page), `${width}px 서랍 닫힘`).toBe(false);
+        }
+    });
+
+    test('넓은 폭에서 접은 채 좁혔다 다시 넓혀도 접혀 있다', async ({ page }) => {
+        await open(page, appPages[0], 1280);
+        await collapseAndWait(page);
+        await page.setViewportSize({ width: NARROW, height: HEIGHT });
+        await settleMotion(page);
+        await expect(await theToggle(page)).toHaveAttribute('aria-expanded', 'false');
+        await page.setViewportSize({ width: WIDE, height: HEIGHT });
+        await expectSidebar(page, false, '다시 넓힘');
+    });
+});
+
+/** 서랍(dialog) */
+const drawerDialog = (page: Page) => page.getByRole('dialog');
+
+async function openDrawer(page: Page, target: AppPage, width: number, height = HEIGHT) {
+    await page.setViewportSize({ width, height });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await signIn(page);
+    await page.goto(target.path);
+    await target.ready(page);
+    await page.waitForLoadState('networkidle');
+    await settleMotion(page);
+    const toggle = await theToggle(page);
+    await toggle.evaluate((el) => el.setAttribute('data-qa-menu-button', ''));
+    const button = page.locator('[data-qa-menu-button]');
+    await button.click();
+    await expect(button).toHaveAttribute('aria-expanded', 'true');
+    await expect.poll(() => menuInView(page), { message: '서랍이 열린다' }).toBe(true);
+    await settleMotion(page);
+    return button;
+}
+
+/** 문서와 서랍 밖 모든 요소의 스크롤 양 합 */
+const outsideScroll = (page: Page) =>
+    page.evaluate(() => {
+        const dialog = document.querySelector('[role="dialog"]');
+        let total = window.scrollY + window.scrollX;
+        for (const el of document.querySelectorAll('*')) {
+            if (dialog && dialog.contains(el)) continue;
+            total += el.scrollTop + el.scrollLeft;
+        }
+        return total;
+    });
+
+const resetScroll = (page: Page) =>
+    page.evaluate(() => {
+        window.scrollTo(0, 0);
+        for (const el of document.querySelectorAll('*')) {
+            el.scrollTop = 0;
+            el.scrollLeft = 0;
+        }
+    });
+
+async function wheelAt(page: Page, x: number, y: number) {
+    await page.mouse.move(x, y);
+    await page.mouse.wheel(0, 600);
+    await page.waitForTimeout(400);
+}
+
+const tallFakes = () =>
+    fakes({
+        studies: [1, 2, 3].map((i) => ({ ...study, id: i === 1 ? 'study-1' : `study-${i}`, title: i === 1 ? study.title : `가짜 스터디 ${i}` })),
+    });
+
+test.describe('11. 서랍: dialog·포커스 가두기, 넓히면 닫힘, 열린 동안 뒤 본문 스크롤 막기(2026-11-28)', () => {
+    for (const width of [360, NARROW]) {
+        test(`${width}px: 열린 서랍은 이름 있는 dialog(aria-modal="true")이고 닫히면 없다`, async ({ page }) => {
+            await open(page, appPages[1], width);
+            await expect(drawerDialog(page), '닫힌 동안에는 dialog가 없다').toHaveCount(0);
+            const button = await openDrawer(page, appPages[1], width);
+            await expect(drawerDialog(page)).toHaveCount(1);
+            const dialog = drawerDialog(page);
+            await expect(dialog).toBeVisible();
+            await expect(dialog).toHaveAttribute('aria-modal', 'true');
+            await expect(dialog, 'dialog의 접근 가능한 이름').toHaveAccessibleName(/\S/);
+            await expect(dialog.getByRole('link', { name: '홈', exact: true }), '메뉴가 dialog 안에').toHaveCount(1);
+            await page.keyboard.press('Escape');
+            await expect(button).toHaveAttribute('aria-expanded', 'false');
+            await expect(drawerDialog(page), '닫으면 dialog가 없다').toHaveCount(0);
+        });
+
+        for (const [key, label] of [
+            ['Tab', 'Tab'],
+            ['Shift+Tab', 'Shift+Tab'],
+        ] as const) {
+            test(`${width}px: 열린 동안 ${label}를 계속 눌러도 포커스가 서랍 밖으로 나가지 않는다`, async ({ page }) => {
+                await openDrawer(page, appPages[1], width);
+                const dialog = drawerDialog(page);
+                await expect(dialog).toHaveCount(1);
+                await expect
+                    .poll(() => dialog.evaluate((d) => d.contains(document.activeElement)), {
+                        message: '열면 포커스가 dialog 안',
+                    })
+                    .toBe(true);
+                const visited = new Set<string>();
+                for (let i = 0; i < 25; i++) {
+                    await page.keyboard.press(key);
+                    const where = await dialog.evaluate((d) => {
+                        const a = document.activeElement;
+                        return {
+                            inside: Boolean(a && a !== document.body && d.contains(a)),
+                            what: a ? `${a.tagName.toLowerCase()}:${(a.textContent ?? '').trim().slice(0, 20)}` : 'none',
+                        };
+                    });
+                    expect(where.inside, `${label} ${i + 1}번째: 포커스 ${where.what}`).toBe(true);
+                    visited.add(where.what);
+                }
+                await expect(dialog, '누르는 동안 서랍이 열려 있다').toBeVisible();
+                expect(visited.size, '서랍 안 요소를 돌며 지나간다').toBeGreaterThan(0);
+            });
+        }
+    }
+
+    test('1023px에서 연 채 1024px로 넓히면 닫히고, 다시 1023px로 좁혀도 닫혀 있다', async ({ page }) => {
+        await resetFakes(tallFakes());
+        const button = await openDrawer(page, appPages[0], NARROW, 400);
+        await page.setViewportSize({ width: WIDE, height: 400 });
+        await settleMotion(page);
+        await expect(drawerDialog(page), '넓히면 dialog가 없다').toHaveCount(0);
+        await expect(button, '넓히면 (숨은) 메뉴 버튼도 닫힘 상태').toHaveAttribute('aria-expanded', 'false');
+        await expectSidebar(page, true, '넓힌 뒤 사이드바(저장 없음 = 펼침)');
+
+        // 넓힌 뒤 본문이 다시 스크롤된다(잠금이 풀린다).
+        await resetScroll(page);
+        await wheelAt(page, WIDE - 20, 200);
+        expect(await outsideScroll(page), '넓힌 뒤 본문이 스크롤된다').toBeGreaterThan(0);
+        await resetScroll(page);
+
+        await page.setViewportSize({ width: NARROW, height: 400 });
+        await settleMotion(page);
+        await expect(button, '다시 좁혀도 닫힘').toHaveAttribute('aria-expanded', 'false');
+        expect(await menuInView(page), '다시 좁혀도 서랍이 안 보인다').toBe(false);
+        await expect(drawerDialog(page)).toHaveCount(0);
+    });
+
+    test('넓은 폭에서 접어 둔 뒤 좁혀 서랍을 열었다가 넓히면, 사이드바는 접힌 그대로다', async ({ page }) => {
+        await open(page, appPages[0], 1280);
+        await collapseAndWait(page);
+        await page.setViewportSize({ width: NARROW, height: HEIGHT });
+        await settleMotion(page);
+        await (await theToggle(page)).click();
+        await expect.poll(() => menuInView(page)).toBe(true);
+        await page.setViewportSize({ width: 1280, height: HEIGHT });
+        await settleMotion(page);
+        await expect(drawerDialog(page)).toHaveCount(0);
+        await expectSidebar(page, false, '서랍을 연 채 넓힘');
+        await page.reload();
+        await appPages[0].ready(page);
+        await expectSidebar(page, false, '넓힌 뒤 새로고침');
+    });
+
+    for (const width of [360, NARROW]) {
+        test(`${width}px: 서랍이 열린 동안 휠·키로 뒤 본문이 스크롤되지 않고, 닫으면 다시 스크롤된다`, async ({ page }) => {
+            await resetFakes(tallFakes());
+            await page.setViewportSize({ width, height: 400 });
+            await open(page, appPages[0], width);
+            await page.setViewportSize({ width, height: 400 });
+            await settleMotion(page);
+
+            // 전제: 닫힌 상태에서는 본문이 스크롤된다.
+            await resetScroll(page);
+            await wheelAt(page, width - 20, 200);
+            expect(await outsideScroll(page), '전제: 서랍을 열기 전에는 본문이 스크롤된다').toBeGreaterThan(0);
+            await resetScroll(page);
+            expect(await outsideScroll(page)).toBe(0);
+
+            const button = await openDrawer(page, appPages[0], width, 400);
+            const drawer = await sidebarBox(menuNavs(page));
+            const right = drawer.x + drawer.width;
+            await wheelAt(page, right + (width - right) / 2, 200);
+            expect(await outsideScroll(page), '서랍 바깥(가림막) 휠').toBe(0);
+            await wheelAt(page, drawer.x + drawer.width / 2, 200);
+            expect(await outsideScroll(page), '서랍 위 휠').toBe(0);
+            for (const key of ['PageDown', 'End', 'ArrowDown']) {
+                await page.keyboard.press(key);
+                await page.waitForTimeout(300);
+                expect(await outsideScroll(page), `${key} 키`).toBe(0);
+            }
+            await expect(button, '시험하는 동안 서랍이 열려 있다').toHaveAttribute('aria-expanded', 'true');
+
+            await page.keyboard.press('Escape');
+            await expect(button).toHaveAttribute('aria-expanded', 'false');
+            await settleMotion(page);
+            await wheelAt(page, width - 20, 200);
+            expect(await outsideScroll(page), '닫으면 다시 스크롤된다').toBeGreaterThan(0);
+        });
+    }
+});
+
+test.describe('12. 경계 사례: 서랍을 다른 방법으로 닫아도 스크롤이 풀리고, 저장 상태로 하이드레이션 오류가 없다(2026-11-28)', () => {
+    test('1023px: 가림막을 눌러 닫으면 뒤 본문이 다시 스크롤된다', async ({ page }) => {
+        await resetFakes(tallFakes());
+        const button = await openDrawer(page, appPages[0], NARROW, 400);
+        const drawer = await sidebarBox(menuNavs(page));
+        const right = drawer.x + drawer.width;
+        await page.mouse.click(right + (NARROW - right) / 2, 300);
+        await expect(button).toHaveAttribute('aria-expanded', 'false');
+        await expect(drawerDialog(page)).toHaveCount(0);
+        await settleMotion(page);
+        await resetScroll(page);
+        await wheelAt(page, NARROW - 20, 200);
+        expect(await outsideScroll(page), '가림막으로 닫은 뒤 본문이 스크롤된다').toBeGreaterThan(0);
+    });
+
+    test('1023px: 스터디에서 서랍의 "홈"으로 이동해 닫혀도 홈 본문이 스크롤된다', async ({ page }) => {
+        await resetFakes(tallFakes());
+        await openDrawer(page, appPages[1], NARROW, 400);
+        await drawerDialog(page).getByRole('link', { name: '홈', exact: true }).click();
+        await expect(page).toHaveURL(`${BROWSER_URL}/`);
+        await appPages[0].ready(page);
+        await expect(drawerDialog(page)).toHaveCount(0);
+        await page.waitForLoadState('networkidle');
+        await settleMotion(page);
+        await resetScroll(page);
+        await wheelAt(page, NARROW - 20, 200);
+        expect(await outsideScroll(page), '링크로 이동해 닫힌 뒤 본문이 스크롤된다').toBeGreaterThan(0);
+    });
+
+    for (const saved of [false, true]) {
+        test(`${saved ? '접힘 저장' : '저장 없음'}: 홈·스터디·마이페이지를 처음 열 때 하이드레이션 오류가 없다`, async ({ page }) => {
+            if (saved) {
+                await open(page, appPages[0], 1280);
+                await collapseAndWait(page);
+            } else {
+                await page.setViewportSize({ width: 1280, height: HEIGHT });
+                await signIn(page);
+            }
+            const problems: string[] = [];
+            const hydration = /hydrat|#418|#419|#423|#425/i;
+            page.on('console', (m) => {
+                if (m.type() === 'error' && hydration.test(m.text())) problems.push(`console: ${m.text().slice(0, 200)}`);
+            });
+            page.on('pageerror', (e) => {
+                if (hydration.test(`${e.name} ${e.message}`)) problems.push(`pageerror: ${e.message.slice(0, 200)}`);
+            });
+            for (const target of appPages) {
+                await page.goto(target.path);
+                await target.ready(page);
+                await page.waitForLoadState('networkidle');
+                await settleMotion(page);
+                await expectSidebar(page, !saved, `${target.name} 처음 열기`);
+            }
+            expect(problems, '하이드레이션 오류').toEqual([]);
+        });
+    }
+});
+
+// 13절 QA가 정한 값(2026-11-28 결정 "서랍·사이드바 추가 수정"):
+// - 쿠키가 막힌 브라우저는 document.cookie 읽기는 빈 값, 쓰기는 무시로 흉내 낸다.
+// - 서랍의 닫기 버튼은 "dialog 안의 버튼 중 이름에 '닫'이 든 것"으로 찾는다(이름 전체는 정하지 않는다).
+// - 스크롤바 폭 보정은 스크롤바를 숨기지 않는 브라우저를 따로 띄우고, 자리를 차지하는 스크롤바(15px)를
+//   스타일로 강제해 본다(OS와 관계없이). 실제 Windows 기본 스크롤바 자체로는 확인하지 못한다.
+const closeButton = (page: Page) => drawerDialog(page).getByRole('button', { name: /닫/ });
+
+/** 지금 포커스가 표시해 둔 요소인지 */
+const focusIs = (page: Page, mark: string) =>
+    page.evaluate((m) => document.activeElement?.hasAttribute(m) ?? false, mark);
+
+test.describe('13. 쿠키 막힘·서랍 닫기 버튼·넓힐 때 포커스·스크롤바 흔들림(2026-11-28)', () => {
+    test('쿠키가 막혀도 화면 안에서는 접기·펼치기가 된다(저장만 안 됨)', async ({ page }) => {
+        await page.addInitScript(() => {
+            Object.defineProperty(Document.prototype, 'cookie', {
+                configurable: true,
+                get: () => '',
+                set: () => {},
+            });
+        });
+        await open(page, appPages[0], 1280);
+        await expectSidebar(page, true, '쿠키 막힘 처음');
+        await setExpanded(page, await theToggle(page), false);
+        await expectSidebar(page, false, '쿠키 막힘 접기');
+        await setExpanded(page, await theToggle(page), true);
+        await expectSidebar(page, true, '쿠키 막힘 다시 펼치기');
+        await setExpanded(page, await theToggle(page), false);
+        await expectSidebar(page, false, '쿠키 막힘 다시 접기');
+        expect(await sidebarCookie(page.context()), '쿠키가 막혀 저장되지 않는다').toBeNull();
+        await page.reload();
+        await appPages[0].ready(page);
+        await expectSidebar(page, true, '쿠키 막힘 새로고침(저장 없음 = 펼침)');
+    });
+
+    for (const width of [360, NARROW]) {
+        test(`${width}px: 서랍 안에 이름 있는 닫기 버튼이 있고, 누르면 닫히며 포커스가 메뉴 버튼으로 돌아온다`, async ({ page }) => {
+            const button = await openDrawer(page, appPages[1], width);
+            await expect(closeButton(page), 'dialog 안의 닫기 버튼').toHaveCount(1);
+            await expect(closeButton(page)).toBeVisible();
+            await expect(closeButton(page), '닫기 버튼의 접근 가능한 이름').toHaveAccessibleName(/\S/);
+            await closeButton(page).click();
+            await expect(drawerDialog(page), '닫기 버튼으로 닫힌다').toHaveCount(0);
+            await expect(button).toHaveAttribute('aria-expanded', 'false');
+            await expect.poll(() => focusIs(page, 'data-qa-menu-button'), { message: '포커스가 메뉴 버튼으로' }).toBe(true);
+        });
+
+        test(`${width}px: 닫기 버튼은 Tab 순환에 들고, 키보드(Enter)로 눌러도 닫히며 포커스가 메뉴 버튼으로 돌아온다`, async ({ page }) => {
+            const button = await openDrawer(page, appPages[1], width);
+            await expect(closeButton(page)).toHaveCount(1);
+            await closeButton(page).evaluate((el) => el.setAttribute('data-qa-close', ''));
+            let reached = false;
+            for (let i = 0; i < 10 && !reached; i++) {
+                await page.keyboard.press('Tab');
+                const inside = await drawerDialog(page).evaluate((d) => d.contains(document.activeElement));
+                expect(inside, `Tab ${i + 1}번째: 포커스가 서랍 안`).toBe(true);
+                reached = await focusIs(page, 'data-qa-close');
+            }
+            expect(reached, 'Tab으로 닫기 버튼에 간다').toBe(true);
+            await page.keyboard.press('Enter');
+            await expect(drawerDialog(page)).toHaveCount(0);
+            await expect(button).toHaveAttribute('aria-expanded', 'false');
+            await expect.poll(() => focusIs(page, 'data-qa-menu-button'), { message: '포커스가 메뉴 버튼으로' }).toBe(true);
+        });
+    }
+
+    test('1023px에서 연 채 1024px로 넓혀 닫히면 포커스가 사이드바 접기 버튼으로 간다', async ({ page }) => {
+        await openDrawer(page, appPages[0], NARROW);
+        await expect
+            .poll(() => drawerDialog(page).evaluate((d) => d.contains(document.activeElement)), { message: '열면 포커스가 서랍 안' })
+            .toBe(true);
+        await page.setViewportSize({ width: WIDE, height: HEIGHT });
+        await settleMotion(page);
+        await expect(drawerDialog(page), '넓히면 닫힌다').toHaveCount(0);
+        const toggle = await theToggle(page);
+        await toggle.evaluate((el) => el.setAttribute('data-qa-sidebar-toggle', ''));
+        await expect
+            .poll(
+                () =>
+                    page.evaluate(() => {
+                        const a = document.activeElement;
+                        return a?.hasAttribute('data-qa-sidebar-toggle') ? 'toggle' : (a?.tagName.toLowerCase() ?? 'none');
+                    }),
+                { message: '넓혀 닫힌 뒤 포커스' },
+            )
+            .toBe('toggle');
+    });
+
+    for (const width of [360, NARROW]) {
+        test(`${width}px: 자리를 차지하는 스크롤바에서 서랍을 열고 닫아도 본문 가로 위치·폭이 흔들리지 않는다`, async () => {
+            await resetFakes(tallFakes());
+            // 기본 headless 실행은 스크롤바를 숨기므로(--hide-scrollbars) 이 테스트만 스크롤바를 보이게 띄운다.
+            const scrollbarBrowser = await chromium.launch({
+                ignoreDefaultArgs: ['--hide-scrollbars'],
+                args: ['--host-resolver-rules=MAP localhost 127.0.0.1, MAP * ~NOTFOUND, EXCLUDE 127.0.0.1'],
+            });
+            try {
+            const context = await isolatedContext(scrollbarBrowser, { viewport: { width, height: 400 } });
+            const page = await context.newPage();
+            await page.addInitScript(() => {
+                const add = () => {
+                    const style = document.createElement('style');
+                    style.textContent =
+                        '::-webkit-scrollbar{width:15px;height:15px}::-webkit-scrollbar-thumb{background:#888}::-webkit-scrollbar-track{background:#eee}';
+                    document.head.appendChild(style);
+                };
+                if (document.head) add();
+                else document.addEventListener('DOMContentLoaded', add);
+            });
+            await open(page, appPages[0], width);
+            await page.setViewportSize({ width, height: 400 });
+            await settleMotion(page);
+
+            const gutter = await page.evaluate(() => window.innerWidth - document.documentElement.clientWidth);
+            expect(gutter, '전제: 스크롤바가 자리를 차지한다(15px)').toBeGreaterThan(0);
+
+            const measure = () =>
+                page.evaluate(() => {
+                    const header = (document.querySelector('header') as HTMLElement).getBoundingClientRect();
+                    const heading = (document.querySelector('h1') as HTMLElement).getBoundingClientRect();
+                    return { headerX: header.x, headerW: header.width, headingX: heading.x, headingW: heading.width };
+                });
+            const before = await measure();
+            const button = await openDrawer(page, appPages[0], width, 400);
+            const opened = await measure();
+            expect(opened, '서랍을 연 동안 본문 가로 위치·폭').toEqual(before);
+            await page.keyboard.press('Escape');
+            await expect(button).toHaveAttribute('aria-expanded', 'false');
+            await settleMotion(page);
+            const closed = await measure();
+            expect(closed, '닫은 뒤 본문 가로 위치·폭').toEqual(before);
+            } finally {
+                await scrollbarBrowser.close();
+            }
+        });
+    }
+});
+
+/** 스크롤바를 숨기지 않는 브라우저에서 15px 스크롤바를 강제한 페이지(13절과 같은 방식) */
+async function withScrollbarPage(width: number, run: (page: Page) => Promise<void>) {
+    const scrollbarBrowser = await chromium.launch({
+        ignoreDefaultArgs: ['--hide-scrollbars'],
+        args: ['--host-resolver-rules=MAP localhost 127.0.0.1, MAP * ~NOTFOUND, EXCLUDE 127.0.0.1'],
+    });
+    try {
+        const context = await isolatedContext(scrollbarBrowser, { viewport: { width, height: 400 } });
+        const page = await context.newPage();
+        await page.addInitScript(() => {
+            const add = () => {
+                const style = document.createElement('style');
+                style.textContent =
+                    '::-webkit-scrollbar{width:15px;height:15px}::-webkit-scrollbar-thumb{background:#888}::-webkit-scrollbar-track{background:#eee}';
+                document.head.appendChild(style);
+            };
+            if (document.head) add();
+            else document.addEventListener('DOMContentLoaded', add);
+        });
+        await run(page);
+    } finally {
+        await scrollbarBrowser.close();
+    }
+}
+
+const rootStyle = (page: Page) => page.evaluate(() => document.documentElement.getAttribute('style') ?? '');
+
+test.describe('14. 경계 사례: 스크롤바 보정의 복구, 쿠키 막힘의 화면 안 이동(2026-11-28)', () => {
+    test('1023px: html에 원래 inline 스타일이 있어도 여러 번 열고 닫은 뒤 그대로 돌아오고, 연 동안 여백은 원래 값 + 스크롤바 폭', async () => {
+        await resetFakes(tallFakes());
+        await withScrollbarPage(NARROW, async (page) => {
+            await open(page, appPages[0], NARROW);
+            await page.setViewportSize({ width: NARROW, height: 400 });
+            await page.evaluate(() => document.documentElement.style.setProperty('padding-right', '7px'));
+            await page.evaluate(() => document.documentElement.style.setProperty('outline-offset', '3px'));
+            const original = await rootStyle(page);
+            const gutter = await page.evaluate(() => window.innerWidth - document.documentElement.clientWidth);
+            expect(gutter, '전제: 스크롤바 폭').toBeGreaterThan(0);
+            const toggle = await theToggle(page);
+            for (let i = 1; i <= 3; i++) {
+                await toggle.click();
+                await expect(drawerDialog(page)).toHaveCount(1);
+                const padding = await page.evaluate(() => getComputedStyle(document.documentElement).paddingRight);
+                expect(parseFloat(padding), `${i}번째 연 동안 여백`).toBeCloseTo(7 + gutter, 0);
+                await page.keyboard.press('Escape');
+                await expect(drawerDialog(page)).toHaveCount(0);
+                expect(await rootStyle(page), `${i}번째 닫은 뒤 html inline 스타일`).toBe(original);
+            }
+        });
+    });
+
+    test('1023px: 서랍 링크로 다른 레이아웃(스터디 -> 홈)으로 옮겨 서랍이 사라져도 html 스타일이 남지 않는다', async () => {
+        await resetFakes(tallFakes());
+        await withScrollbarPage(NARROW, async (page) => {
+            await open(page, appPages[1], NARROW);
+            const original = await rootStyle(page);
+            await (await theToggle(page)).click();
+            await expect(drawerDialog(page)).toHaveCount(1);
+            await drawerDialog(page).getByRole('link', { name: '홈', exact: true }).click();
+            await expect(page).toHaveURL(`${BROWSER_URL}/`);
+            await appPages[0].ready(page);
+            await expect(drawerDialog(page)).toHaveCount(0);
+            expect(await rootStyle(page), '이동 뒤 html inline 스타일').toBe(original);
+        });
+    });
+
+    test('1023px: 서랍을 연 채 넓혀 닫혀도 html 스타일이 남지 않는다', async () => {
+        await resetFakes(tallFakes());
+        await withScrollbarPage(NARROW, async (page) => {
+            await open(page, appPages[0], NARROW);
+            const original = await rootStyle(page);
+            await (await theToggle(page)).click();
+            await expect(drawerDialog(page)).toHaveCount(1);
+            await page.setViewportSize({ width: 1280, height: 400 });
+            await expect(drawerDialog(page)).toHaveCount(0);
+            expect(await rootStyle(page), '넓힌 뒤 html inline 스타일').toBe(original);
+        });
+    });
+
+    test('쿠키가 막힌 채 접으면 화면 안 이동(홈 -> 스터디 -> 마이페이지)에서도 접혀 있고 하이드레이션 오류가 없다', async ({ page }) => {
+        await page.addInitScript(() => {
+            Object.defineProperty(Document.prototype, 'cookie', { configurable: true, get: () => '', set: () => {} });
+        });
+        const problems: string[] = [];
+        const hydration = /hydrat|#418|#419|#423|#425/i;
+        page.on('console', (m) => {
+            if (m.type() === 'error' && hydration.test(m.text())) problems.push(m.text().slice(0, 200));
+        });
+        page.on('pageerror', (e) => {
+            if (hydration.test(`${e.name} ${e.message}`)) problems.push(e.message.slice(0, 200));
+        });
+        await open(page, appPages[0], 1280);
+        await setExpanded(page, await theToggle(page), false);
+        await page.getByText(study.title).first().click();
+        await page.getByRole('button', { name: '입장', exact: true }).click();
+        await expect(page).toHaveURL(`${BROWSER_URL}/study/study-1`);
+        await appPages[1].ready(page);
+        await expectSidebar(page, false, '쿠키 막힘: 스터디로 이동');
+        await banner(page).locator('a[href="/mypage"]').filter({ visible: true }).click();
+        await expect(page).toHaveURL(`${BROWSER_URL}/mypage`);
+        await appPages[2].ready(page);
+        await expectSidebar(page, false, '쿠키 막힘: 마이페이지로 이동');
+        await setExpanded(page, await theToggle(page), true);
+        await expectSidebar(page, true, '쿠키 막힘: 마이페이지에서 펼침');
+        expect(await sidebarCookie(page.context())).toBeNull();
+        expect(problems, '하이드레이션 오류').toEqual([]);
+    });
 });

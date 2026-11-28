@@ -1,23 +1,68 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { UserProfileModel } from '@/types/user';
 import Icon from '@/ui/Icon/Icon';
+import {
+    readSidebarCollapsedCookie,
+    writeSidebarCollapsedCookie,
+} from './sidebarState';
 
 /*
  * 홈·스터디·마이페이지 공통 레이아웃(이슈 #152 3단계).
  * - 넓은 폭(lg, 1024px 이상): 헤더 72px + 사이드바(접힘 76px / 펼침 240px)
  * - 좁은 폭(1023px 이하): 헤더 56px + 메뉴 버튼으로 여는 서랍
  * 접기 버튼과 메뉴는 44px 칸·아이콘 20px·왼쪽 여백 16px이라 아이콘 가로 중심이 38px로 같다.
+ * 접힘 상태는 쿠키에 기억한다(sidebarState.ts). 서버 레이아웃이 읽은 값을 initialCollapsed로 받는다.
+ * 서랍은 dialog로 포커스를 가두고(안에 닫기 버튼), 넓은 폭이 되면 닫히며, 열린 동안 뒤 본문 스크롤을 막는다.
  */
 
 interface AppShellProps {
     userProfile?: UserProfileModel;
+    /** 서버에서 읽은 sidebar_collapsed 쿠키 값. 첫 HTML 폭을 정한다. */
+    initialCollapsed?: boolean;
     children: React.ReactNode;
 }
+
+const WIDE_QUERY = '(min-width: 1024px)';
+
+// 접힘 상태의 원본은 쿠키다. 같은 화면의 구독자에게 바뀐 것을 알린다.
+// 쿠키 쓰기가 막힌 브라우저에서는 메모리 값으로 화면 안 접기·펼치기만 동작한다(저장은 안 됨).
+const collapsedListeners = new Set<() => void>();
+let memoryCollapsed: boolean | null = null;
+
+function subscribeCollapsed(listener: () => void) {
+    collapsedListeners.add(listener);
+    return () => {
+        collapsedListeners.delete(listener);
+    };
+}
+
+function getCollapsedSnapshot() {
+    return memoryCollapsed ?? readSidebarCollapsedCookie() ?? false;
+}
+
+function setCollapsed(collapsed: boolean) {
+    writeSidebarCollapsedCookie(collapsed);
+    // 쿠키에 반영됐으면 쿠키를 따르고(다른 탭 변경도 반영), 막혔으면 메모리에 둔다.
+    memoryCollapsed =
+        readSidebarCollapsedCookie() === collapsed ? null : collapsed;
+    collapsedListeners.forEach((listener) => listener());
+}
+
+/** 스크롤을 막을 때 사라지는 스크롤바 폭. 스크롤바가 자리를 차지하지 않으면 0. */
+function scrollbarGutter() {
+    return Math.max(
+        0,
+        window.innerWidth - document.documentElement.clientWidth,
+    );
+}
+
+const FOCUSABLE =
+    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 function HomeIcon() {
     return (
@@ -73,6 +118,24 @@ function SidebarIcon() {
         >
             <rect x="3" y="4" width="18" height="16" rx="2" />
             <path d="M9 4v16" />
+        </svg>
+    );
+}
+
+function CloseIcon() {
+    return (
+        <svg
+            aria-hidden="true"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            className="size-5 shrink-0"
+        >
+            <path d="M6 6l12 12M18 6 6 18" />
         </svg>
     );
 }
@@ -148,15 +211,26 @@ function ProfileLink({ profileImageUrl, nickname }: UserProfileModel) {
     );
 }
 
-export default function AppShell({ userProfile, children }: AppShellProps) {
+export default function AppShell({
+    userProfile,
+    initialCollapsed = false,
+    children,
+}: AppShellProps) {
     const pathname = usePathname();
-    const [collapsed, setCollapsed] = useState(false);
+    // 하이드레이션은 서버 값으로 맞추고, 그 뒤(화면 안 이동 포함)에는 쿠키를 따른다.
+    const collapsed = useSyncExternalStore(
+        subscribeCollapsed,
+        getCollapsedSnapshot,
+        () => initialCollapsed,
+    );
     // 서랍을 연 주소. 다른 주소로 이동하면 저절로 닫힌다.
     const [drawerOpenedAt, setDrawerOpenedAt] = useState<string | null>(null);
     const drawerOpen = drawerOpenedAt !== null && drawerOpenedAt === pathname;
 
     const menuButtonRef = useRef<HTMLButtonElement>(null);
     const drawerHomeLinkRef = useRef<HTMLAnchorElement>(null);
+    const drawerRef = useRef<HTMLDivElement>(null);
+    const sidebarToggleRef = useRef<HTMLButtonElement>(null);
 
     const closeDrawer = (returnFocus: boolean) => {
         setDrawerOpenedAt(null);
@@ -168,12 +242,65 @@ export default function AppShell({ userProfile, children }: AppShellProps) {
         drawerHomeLinkRef.current?.focus();
 
         const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key !== 'Escape') return;
-            setDrawerOpenedAt(null);
-            menuButtonRef.current?.focus();
+            if (e.key === 'Escape') {
+                setDrawerOpenedAt(null);
+                menuButtonRef.current?.focus();
+                return;
+            }
+            if (e.key !== 'Tab') return;
+            // 포커스를 서랍 안에 가둔다: 끝에서 처음으로, 처음에서 끝으로 돈다.
+            const drawer = drawerRef.current;
+            if (!drawer) return;
+            const items = Array.from(
+                drawer.querySelectorAll<HTMLElement>(FOCUSABLE),
+            );
+            if (items.length === 0) {
+                e.preventDefault();
+                return;
+            }
+            const first = items[0];
+            const last = items[items.length - 1];
+            const active = document.activeElement;
+            const inside = active instanceof Node && drawer.contains(active);
+            if (e.shiftKey && (!inside || active === first)) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && (!inside || active === last)) {
+                e.preventDefault();
+                first.focus();
+            }
         };
         document.addEventListener('keydown', onKeyDown);
-        return () => document.removeEventListener('keydown', onKeyDown);
+
+        // 넓은 폭(사이드바)이 되면 서랍을 닫고 포커스를 사이드바 접기 버튼으로 옮긴다.
+        // 다시 좁혀도 닫힌 채로 둔다.
+        const wide = window.matchMedia(WIDE_QUERY);
+        const onWide = () => {
+            if (!wide.matches) return;
+            setDrawerOpenedAt(null);
+            sidebarToggleRef.current?.focus();
+        };
+        wide.addEventListener('change', onWide);
+
+        // 열린 동안 뒤 본문이 스크롤되지 않게 한다(휠·키 모두). 닫히면 원래 값으로 돌린다.
+        // 사라지는 스크롤바 폭만큼 오른쪽 여백을 채워 본문 위치·폭이 흔들리지 않게 한다.
+        const root = document.documentElement;
+        const previousOverflow = root.style.overflow;
+        const previousPaddingRight = root.style.paddingRight;
+        const gutter = scrollbarGutter();
+        root.style.overflow = 'hidden';
+        if (gutter > 0) {
+            const base =
+                parseFloat(getComputedStyle(root).paddingRight) || 0;
+            root.style.paddingRight = `${base + gutter}px`;
+        }
+
+        return () => {
+            document.removeEventListener('keydown', onKeyDown);
+            wide.removeEventListener('change', onWide);
+            root.style.overflow = previousOverflow;
+            root.style.paddingRight = previousPaddingRight;
+        };
     }, [drawerOpen]);
 
     return (
@@ -217,10 +344,11 @@ export default function AppShell({ userProfile, children }: AppShellProps) {
                     }`}
                 >
                     <button
+                        ref={sidebarToggleRef}
                         type="button"
                         aria-expanded={!collapsed}
                         aria-label={collapsed ? '사이드바 펼치기' : '사이드바 접기'}
-                        onClick={() => setCollapsed((v) => !v)}
+                        onClick={() => setCollapsed(!collapsed)}
                         className="flex size-11 shrink-0 items-center justify-center rounded-lg text-foreground-muted hover:bg-canvas hover:text-foreground"
                     >
                         <SidebarIcon />
@@ -239,9 +367,21 @@ export default function AppShell({ userProfile, children }: AppShellProps) {
                         onClick={() => closeDrawer(true)}
                     />
                     <div
+                        ref={drawerRef}
                         id="app-drawer"
-                        className="relative flex h-full w-60 max-w-[calc(100vw-3rem)] flex-col bg-surface p-4"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label="메뉴"
+                        className="relative flex h-full w-60 max-w-[calc(100vw-3rem)] flex-col gap-2 bg-surface p-4"
                     >
+                        <button
+                            type="button"
+                            aria-label="메뉴 닫기"
+                            onClick={() => closeDrawer(true)}
+                            className="flex size-11 shrink-0 items-center justify-center self-end rounded-lg text-foreground-muted hover:bg-canvas hover:text-foreground"
+                        >
+                            <CloseIcon />
+                        </button>
                         <NavMenu
                             collapsed={false}
                             homeLinkRef={drawerHomeLinkRef}
