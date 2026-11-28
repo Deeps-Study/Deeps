@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import MainHeader from '@/components/MainHeader';
+import AppShell from '@/components/AppShell';
+import Icon from '@/ui/Icon/Icon';
 import ExitStudyModal from './components/ExitStudyModal';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { StudyResponse, StudyMemberResponse } from '@/types/study';
@@ -71,15 +72,18 @@ export default function DeepStudyLayout({
         : undefined;
 
     return (
-        <div className="flex flex-col min-h-screen">
-            <MainHeader
-                type="detail"
-                onLeaveStudyClick={() => setIsExitModalOpen(true)}
-                userProfile={userProfileData}
-            />
-            <div className="flex flex-1 justify-center bg-white">
-                {children}
+        <AppShell userProfile={userProfileData}>
+            <div className="mx-auto flex w-full max-w-350 justify-end px-4 pt-6 sm:px-10">
+                <button
+                    type="button"
+                    onClick={() => setIsExitModalOpen(true)}
+                    className="flex h-10 items-center gap-2 whitespace-nowrap rounded-xl border border-border bg-surface px-4 text-sm font-bold text-foreground-muted hover:cursor-pointer hover:bg-canvas hover:text-foreground"
+                >
+                    <Icon name="out" className="h-4.5 w-4.5 stroke-3" />
+                    스터디 나가기
+                </button>
             </div>
+            <div className="flex flex-1 justify-center">{children}</div>
 
             <ExitStudyModal
                 isOpen={isExitModalOpen}
@@ -89,6 +93,6 @@ export default function DeepStudyLayout({
                 onClose={() => setIsExitModalOpen(false)}
                 onConfirm={handleExitConfirm}
             />
-        </div>
+        </AppShell>
     );
 }

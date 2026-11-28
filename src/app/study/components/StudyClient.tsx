@@ -114,16 +114,16 @@ export default function StudyClient({
     }
 
     return (
-        <div className="flex w-full max-w-350 flex-col gap-14 px-10 py-12">
-            <div className="grid grid-cols-12 gap-16 items-start">
-                <div className="col-span-7">
+        <div className="flex w-full max-w-350 flex-col gap-14 px-4 py-12 sm:px-10">
+            <div className="grid grid-cols-1 gap-10 items-start xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] xl:gap-16">
+                <div className="min-w-0">
                     <StudyInfo
                         study={studyDetail}
                         onEditClick={() => setIsEditModalOpen(true)}
                         onDeleteClick={() => setIsDeleteModalOpen(true)}
                     />
                 </div>
-                <div className="col-span-5 pl-10">
+                <div className="min-w-0 xl:pl-10">
                     <ActivityGrass
                         members={members}
                         startDate={studyDetail.startDate}
@@ -132,8 +132,8 @@ export default function StudyClient({
                 </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-16 items-start">
-                <div className="col-span-7">
+            <div className="grid grid-cols-1 gap-10 items-start xl:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] xl:gap-16">
+                <div className="min-w-0">
                     <DeepsContainer
                         deepsList={deepsList}
                         studyId={studyId}
@@ -141,7 +141,7 @@ export default function StudyClient({
                         studyStatus={studyDetail.status}
                     />
                 </div>
-                <div className="col-span-5 pl-10">
+                <div className="min-w-0 xl:pl-10">
                     <DeepsRanking members={members} />
                 </div>
             </div>

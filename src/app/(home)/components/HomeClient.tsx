@@ -113,11 +113,11 @@ export default function HomeClient({
     };
 
     return (
-        <div className="flex flex-col w-full px-8">
+        <div className="flex flex-col w-full px-4 sm:px-8">
             <h1 className="mt-20 text-center text-3xl font-bold text-gray-600">
                 현재 진행중인 스터디를 확인하세요!
             </h1>
-            <main className="flex h-full items-center justify-center gap-10 py-14">
+            <main className="flex h-full flex-wrap items-center justify-center gap-10 py-14">
                 {initialStudies.map((study) => (
                     <StudyCard
                         key={study.id}
