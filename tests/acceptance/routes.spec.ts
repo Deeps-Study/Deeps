@@ -326,12 +326,15 @@ test('온보딩 뒤 저장된 경로가 없으면 /로 간다', async ({ page })
 });
 
 test.describe('홈 이동은 옛 주소를 거치지 않고 /로 간다', () => {
-    for (const path of ['/', '/study/study-1']) {
+    // 3단계(2026-11-25 결정): 헤더 로고는 글자 "Deeps", 마이페이지에도 같은 헤더가 있다.
+    for (const path of ['/', '/study/study-1', '/mypage']) {
         test(`로고: ${path}`, async ({ page }) => {
             await signIn(page);
             const old = watchOldHome(page);
             await page.goto(path);
-            const logo = page.getByRole('link', { name: 'DeepStudy' });
+            const logo = page
+                .getByRole('banner')
+                .getByRole('link', { name: 'Deeps', exact: true });
             await expect(logo).toHaveAttribute('href', '/');
             await logo.click();
             await expectHome(page);
@@ -339,13 +342,19 @@ test.describe('홈 이동은 옛 주소를 거치지 않고 /로 간다', () => 
         });
     }
 
-    test('마이페이지의 뒤로 가기', async ({ page }) => {
+    // 3단계: 마이페이지도 공통 헤더·메뉴를 쓴다. 옛 마이페이지 헤더의 뒤로 가기 버튼 대신 메뉴 "홈"으로 본다.
+    test('마이페이지에서 메뉴 "홈"', async ({ page }) => {
+        await page.setViewportSize({ width: 1280, height: 800 });
         await signIn(page);
         const old = watchOldHome(page);
         await page.goto('/');
-        await page.getByRole('link', { name: 'tester' }).click();
+        await page.getByRole('banner').getByRole('link', { name: /tester/ }).click();
         await expect(page).toHaveURL(`${BROWSER_URL}/mypage`);
-        await page.getByRole('banner').getByRole('button').click();
+        await page
+            .getByRole('navigation')
+            .getByRole('link', { name: '홈', exact: true })
+            .filter({ visible: true })
+            .click();
         await expectHome(page);
         expect(old).toEqual([]);
     });

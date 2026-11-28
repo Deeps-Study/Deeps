@@ -115,9 +115,12 @@ test('스터디를 만들면 /에 나타난다', async ({ page }) => {
     await logIn(page);
     await expect(page.getByText(study.title)).toBeVisible();
 
+    // 3단계(2026-11-25 결정): 스터디 만들기는 헤더가 아니라 홈 본문 상단에 있다.
+    // 목록 안의 빈 카드도 같은 이름이라 첫 번째(화면 위쪽)를 누른다.
     await page
-        .getByRole('banner')
-        .getByRole('button', { name: '딥스터디 만들기' })
+        .getByRole('button', { name: /스터디 만들기/ })
+        .filter({ visible: true })
+        .first()
         .click();
     await page
         .getByPlaceholder('스터디 제목을 입력해주세요')
