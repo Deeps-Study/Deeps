@@ -668,6 +668,10 @@ test.describe('7. 스터디 만들기·나가기는 각 화면 본문 상단에�
         await page.getByRole('button', { name: '10', exact: true }).click();
         await page.getByRole('button', { name: '12', exact: true }).click();
         await page.getByRole('button', { name: '4명', exact: true }).click();
+        // 해시태그는 기존부터 필수다(e2e.spec.ts의 같은 흐름과 같다).
+        const tagInput = page.getByPlaceholder('태그 입력 후 엔터 (클릭 시 삭제)');
+        await tagInput.fill('faketag');
+        await tagInput.press('Enter');
         await page.getByRole('button', { name: '확인', exact: true }).click();
         await expect(page.getByRole('heading', { name: '딥스터디 만들기' })).toBeHidden();
         await expect(page.getByText('새로 만든 가짜 스터디')).toBeVisible();
