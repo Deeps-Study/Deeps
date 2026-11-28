@@ -10,7 +10,11 @@ import { AccountManagement } from './components/AccountManagement';
 import { ProfileCard } from './components/ProfileCard';
 import { WeeklyAttendance } from './components/WeeklyAttendance';
 
-export function MyPageClient() {
+export function MyPageClient({
+    sidebarCollapsed,
+}: {
+    sidebarCollapsed: boolean;
+}) {
     const { currentUser, isLoading, isUnauthorized, refetch } =
         useCurrentUser();
     const { isProcessing, logout, deleteAccount } = useAccountActions();
@@ -27,7 +31,10 @@ export function MyPageClient() {
         : undefined;
 
     return (
-        <AppShell userProfile={userProfile}>
+        <AppShell
+            userProfile={userProfile}
+            initialCollapsed={sidebarCollapsed}
+        >
             {!isLoading && currentUser && (
                 <main className="flex flex-col gap-9 px-4 py-10 sm:px-8 xl:flex-row xl:items-start xl:gap-12 xl:px-19.5">
                     <div className="flex w-full flex-col gap-9 xl:w-105 xl:shrink-0">
