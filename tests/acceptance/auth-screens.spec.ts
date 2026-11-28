@@ -147,48 +147,159 @@ function must<T>(value: T | null | undefined, what: string): T {
     if (value === null || value === undefined) throw new Error(`${what}이(가) 없음`);
     return value;
 }
-const viewport = (page: Page) => must(page.viewportSize(), '뷰포트');
 const boxOf = async (locator: Locator) => must(await locator.boundingBox(), '요소 위치');
 
-/** 가장 큰 보이는 짙은 남색(inverse) 배경 요소의 위치. 없으면 null. */
-function darkPanel(page: Page) {
+/**
+ * 보이는 짙은 남색(inverse) 배경 영역(가로·세로 100px 이상) 목록. html·body도 본다.
+ * 작은 장식(배지 등)까지 막을 이유는 없어 "영역" 크기로 본다(PM 결정 2026-11-28: 남색 장식 영역 없음).
+ */
+function darkRegions(page: Page) {
     return page.evaluate((inverse) => {
-        let best: { left: number; right: number; top: number; bottom: number; width: number; height: number } | null =
-            null;
-        for (const el of document.body.querySelectorAll('*')) {
+        const out: { tag: string; left: number; top: number; width: number; height: number }[] = [];
+        const els = [document.documentElement, document.body, ...document.body.querySelectorAll('*')];
+        for (const el of els) {
             const s = getComputedStyle(el);
             if (s.backgroundColor !== inverse || s.display === 'none' || s.visibility === 'hidden') continue;
             const r = el.getBoundingClientRect();
-            if (r.width === 0 || r.height === 0) continue;
-            if (!best || r.width * r.height > best.width * best.height) {
-                best = { left: r.left, right: r.right, top: r.top, bottom: r.bottom, width: r.width, height: r.height };
-            }
+            if (r.width < 100 || r.height < 100) continue;
+            out.push({ tag: el.tagName, left: r.left, top: r.top, width: r.width, height: r.height });
         }
-        return best;
+        return out;
     }, INVERSE);
 }
 
-async function expectTwoColumns(page: Page, leftItems: Locator[]) {
-    const { width: vw, height: vh } = viewport(page);
-    const panel = must(await darkPanel(page), '짙은 남색(#0F172A) 영역');
-    expect(panel.left, '남색 영역은 오른쪽 단').toBeGreaterThanOrEqual(vw * 0.35);
-    expect(panel.right, '남색 영역은 오른쪽 끝까지').toBeGreaterThanOrEqual(vw * 0.9);
-    expect(panel.width).toBeGreaterThanOrEqual(vw * 0.3);
-    expect(panel.height, '남색 영역은 화면 높이 대부분').toBeGreaterThanOrEqual(vh * 0.6);
-    for (const item of leftItems) {
-        const box = await boxOf(item);
-        expect(box.x + box.width, '왼쪽 단 요소는 남색 영역 왼쪽에 있어야 함').toBeLessThanOrEqual(panel.left);
-    }
-    return panel;
+/** 여러 요소를 감싸는 상자(현재 스크롤 기준 뷰포트 좌표). */
+async function unionBox(items: Locator[]) {
+    const boxes = await Promise.all(items.map((item) => boxOf(item)));
+    const left = Math.min(...boxes.map((b) => b.x));
+    const top = Math.min(...boxes.map((b) => b.y));
+    const right = Math.max(...boxes.map((b) => b.x + b.width));
+    const bottom = Math.max(...boxes.map((b) => b.y + b.height));
+    return { left, top, right, bottom, width: right - left, height: bottom - top };
 }
 
-async function expectOneColumn(page: Page) {
-    const vw = viewport(page).width;
-    const panel = await darkPanel(page);
-    // 넓이·높이가 큰 남색 영역이 없어야 한다(작은 장식은 허용하지 않을 이유가 없어 크기로 본다).
-    const isLarge = panel !== null && panel.width >= vw / 3 && panel.height >= 200;
-    expect(isLarge, `좁은 화면에서 남색 비주얼 영역이 보이면 안 됨: ${JSON.stringify(panel)}`).toBe(false);
+/** 스크롤바를 뺀 보이는 영역 크기와 문서 폭. */
+const layoutSize = (page: Page) =>
+    page.evaluate(() => ({
+        cw: document.documentElement.clientWidth,
+        ch: document.documentElement.clientHeight,
+        vw: window.innerWidth,
+        doc: document.documentElement.scrollWidth,
+        body: document.body.scrollWidth,
+    }));
+
+/** 가운데 정렬 허용 오차(px) */
+const CENTER_TOLERANCE = 24;
+
+/** 남색 장식 영역의 문구(PM 결정 2026-11-28로 없앰). 라벨·카드 2개·푸터. */
+const DECOR_TEXTS = [
+    'DEEP LEARNING, TOGETHER',
+    '좋은 질문을 직접 만들어보고',
+    '동료와 생각을 나누며 성장해요',
+    'Deeps · Study platform for developers',
+];
+
+/** 장식 문구가 DOM에 없거나 보이지 않는다(보이는 글자 innerText 기준, 대소문자·공백 무시). */
+async function expectNoDecor(page: Page) {
+    const visible = (await page.evaluate(() => document.body.innerText)).replace(/\s+/g, ' ').toLowerCase();
+    for (const text of DECOR_TEXTS) {
+        expect(visible, `장식 문구 "${text}"가 보이면 안 됨`).not.toContain(text.toLowerCase());
+    }
 }
+
+type LayoutOptions = {
+    /** 내용 묶음: 로고부터 버튼/폼까지. 맨 위·맨 아래 요소를 반드시 넣는다. */
+    items: Locator[];
+    /** 맨 위 요소(로고) */
+    top: Locator;
+    /** 맨 아래 요소(마지막 버튼) */
+    bottom: Locator;
+    /** true면 세로 가운데를 반드시 확인한다. false면 내용이 위아래 여백과 함께 화면에 들어갈 때만 확인한다. */
+    requireCenter: boolean;
+};
+
+/**
+ * PM 결정 2026-11-28: 모든 폭에서 흰 배경 한 단, 내용 묶음은 가로·세로 가운데.
+ * 내용이 화면보다 길면 위가 잘리지 않고 스크롤로 끝까지 볼 수 있어야 한다.
+ */
+async function expectCenteredSingleColumn(page: Page, { items, top, bottom, requireCenter }: LayoutOptions) {
+    await page.evaluate(() => document.fonts.ready.then(() => undefined));
+    await expectNoDecor(page);
+    const dark = await darkRegions(page);
+    expect(dark, `짙은 남색(#0F172A) 배경 영역이 없어야 함: ${JSON.stringify(dark)}`).toEqual([]);
+
+    const size = await layoutSize(page);
+    expect(size.doc, '가로 넘침(문서)').toBeLessThanOrEqual(size.vw);
+    expect(size.body, '가로 넘침(body)').toBeLessThanOrEqual(size.vw);
+
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const box = await unionBox(items);
+    const detail = JSON.stringify({ box, size });
+
+    // 가로 가운데
+    expect(Math.abs((box.left + box.right) / 2 - size.cw / 2), `가로 가운데: ${detail}`).toBeLessThanOrEqual(
+        CENTER_TOLERANCE,
+    );
+    expect(box.left, `내용 왼쪽이 화면 안: ${detail}`).toBeGreaterThanOrEqual(0);
+    expect(box.right, `내용 오른쪽이 화면 안: ${detail}`).toBeLessThanOrEqual(size.cw);
+
+    // 세로 가운데(내용이 화면에 들어갈 때). 위아래 여백 48px씩을 빼고도 들어가면 확인한다.
+    // 여백이 더 크면 그만큼 어긋나지만 허용 오차(24px) 안이면 통과한다.
+    const fits = box.height <= size.ch - 96;
+    if (requireCenter || fits) {
+        expect(
+            Math.abs((box.top + box.bottom) / 2 - size.ch / 2),
+            `세로 가운데(내용 높이 ${box.height}, 화면 높이 ${size.ch}): ${detail}`,
+        ).toBeLessThanOrEqual(CENTER_TOLERANCE);
+    }
+
+    // 위가 잘리지 않음: 맨 위에서 로고가 화면 안에 있다.
+    const logo = await boxOf(top);
+    expect(logo.y, `맨 위로 스크롤했을 때 로고가 화면 위로 잘리면 안 됨: ${JSON.stringify(logo)}`).toBeGreaterThanOrEqual(0);
+    expect(logo.y + logo.height, '로고가 첫 화면 안').toBeLessThanOrEqual(size.ch);
+
+    // 아래도 스크롤로 끝까지 볼 수 있다.
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    const last = await boxOf(bottom);
+    expect(last.y, `끝까지 스크롤하면 마지막 버튼이 보여야 함: ${JSON.stringify(last)}`).toBeGreaterThanOrEqual(0);
+    expect(last.y + last.height, `끝까지 스크롤하면 마지막 버튼이 보여야 함: ${JSON.stringify(last)}`).toBeLessThanOrEqual(
+        size.ch,
+    );
+    await page.evaluate(() => window.scrollTo(0, 0));
+}
+
+/** 같은 문구가 보조기기용으로 한 번 더 있어도 보이는 첫 요소 */
+const shown = (page: Page, text: string | RegExp) =>
+    page.getByText(text, { exact: true }).filter({ visible: true }).first();
+const logoOf = (page: Page) => shown(page, 'Deeps');
+
+const loginItems = (page: Page) => [
+    logoOf(page),
+    shown(page, '함께 깊어지는 학습'),
+    page.getByRole('heading', { level: 1 }),
+    shown(page, '혼자 넘겼던 개념을 문제로 만들고 동료의 풀이에서 새로운 관점을 발견하세요.'),
+    loginButton(page),
+];
+
+const onboardingItems = (page: Page) => [
+    logoOf(page),
+    shown(page, /^2\s*\/\s*2\s*단계$/),
+    page.getByRole('heading', { level: 1 }),
+    shown(page, 'Deeps에서 사용할 나만의 닉네임을 설정해주세요.'),
+    onboarding.input(page),
+    onboarding.check(page),
+    onboarding.start(page),
+];
+
+/** 폭별 확인(높이 800은 세로 가운데 필수), 작은 화면(내용이 길 수 있음) */
+const LAYOUT_SIZES = [320, 360, 768, 1023, 1024, 1280].map((width) => ({ width, height: 800, requireCenter: true }));
+const SMALL_SIZES = [
+    { width: 320, height: 480, requireCenter: false },
+    // 내용(특히 온보딩)이 화면보다 길어지는 높이: 위가 잘리지 않고 스크롤로 끝까지 보여야 한다.
+    { width: 320, height: 400, requireCenter: false },
+    { width: 360, height: 568, requireCenter: false },
+    { width: 1280, height: 480, requireCenter: false },
+];
 
 /** 가로 스크롤이 없고, 버튼이 화면 안에서 다른 요소에 가려지지 않는다. */
 async function expectFits(page: Page, buttons: Locator[]) {
@@ -228,14 +339,6 @@ async function expectFits(page: Page, buttons: Locator[]) {
 
 const WIDTHS = [320, 360, 768, 1023, 1024, 1280];
 
-/** 우측 남색 영역의 문구(로그인·온보딩 같음. 온보딩은 팀장 결정, 질문 4=A) */
-const VISUAL_TEXTS = [
-    'DEEP LEARNING, TOGETHER',
-    '좋은 질문을 직접 만들어보고',
-    '동료와 생각을 나누며 성장해요',
-    'Deeps · Study platform for developers',
-];
-const WIDE = (w: number) => w >= 1024;
 
 const QUOTE = /설명할 수 있을 때/;
 const TERMS = /약관|개인정보/;
@@ -263,25 +366,19 @@ function textColors(locator: Locator) {
 // 4단계 로그인
 // ---------------------------------------------------------------------------
 
-test.describe('4-1. 로그인 화면 구성: 넓으면 좌측 로그인·우측 남색 2단, 좁으면 한 단', () => {
-    for (const width of WIDTHS) {
-        test(`${width}px`, async ({ page }) => {
-            await page.setViewportSize({ width, height: 800 });
+// PM 결정 2026-11-28: 우측 남색 장식 영역을 없애고 모든 폭에서 흰 배경 한 단, 내용은 가로·세로 가운데.
+test.describe('4-1. 로그인 화면 구성: 모든 폭에서 남색 장식 없는 한 단, 내용은 가로·세로 가운데', () => {
+    for (const { width, height, requireCenter } of [...LAYOUT_SIZES, ...SMALL_SIZES]) {
+        test(`${width}x${height}`, async ({ page }) => {
+            await page.setViewportSize({ width, height });
             await page.goto('/login');
             await expect(loginButton(page)).toBeVisible();
-            const visual = page.getByText('DEEP LEARNING, TOGETHER', { exact: true });
-            if (WIDE(width)) {
-                const panel = await expectTwoColumns(page, [
-                    page.getByRole('heading', { level: 1 }),
-                    loginButton(page),
-                ]);
-                await expect(visual).toBeVisible();
-                const box = await boxOf(visual);
-                expect(box.x, '우측 문구는 남색 영역 안').toBeGreaterThanOrEqual(panel.left);
-            } else {
-                await expectOneColumn(page);
-                await expect(visual).toBeHidden();
-            }
+            await expectCenteredSingleColumn(page, {
+                items: loginItems(page),
+                top: logoOf(page),
+                bottom: loginButton(page),
+                requireCenter,
+            });
         });
     }
 });
@@ -322,15 +419,7 @@ test.describe('4-2. 로그인 좌측 문구', () => {
     // #047857 채움은 주 버튼("Deeps 시작하기")에서만 본다(5-2).
 });
 
-test.describe('4-3. 로그인 우측 문구, 인용문·약관 문구 없음', () => {
-    test('1280px 우측 문구가 보인다', async ({ page }) => {
-        await page.setViewportSize({ width: 1280, height: 800 });
-        await page.goto('/login');
-        for (const text of VISUAL_TEXTS) {
-            await see(page, text);
-        }
-    });
-
+test.describe('4-3. 로그인 인용문·약관 문구 없음', () => {
     for (const path of ['/login', '/login?error=oauth_failed']) {
         for (const width of [360, 1280]) {
             test(`${path} ${width}px: 인용문·약관 문구가 없다`, async ({ page }) => {
@@ -528,27 +617,18 @@ test.describe('4-7. 로그인 화면 폭: 가로 스크롤 없음, 버튼이 가
 // 5단계 온보딩
 // ---------------------------------------------------------------------------
 
-test.describe('5-1. 온보딩 화면 구성', () => {
-    for (const width of WIDTHS) {
-        test(`${width}px`, async ({ page }) => {
-            await page.setViewportSize({ width, height: 800 });
+// PM 결정 2026-11-28: 온보딩도 로그인과 같은 배치(남색 장식 없음, 한 단, 가로·세로 가운데).
+test.describe('5-1. 온보딩 화면 구성: 모든 폭에서 남색 장식 없는 한 단, 내용은 가로·세로 가운데', () => {
+    for (const { width, height, requireCenter } of [...LAYOUT_SIZES, ...SMALL_SIZES]) {
+        test(`${width}x${height}`, async ({ page }) => {
+            await page.setViewportSize({ width, height });
             await openOnboarding(page);
-            if (WIDE(width)) {
-                const panel = await expectTwoColumns(page, [
-                    page.getByRole('heading', { level: 1 }),
-                    onboarding.input(page),
-                    onboarding.start(page),
-                ]);
-                for (const text of VISUAL_TEXTS) {
-                    const item = page.getByText(text, { exact: true });
-                    await expect(item).toBeVisible();
-                    const box = await boxOf(item);
-                    expect(box.x, `${text}는 남색 영역 안`).toBeGreaterThanOrEqual(panel.left);
-                }
-            } else {
-                await expectOneColumn(page);
-                for (const text of VISUAL_TEXTS) await expect(page.getByText(text, { exact: true })).toBeHidden();
-            }
+            await expectCenteredSingleColumn(page, {
+                items: onboardingItems(page),
+                top: logoOf(page),
+                bottom: onboarding.start(page),
+                requireCenter,
+            });
             await expectNoQuoteOrTerms(page);
         });
     }
