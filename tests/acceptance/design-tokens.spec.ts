@@ -48,12 +48,14 @@ const UTILITIES = [
 const root = path.resolve(__dirname, '../..');
 
 /**
- * 4·5단계(로그인·온보딩)에서 화면 자체가 새 디자인으로 바뀌는 화면(팀장 지시 2026-11-26).
+ * 화면 자체가 새 디자인으로 바뀌는 화면. 4·5단계 로그인·온보딩(팀장 지시 2026-11-26),
+ * 3단계 헤더·사이드바가 들어가는 홈·마이페이지(팀장 확정 2026-11-28).
  * 이 화면들은 develop 기준값과 비교하지 않고, 조건 5는 "앱이 새 포커스 표시를 그리지 않는다",
- * 조건 8은 "가로 넘침 없음"으로 본다. 조건 7의 새 색 기준은 auth-screens.spec.ts에서 본다.
+ * 조건 8은 "가로 넘침 없음"으로 본다. 새 화면 기준은 auth-screens.spec.ts(로그인·온보딩)와
+ * layout-nav.spec.ts(헤더·사이드바)에서 본다. 스터디 화면은 이 파일의 화면 목록에 없다.
  * 기준값 파일은 고치지 않고 이 화면 항목만 비교에서 뺀다.
  */
-const REDESIGNED = new Set(['로그인', '로그인 실패', '닉네임']);
+const REDESIGNED = new Set(['로그인', '로그인 실패', '닉네임', '홈', '마이페이지']);
 const unchangedScreens = screens.filter((s) => !REDESIGNED.has(s.name));
 const redesignedScreens = screens.filter((s) => REDESIGNED.has(s.name));
 const baseline = JSON.parse(
@@ -377,7 +379,7 @@ test.describe('7. 기존 색 값과 기존 화면의 계산된 색이 그대로�
         expect(actual).toEqual(baseline.utilities);
     });
 
-    // 새 디자인 화면(REDESIGNED)은 기준 비교에서 뺀다. 새 색 기준은 auth-screens.spec.ts.
+    // 새 디자인 화면(REDESIGNED)은 기준 비교에서 뺀다. 새 기준은 auth-screens.spec.ts·layout-nav.spec.ts.
     for (const screen of unchangedScreens) {
         test(`${screen.name} 화면`, async ({ page }) => {
             await page.setViewportSize({ width: 1280, height: 800 });
@@ -403,7 +405,7 @@ test.describe('8. 320px 폭에서 새 가로 스크롤이 생기지 않는다', 
             await settle(page);
             const width = await page.evaluate(() => document.documentElement.scrollWidth);
             if (REDESIGNED.has(screen.name)) {
-                // 새 디자인 화면(4·5단계)은 develop과 비교하지 않고 가로 넘침이 없어야 한다.
+                // 새 디자인 화면(3·4·5단계)은 develop과 비교하지 않고 가로 넘침이 없어야 한다.
                 expect(width).toBeLessThanOrEqual(320);
                 return;
             }
