@@ -21,7 +21,7 @@
 // - 2026-11-28 결정: 서랍은 dialog(aria-modal, 이름)이고 포커스를 가두며, 넓히면 닫히고,
 //   열린 동안 뒤 본문이 스크롤되지 않는다(11).
 // - 테스트마다 새 브라우저 컨텍스트라 쿠키가 다른 테스트로 새지 않는다. 직접 만든 컨텍스트는 테스트 안에서 닫는다.
-import type { Browser, BrowserContext, Locator, Page } from '@playwright/test';
+import { chromium, type Browser, type BrowserContext, type Locator, type Page } from '@playwright/test';
 import { test, expect } from './support/browser';
 import { BROWSER_URL } from './support/env';
 import { readFakes, resetFakes, type FakeState } from './support/fakes';
@@ -1240,6 +1240,143 @@ test.describe('12. 경계 사례: 서랍을 다른 방법으로 닫아도 스크
                 await expectSidebar(page, !saved, `${target.name} 처음 열기`);
             }
             expect(problems, '하이드레이션 오류').toEqual([]);
+        });
+    }
+});
+
+// 13절 QA가 정한 값(2026-11-28 결정 "서랍·사이드바 추가 수정"):
+// - 쿠키가 막힌 브라우저는 document.cookie 읽기는 빈 값, 쓰기는 무시로 흉내 낸다.
+// - 서랍의 닫기 버튼은 "dialog 안의 버튼 중 이름에 '닫'이 든 것"으로 찾는다(이름 전체는 정하지 않는다).
+// - 스크롤바 폭 보정은 스크롤바를 숨기지 않는 브라우저를 따로 띄우고, 자리를 차지하는 스크롤바(15px)를
+//   스타일로 강제해 본다(OS와 관계없이). 실제 Windows 기본 스크롤바 자체로는 확인하지 못한다.
+const closeButton = (page: Page) => drawerDialog(page).getByRole('button', { name: /닫/ });
+
+/** 지금 포커스가 표시해 둔 요소인지 */
+const focusIs = (page: Page, mark: string) =>
+    page.evaluate((m) => document.activeElement?.hasAttribute(m) ?? false, mark);
+
+test.describe('13. 쿠키 막힘·서랍 닫기 버튼·넓힐 때 포커스·스크롤바 흔들림(2026-11-28)', () => {
+    test('쿠키가 막혀도 화면 안에서는 접기·펼치기가 된다(저장만 안 됨)', async ({ page }) => {
+        await page.addInitScript(() => {
+            Object.defineProperty(Document.prototype, 'cookie', {
+                configurable: true,
+                get: () => '',
+                set: () => {},
+            });
+        });
+        await open(page, appPages[0], 1280);
+        await expectSidebar(page, true, '쿠키 막힘 처음');
+        await setExpanded(page, await theToggle(page), false);
+        await expectSidebar(page, false, '쿠키 막힘 접기');
+        await setExpanded(page, await theToggle(page), true);
+        await expectSidebar(page, true, '쿠키 막힘 다시 펼치기');
+        await setExpanded(page, await theToggle(page), false);
+        await expectSidebar(page, false, '쿠키 막힘 다시 접기');
+        expect(await sidebarCookie(page.context()), '쿠키가 막혀 저장되지 않는다').toBeNull();
+        await page.reload();
+        await appPages[0].ready(page);
+        await expectSidebar(page, true, '쿠키 막힘 새로고침(저장 없음 = 펼침)');
+    });
+
+    for (const width of [360, NARROW]) {
+        test(`${width}px: 서랍 안에 이름 있는 닫기 버튼이 있고, 누르면 닫히며 포커스가 메뉴 버튼으로 돌아온다`, async ({ page }) => {
+            const button = await openDrawer(page, appPages[1], width);
+            await expect(closeButton(page), 'dialog 안의 닫기 버튼').toHaveCount(1);
+            await expect(closeButton(page)).toBeVisible();
+            await expect(closeButton(page), '닫기 버튼의 접근 가능한 이름').toHaveAccessibleName(/\S/);
+            await closeButton(page).click();
+            await expect(drawerDialog(page), '닫기 버튼으로 닫힌다').toHaveCount(0);
+            await expect(button).toHaveAttribute('aria-expanded', 'false');
+            await expect.poll(() => focusIs(page, 'data-qa-menu-button'), { message: '포커스가 메뉴 버튼으로' }).toBe(true);
+        });
+
+        test(`${width}px: 닫기 버튼은 Tab 순환에 들고, 키보드(Enter)로 눌러도 닫히며 포커스가 메뉴 버튼으로 돌아온다`, async ({ page }) => {
+            const button = await openDrawer(page, appPages[1], width);
+            await expect(closeButton(page)).toHaveCount(1);
+            await closeButton(page).evaluate((el) => el.setAttribute('data-qa-close', ''));
+            let reached = false;
+            for (let i = 0; i < 10 && !reached; i++) {
+                await page.keyboard.press('Tab');
+                const inside = await drawerDialog(page).evaluate((d) => d.contains(document.activeElement));
+                expect(inside, `Tab ${i + 1}번째: 포커스가 서랍 안`).toBe(true);
+                reached = await focusIs(page, 'data-qa-close');
+            }
+            expect(reached, 'Tab으로 닫기 버튼에 간다').toBe(true);
+            await page.keyboard.press('Enter');
+            await expect(drawerDialog(page)).toHaveCount(0);
+            await expect(button).toHaveAttribute('aria-expanded', 'false');
+            await expect.poll(() => focusIs(page, 'data-qa-menu-button'), { message: '포커스가 메뉴 버튼으로' }).toBe(true);
+        });
+    }
+
+    test('1023px에서 연 채 1024px로 넓혀 닫히면 포커스가 사이드바 접기 버튼으로 간다', async ({ page }) => {
+        await openDrawer(page, appPages[0], NARROW);
+        await expect
+            .poll(() => drawerDialog(page).evaluate((d) => d.contains(document.activeElement)), { message: '열면 포커스가 서랍 안' })
+            .toBe(true);
+        await page.setViewportSize({ width: WIDE, height: HEIGHT });
+        await settleMotion(page);
+        await expect(drawerDialog(page), '넓히면 닫힌다').toHaveCount(0);
+        const toggle = await theToggle(page);
+        await toggle.evaluate((el) => el.setAttribute('data-qa-sidebar-toggle', ''));
+        await expect
+            .poll(
+                () =>
+                    page.evaluate(() => {
+                        const a = document.activeElement;
+                        return a?.hasAttribute('data-qa-sidebar-toggle') ? 'toggle' : (a?.tagName.toLowerCase() ?? 'none');
+                    }),
+                { message: '넓혀 닫힌 뒤 포커스' },
+            )
+            .toBe('toggle');
+    });
+
+    for (const width of [360, NARROW]) {
+        test(`${width}px: 자리를 차지하는 스크롤바에서 서랍을 열고 닫아도 본문 가로 위치·폭이 흔들리지 않는다`, async () => {
+            await resetFakes(tallFakes());
+            // 기본 headless 실행은 스크롤바를 숨기므로(--hide-scrollbars) 이 테스트만 스크롤바를 보이게 띄운다.
+            const scrollbarBrowser = await chromium.launch({
+                ignoreDefaultArgs: ['--hide-scrollbars'],
+                args: ['--host-resolver-rules=MAP localhost 127.0.0.1, MAP * ~NOTFOUND, EXCLUDE 127.0.0.1'],
+            });
+            try {
+            const context = await isolatedContext(scrollbarBrowser, { viewport: { width, height: 400 } });
+            const page = await context.newPage();
+            await page.addInitScript(() => {
+                const add = () => {
+                    const style = document.createElement('style');
+                    style.textContent =
+                        '::-webkit-scrollbar{width:15px;height:15px}::-webkit-scrollbar-thumb{background:#888}::-webkit-scrollbar-track{background:#eee}';
+                    document.head.appendChild(style);
+                };
+                if (document.head) add();
+                else document.addEventListener('DOMContentLoaded', add);
+            });
+            await open(page, appPages[0], width);
+            await page.setViewportSize({ width, height: 400 });
+            await settleMotion(page);
+
+            const gutter = await page.evaluate(() => window.innerWidth - document.documentElement.clientWidth);
+            expect(gutter, '전제: 스크롤바가 자리를 차지한다(15px)').toBeGreaterThan(0);
+
+            const measure = () =>
+                page.evaluate(() => {
+                    const header = (document.querySelector('header') as HTMLElement).getBoundingClientRect();
+                    const heading = (document.querySelector('h1') as HTMLElement).getBoundingClientRect();
+                    return { headerX: header.x, headerW: header.width, headingX: heading.x, headingW: heading.width };
+                });
+            const before = await measure();
+            const button = await openDrawer(page, appPages[0], width, 400);
+            const opened = await measure();
+            expect(opened, '서랍을 연 동안 본문 가로 위치·폭').toEqual(before);
+            await page.keyboard.press('Escape');
+            await expect(button).toHaveAttribute('aria-expanded', 'false');
+            await settleMotion(page);
+            const closed = await measure();
+            expect(closed, '닫은 뒤 본문 가로 위치·폭').toEqual(before);
+            } finally {
+                await scrollbarBrowser.close();
+            }
         });
     }
 });
