@@ -1,7 +1,7 @@
 /*
  * 넓은 폭 사이드바 접힘 상태(docs/decisions.md 2026-11-28).
  * 서버 레이아웃이 쿠키를 읽어 첫 HTML부터 맞는 폭을 그리고, 브라우저는 접기/펼치기 때 쿠키를 갱신한다.
- * 처음 방문(쿠키 없음)은 펼침.
+ * 처음 방문(쿠키 없음)은 펼침. 쿠키가 막히면 화면 안 상태만 바뀐다(AppShell의 메모리 값).
  */
 
 export const SIDEBAR_COOKIE = 'sidebar_collapsed';
